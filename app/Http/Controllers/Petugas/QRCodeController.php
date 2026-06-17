@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Petugas;
 
 use App\Http\Controllers\Controller;
 use App\Models\QrCode;
@@ -13,14 +13,14 @@ class QRCodeController extends Controller
     {
         $qrCodes = QrCode::latest()->get();
 
-        return view('admin.qrcodes.index', compact('qrCodes'));
+        return view('petugas.qrcodes.index', compact('qrCodes'));
     }
 
     public function create()
     {
         $transactionDetails = TransactionDetail::all();
 
-        return view('admin.qrcodes.create', compact('transactionDetails'));
+        return view('petugas.qrcodes.create', compact('transactionDetails'));
     }
 
     public function store(Request $request)
@@ -38,20 +38,20 @@ class QRCodeController extends Controller
         ]));
 
         // Disesuaikan dengan rute admin jika Anda menggunakan prefix admin di route
-        return redirect()->route('admin.qrcodes.index')
+        return redirect()->route('petugas.qrcodes.index')
             ->with('success', 'QR Code berhasil dibuat.');
     }
 
     // Mengubah $qrcode menjadi $qrCode agar Route Model Binding bekerja dengan tepat
     public function show(QrCode $qrCode)
     {
-        return view('admin.qrcodes.show', compact('qrCode'));
+        return view('petugas.qrcodes.show', compact('qrCode'));
     }
 
     public function scan()
     {
         // Diarahkan ke folder admin juga agar konsisten
-        return view('admin.qrcodes.scan');
+        return view('petugas.qrcodes.scan');
     }
 
     public function validateQr(Request $request)

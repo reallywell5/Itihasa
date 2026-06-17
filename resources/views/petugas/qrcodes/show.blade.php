@@ -2,7 +2,7 @@
     use SimpleSoftwareIO\QrCode\Facades\QrCode;
 @endphp
 
-@extends('layouts.app')
+@extends('layouts.petugas')
 
 @section('title', 'Detail QR Code')
 
@@ -15,7 +15,7 @@
             <p class="text-sm text-zinc-500 mt-1">Informasi lengkap QR Code tiket.</p>
         </div>
 
-        <a href="{{ route('qrcodes.index') }}"
+        <a href="{{ route('petugas.qrcodes.index') }}"
            class="px-4 py-2 rounded-lg border border-zinc-200 text-sm font-semibold text-zinc-700 hover:bg-zinc-100">
             Kembali
         </a>

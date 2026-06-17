@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.petugas')
 
 @section('title', 'Scan QR Code')
 
@@ -11,7 +11,7 @@
             <p class="text-sm text-zinc-500 mt-1">Arahkan kamera ke QR Code tiket untuk validasi masuk secara instan.</p>
         </div>
 
-        <a href="{{ route('qrcodes.index') }}"
+        <a href="{{ route('petugas.qrcodes.index') }}"
            class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl border border-zinc-200 bg-white text-sm font-semibold text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 shadow-sm transition-all duration-200">
             Kembali ke Daftar
         </a>
@@ -68,7 +68,7 @@
             </div>
 
             <div class="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6">
-                <form id="qr-form" action="{{ route('qrcodes.validate') }}" method="POST" class="space-y-4">
+                <form id="qr-form" action="{{ route('petugas.qrcodes.validate') }}" method="POST" class="space-y-4">
                     @csrf
 
                     <div>

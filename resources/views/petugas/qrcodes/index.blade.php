@@ -1,6 +1,6 @@
-@extends('layouts.app')
+@extends('layouts.petugas')
 
-@section('title', 'Reviews')
+@section('title', 'QR Codes')
 
 @section('content')
 <div class="space-y-6">
@@ -10,37 +10,51 @@
 
         <div>
             <p class="text-sm font-semibold text-blue-600 mb-2">
-                Review Management
+                QR Code Management
             </p>
 
             <h1 class="text-2xl font-bold text-slate-800 mb-2">
-                Manajemen Reviews
+                Data QR Code
             </h1>
 
             <p class="text-sm text-slate-500 max-w-xl">
-                Kelola ulasan, rating, dan komentar pengunjung terhadap museum.
+                Kelola QR Code tiket pengunjung, status validasi, dan data pemindaian tiket.
             </p>
         </div>
 
-        <div class="w-16 h-16 rounded-3xl bg-blue-50 text-blue-600 flex items-center justify-center">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2"
-                 viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-            </svg>
+        <div class="flex flex-col sm:flex-row gap-3">
+            <a href="{{ route('petugas.qrcodes.scan') }}"
+               class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-50 text-blue-600 text-sm font-semibold border border-blue-100 hover:bg-blue-100 transition">
+                Scan QR
+            </a>
+
+            <a href="{{ route('petugas.qrcodes.create') }}"
+               class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold shadow-md hover:bg-blue-700 transition">
+                Generate QR
+            </a>
         </div>
 
     </div>
 
-    {{-- SUCCESS ALERT --}}
+    {{-- ALERT --}}
     @if(session('success'))
         <div class="bg-white border border-blue-100 rounded-2xl p-4 shadow-sm flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
                 ✓
             </div>
-
             <p class="text-sm font-semibold text-slate-700">
                 {{ session('success') }}
+            </p>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="bg-white border border-blue-100 rounded-2xl p-4 shadow-sm flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                !
+            </div>
+            <p class="text-sm font-semibold text-slate-700">
+                {{ session('error') }}
             </p>
         </div>
     @endif
@@ -50,37 +64,37 @@
 
         <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
             <p class="text-sm text-slate-400 font-semibold mb-2">
-                Total Review
+                Total QR Code
             </p>
             <h2 class="text-3xl font-bold text-slate-800">
-                {{ $reviews->count() }}
+                {{ $qrCodes->count() }}
             </h2>
             <p class="text-sm text-blue-600 font-semibold mt-2">
-                Data ulasan tercatat
+                Data QR tercatat
             </p>
         </div>
 
         <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
             <p class="text-sm text-slate-400 font-semibold mb-2">
-                Status Review
+                Status Validasi
             </p>
             <h2 class="text-3xl font-bold text-slate-800">
                 Aktif
             </h2>
             <p class="text-sm text-blue-600 font-semibold mt-2">
-                Ulasan siap dipantau
+                QR Code siap dipindai
             </p>
         </div>
 
         <div class="bg-blue-600 rounded-3xl shadow-sm p-6 text-white">
             <p class="text-sm text-blue-100 mb-2">
-                Feedback Pengunjung
+                Quick Action
             </p>
             <h2 class="text-2xl font-bold">
-                Museum Review
+                Generate QR
             </h2>
             <p class="text-sm text-blue-100 mt-2">
-                Pantau komentar dan rating museum.
+                Buat QR Code tiket pengunjung.
             </p>
         </div>
 
@@ -92,11 +106,11 @@
         <div class="px-6 py-5 border-b border-blue-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h2 class="text-lg font-bold text-slate-800">
-                    Daftar Review
+                    Daftar QR Code
                 </h2>
 
                 <p class="text-sm text-slate-400">
-                    Menampilkan seluruh data review dari pengunjung.
+                    Menampilkan seluruh data QR Code tiket pengunjung.
                 </p>
             </div>
 
@@ -108,7 +122,7 @@
                 </svg>
 
                 <input type="text"
-                       placeholder="Search review..."
+                       placeholder="Search QR Code..."
                        class="bg-transparent outline-none text-sm w-full text-slate-600">
             </div>
         </div>
@@ -117,53 +131,67 @@
             <table class="w-full text-sm text-left">
                 <thead class="bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-wider">
                     <tr>
-                        <th class="px-6 py-4">Pengunjung</th>
-                        <th class="px-6 py-4">Museum</th>
-                        <th class="px-6 py-4">Rating</th>
-                        <th class="px-6 py-4">Komentar</th>
-                        <th class="px-6 py-4 text-right">Tindakan</th>
+                        <th class="px-6 py-4">No</th>
+                        <th class="px-6 py-4">Transaction Detail</th>
+                        <th class="px-6 py-4">QR Code</th>
+                        <th class="px-6 py-4">Status</th>
+                        <th class="px-6 py-4">Scanned At</th>
+                        <th class="px-6 py-4 text-right">Action</th>
                     </tr>
                 </thead>
 
                 <tbody class="divide-y divide-blue-50">
-                    @forelse($reviews as $review)
+                    @forelse ($qrCodes as $qr)
                         <tr class="hover:bg-blue-50/40 transition">
+
+                            <td class="px-6 py-4 text-slate-500 font-semibold">
+                                {{ $loop->iteration }}
+                            </td>
 
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-4">
                                     <div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm">
-                                        {{ strtoupper(substr($review->user->name ?? 'U', 0, 1)) }}
+                                        QR
                                     </div>
 
                                     <div>
                                         <p class="font-bold text-slate-800">
-                                            {{ $review->user->name ?? '-' }}
+                                            Transaction #{{ $qr->transaction_detail_id }}
                                         </p>
 
                                         <p class="text-xs text-slate-400 mt-0.5">
-                                            RVW-{{ str_pad($review->id, 4, '0', STR_PAD_LEFT) }}
+                                            QRC-{{ str_pad($qr->id, 4, '0', STR_PAD_LEFT) }}
                                         </p>
                                     </div>
                                 </div>
                             </td>
 
-                            <td class="px-6 py-4 text-slate-500">
-                                {{ $review->museum->name ?? '-' }}
-                            </td>
-
                             <td class="px-6 py-4">
-                                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-50 text-blue-600 text-xs font-semibold border border-blue-100">
-                                    <span class="w-2 h-2 rounded-full bg-blue-600"></span>
-                                    {{ $review->rating }}/5
+                                <span class="inline-flex max-w-xs truncate px-3 py-1.5 rounded-xl bg-blue-50 text-blue-600 text-xs font-mono font-semibold border border-blue-100">
+                                    {{ $qr->qr_code }}
                                 </span>
                             </td>
 
-                            <td class="px-6 py-4 text-slate-500 max-w-md truncate">
-                                {{ $review->comment ?? '-' }}
+                            <td class="px-6 py-4">
+                                @if($qr->scan_status == 'used')
+                                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-50 text-blue-600 text-xs font-semibold border border-blue-100">
+                                        <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                                        Used
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-50 text-blue-600 text-xs font-semibold border border-blue-100">
+                                        <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                                        Valid
+                                    </span>
+                                @endif
+                            </td>
+
+                            <td class="px-6 py-4 text-slate-500">
+                                {{ $qr->scanned_at ? $qr->scanned_at->format('d M Y H:i') : '-' }}
                             </td>
 
                             <td class="px-6 py-4 text-right">
-                                <a href="{{ route('reviews.show', $review->id) }}"
+                                <a href="{{ route('petugas.qrcodes.show', $qr->id) }}"
                                    class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition"
                                    title="Detail">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
@@ -179,22 +207,27 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-20 text-center">
+                            <td colspan="6" class="px-6 py-20 text-center">
                                 <div class="w-16 h-16 bg-blue-50 border border-blue-100 rounded-2xl flex items-center justify-center mx-auto text-blue-600 shadow-sm mb-4">
                                     <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2"
                                          viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round"
-                                              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                              d="M4 4h5v5H4V4zm11 0h5v5h-5V4zM4 15h5v5H4v-5zm11 0h2v2h-2v-2zm4 4h1v1h-1v-1z"/>
                                     </svg>
                                 </div>
 
                                 <h3 class="text-base font-bold text-slate-800">
-                                    Belum Ada Review
+                                    Belum Ada Data QR Code
                                 </h3>
 
                                 <p class="text-sm text-slate-400 mt-1">
-                                    Data ulasan pengunjung akan tampil di halaman ini.
+                                    QR Code tiket pengunjung akan tampil di halaman ini.
                                 </p>
+
+                                <a href="{{ route('petugas.qrcodes.create') }}"
+                                   class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold shadow-md hover:bg-blue-700 transition mt-5">
+                                    Generate QR
+                                </a>
                             </td>
                         </tr>
                     @endforelse

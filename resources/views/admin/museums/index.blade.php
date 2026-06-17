@@ -3,99 +3,162 @@
 @section('title', 'Museums')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+<div class="space-y-6">
 
-    {{-- Header Section --}}
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pb-2">
+    {{-- HEADER --}}
+    <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+
         <div>
-            <div class="flex items-center gap-2 text-xs font-semibold tracking-wider text-indigo-600 uppercase">
-                <span>Dashboard</span>
-                <span class="text-zinc-300">/</span>
-                <span class="text-zinc-500">Museum</span>
-            </div>
+            <p class="text-sm font-semibold text-blue-600 mb-2">
+                Museum Management
+            </p>
 
-            <h1 class="text-3xl font-extrabold tracking-tight text-zinc-900 mt-1">
+            <h1 class="text-2xl font-bold text-slate-800 mb-2">
                 Manajemen Museum
             </h1>
 
-            <p class="text-sm text-zinc-500 mt-1.5">
-                Kelola data entitas, alamat, dan jam operasional museum.
+            <p class="text-sm text-slate-500 max-w-xl">
+                Kelola data museum, alamat, dan jam operasional museum melalui halaman admin.
             </p>
         </div>
 
         <a href="{{ route('museums.create') }}"
-           class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-zinc-900 text-white text-sm font-medium hover:bg-zinc-800 shadow-sm transition">
-            <span class="text-lg leading-none">+</span>
+           class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold shadow-md hover:bg-blue-700 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+            </svg>
             Tambah Museum
         </a>
+
     </div>
 
+    {{-- SUCCESS ALERT --}}
     @if(session('success'))
-        <div class="flex items-center gap-3 p-4 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-800 text-sm shadow-sm">
-            <span class="font-medium">{{ session('success') }}</span>
+        <div class="bg-white border border-blue-100 rounded-2xl p-4 shadow-sm flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                ✓
+            </div>
+
+            <p class="text-sm font-semibold text-slate-700">
+                {{ session('success') }}
+            </p>
         </div>
     @endif
 
-    {{-- Data Table Container --}}
-    <div class="bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm">
+    {{-- SUMMARY CARD --}}
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
 
-        <div class="px-6 py-5 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50">
+        <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
+            <p class="text-sm text-slate-400 font-semibold mb-2">
+                Total Museum
+            </p>
+            <h2 class="text-3xl font-bold text-slate-800">
+                {{ $museums->count() }}
+            </h2>
+            <p class="text-sm text-blue-600 font-semibold mt-2">
+                Data terdaftar
+            </p>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
+            <p class="text-sm text-slate-400 font-semibold mb-2">
+                Status Data
+            </p>
+            <h2 class="text-3xl font-bold text-slate-800">
+                Aktif
+            </h2>
+            <p class="text-sm text-blue-600 font-semibold mt-2">
+                Siap dikelola
+            </p>
+        </div>
+
+        <div class="bg-blue-600 rounded-3xl shadow-sm p-6 text-white">
+            <p class="text-sm text-blue-100 mb-2">
+                Quick Action
+            </p>
+            <h2 class="text-2xl font-bold">
+                Tambah Data
+            </h2>
+            <p class="text-sm text-blue-100 mt-2">
+                Input museum baru ke sistem.
+            </p>
+        </div>
+
+    </div>
+
+    {{-- TABLE --}}
+    <div class="bg-white rounded-3xl shadow-sm border border-blue-100 overflow-hidden">
+
+        <div class="px-6 py-5 border-b border-blue-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-                <h2 class="text-sm font-semibold text-zinc-900">
+                <h2 class="text-lg font-bold text-slate-800">
                     Daftar Museum
                 </h2>
 
-                <p class="text-xs text-zinc-500 mt-0.5">
-                    Menampilkan total <span class="font-semibold text-zinc-700">{{ $museums->count() }}</span> data museum.
+                <p class="text-sm text-slate-400">
+                    Menampilkan seluruh data museum yang tersedia.
                 </p>
+            </div>
+
+            <div class="flex items-center bg-blue-50 rounded-xl px-4 py-2 w-full sm:w-72">
+                <svg class="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" stroke-width="2"
+                     viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"/>
+                </svg>
+
+                <input type="text"
+                       placeholder="Search museum..."
+                       class="bg-transparent outline-none text-sm w-full text-slate-600">
             </div>
         </div>
 
         <div class="overflow-x-auto">
             <table class="w-full text-sm text-left">
-                <thead class="bg-zinc-50 text-zinc-500 text-xs font-bold uppercase tracking-wider border-b border-zinc-100">
+                <thead class="bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-wider">
                     <tr>
-                        <th class="px-6 py-3.5">Detail Museum</th>
-                        <th class="px-6 py-3.5">Alamat</th>
-                        <th class="px-6 py-3.5">Jam Operasional</th>
-                        <th class="px-6 py-3.5 text-right">Tindakan</th>
+                        <th class="px-6 py-4">Detail Museum</th>
+                        <th class="px-6 py-4">Alamat</th>
+                        <th class="px-6 py-4">Jam Operasional</th>
+                        <th class="px-6 py-4 text-right">Tindakan</th>
                     </tr>
                 </thead>
 
-                <tbody class="divide-y divide-zinc-100">
+                <tbody class="divide-y divide-blue-50">
                     @forelse($museums as $museum)
-                        <tr class="hover:bg-zinc-50 transition">
+                        <tr class="hover:bg-blue-50/40 transition">
+
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-4">
-                                    <div class="w-11 h-11 rounded-xl bg-zinc-100 text-zinc-700 flex items-center justify-center font-bold text-sm">
+                                    <div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm">
                                         {{ strtoupper(substr($museum->name, 0, 1)) }}
                                     </div>
 
                                     <div>
-                                        <p class="font-semibold text-zinc-900">
+                                        <p class="font-bold text-slate-800">
                                             {{ $museum->name }}
                                         </p>
 
-                                        <p class="text-xs text-zinc-400 mt-0.5">
+                                        <p class="text-xs text-slate-400 mt-0.5">
                                             M-{{ str_pad($museum->id, 4, '0', STR_PAD_LEFT) }}
                                         </p>
                                     </div>
                                 </div>
                             </td>
 
-                            <td class="px-6 py-4 text-zinc-600 max-w-md">
+                            <td class="px-6 py-4 text-slate-500 max-w-md">
                                 {{ $museum->address ?? '-' }}
                             </td>
 
                             <td class="px-6 py-4">
                                 @if($museum->operational_hours)
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-zinc-100 text-zinc-800 text-xs font-medium border border-zinc-200">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-50 text-blue-600 text-xs font-semibold border border-blue-100">
+                                        <span class="w-2 h-2 rounded-full bg-blue-600"></span>
                                         {{ $museum->operational_hours }}
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-50 text-amber-700 text-xs font-medium border border-amber-100">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-50 text-blue-600 text-xs font-semibold border border-blue-100">
+                                        <span class="w-2 h-2 rounded-full bg-blue-600"></span>
                                         Belum diatur
                                     </span>
                                 @endif
@@ -103,10 +166,15 @@
 
                             <td class="px-6 py-4 text-right">
                                 <div class="flex items-center justify-end gap-2">
+
                                     <a href="{{ route('museums.edit', $museum->id) }}"
-                                       class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100 transition"
+                                       class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition"
                                        title="Edit">
-                                        ✎
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                             viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                        </svg>
                                     </a>
 
                                     <form action="{{ route('museums.destroy', $museum->id) }}"
@@ -116,28 +184,43 @@
                                         @method('DELETE')
 
                                         <button type="submit"
-                                                class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-zinc-400 hover:text-red-600 hover:bg-red-50 transition"
+                                                class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition"
                                                 title="Hapus">
-                                            🗑
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                                 viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m2 0H7m3-3h4a1 1 0 011 1v2H9V5a1 1 0 011-1z"/>
+                                            </svg>
                                         </button>
                                     </form>
+
                                 </div>
                             </td>
+
                         </tr>
                     @empty
                         <tr>
                             <td colspan="4" class="px-6 py-20 text-center">
-                                <div class="w-16 h-16 bg-zinc-50 border border-zinc-100 rounded-2xl flex items-center justify-center mx-auto text-zinc-400 shadow-sm mb-4">
-                                    🏛️
+                                <div class="w-16 h-16 bg-blue-50 border border-blue-100 rounded-2xl flex items-center justify-center mx-auto text-blue-600 shadow-sm mb-4">
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2"
+                                         viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/>
+                                    </svg>
                                 </div>
 
-                                <h3 class="text-base font-bold text-zinc-900">
-                                    Belum Ada Arsip Museum
+                                <h3 class="text-base font-bold text-slate-800">
+                                    Belum Ada Data Museum
                                 </h3>
 
-                                <p class="text-sm text-zinc-500 mt-1">
+                                <p class="text-sm text-slate-400 mt-1">
                                     Mulai tambahkan museum pertama ke dalam sistem.
                                 </p>
+
+                                <a href="{{ route('museums.create') }}"
+                                   class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold shadow-md hover:bg-blue-700 transition mt-5">
+                                    Tambah Museum
+                                </a>
                             </td>
                         </tr>
                     @endforelse
