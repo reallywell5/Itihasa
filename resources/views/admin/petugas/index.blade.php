@@ -3,187 +3,232 @@
 @section('title', 'Petugas')
 
 @section('content')
-<div class="space-y-6 text-slate-800 font-sans antialiased">
+<div class="space-y-6">
 
-    {{-- Header --}}
-    <div class="bg-white rounded-xl border border-slate-200/80 p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xs">
+    {{-- HEADER --}}
+    <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+
         <div>
-            <div class="flex items-center gap-2 text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-1">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M17 20h5V4H2v16h5m10 0v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4m10 0H7m5-12a2 2 0 110 4 2 2 0 010-4z"/>
-                </svg>
+            <p class="text-sm font-semibold text-blue-600 mb-2">
+                Staff Management
+            </p>
 
-                Otoritas Petugas & Hak Akses
-            </div>
-
-            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">
+            <h1 class="text-2xl font-bold text-slate-800 mb-2">
                 Akun Petugas
             </h1>
 
-            <p class="text-slate-500 text-sm mt-0.5">
-                Kelola validasi tiket, hak akses operasional, dan akun petugas museum.
+            <p class="text-sm text-slate-500 max-w-xl">
+                Kelola akun petugas, hak akses operasional, dan validasi tiket museum.
             </p>
         </div>
 
         <a href="{{ route('admin.petugas.create') }}"
-           class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-5 rounded-lg text-sm transition-all shadow-sm tracking-wide shrink-0">
-
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                    d="M12 4v16m8-8H4"/>
+           class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold shadow-md hover:bg-blue-700 transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+                 viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M12 4v16m8-8H4"/>
             </svg>
-
             Tambah Petugas
         </a>
+
     </div>
 
-    {{-- Success Alert --}}
+    {{-- SUCCESS ALERT --}}
     @if(session('success'))
-    <div class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-sm font-medium flex items-center gap-3">
-        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-        <span>{{ session('success') }}</span>
-    </div>
+        <div class="bg-white border border-blue-100 rounded-2xl p-4 shadow-sm flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+                ✓
+            </div>
+
+            <p class="text-sm font-semibold text-slate-700">
+                {{ session('success') }}
+            </p>
+        </div>
     @endif
 
-    {{-- Table --}}
-    <div class="bg-white rounded-xl border border-slate-200/90 shadow-xs overflow-hidden">
+    {{-- SUMMARY --}}
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
 
-        {{-- Top --}}
-        <div class="px-6 py-4 bg-slate-50/70 border-b border-slate-200/80 flex items-center justify-between">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">
-                Database Akun Petugas
-            </span>
+        <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
+            <p class="text-sm text-slate-400 font-semibold mb-2">
+                Total Petugas
+            </p>
+            <h2 class="text-3xl font-bold text-slate-800">
+                {{ $petugas->count() }}
+            </h2>
+            <p class="text-sm text-blue-600 font-semibold mt-2">
+                Akun terdaftar
+            </p>
+        </div>
 
-            <span class="text-xs font-medium text-slate-500 bg-slate-200/60 px-2.5 py-1 rounded-md font-mono">
-                TOTAL: {{ $petugas->count() }}
-            </span>
+        <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
+            <p class="text-sm text-slate-400 font-semibold mb-2">
+                Role Sistem
+            </p>
+            <h2 class="text-3xl font-bold text-slate-800">
+                Petugas
+            </h2>
+            <p class="text-sm text-blue-600 font-semibold mt-2">
+                Hak akses operasional
+            </p>
+        </div>
+
+        <div class="bg-blue-600 rounded-3xl shadow-sm p-6 text-white">
+            <p class="text-sm text-blue-100 mb-2">
+                Status Sistem
+            </p>
+            <h2 class="text-2xl font-bold">
+                Aktif
+            </h2>
+            <p class="text-sm text-blue-100 mt-2">
+                Petugas siap melakukan validasi tiket.
+            </p>
+        </div>
+
+    </div>
+
+    {{-- TABLE --}}
+    <div class="bg-white rounded-3xl shadow-sm border border-blue-100 overflow-hidden">
+
+        <div class="px-6 py-5 border-b border-blue-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h2 class="text-lg font-bold text-slate-800">
+                    Daftar Petugas
+                </h2>
+
+                <p class="text-sm text-slate-400">
+                    Menampilkan seluruh akun petugas yang terdaftar.
+                </p>
+            </div>
+
+            <div class="flex items-center bg-blue-50 rounded-xl px-4 py-2 w-full sm:w-72">
+                <svg class="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" stroke-width="2"
+                     viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"/>
+                </svg>
+
+                <input type="text"
+                       placeholder="Search petugas..."
+                       class="bg-transparent outline-none text-sm w-full text-slate-600">
+            </div>
         </div>
 
         <div class="overflow-x-auto">
-            <table class="w-full border-collapse text-left">
-                <thead>
-                    <tr class="border-b border-slate-200 bg-slate-50/40 text-slate-500 text-xs tracking-wider font-bold uppercase">
-                        <th class="py-4 px-6 w-[35%]">Profil Petugas</th>
-                        <th class="py-4 px-6 w-[30%]">Alamat Email</th>
-                        <th class="py-4 px-6 w-[15%]">Peran Sistem</th>
-                        <th class="py-4 px-6 w-[15%]">Tanggal Gabung</th>
-                        <th class="py-4 px-6 w-[10%] text-center">Tindakan</th>
+            <table class="w-full text-sm text-left">
+                <thead class="bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-wider">
+                    <tr>
+                        <th class="px-6 py-4">Profil Petugas</th>
+                        <th class="px-6 py-4">Alamat Email</th>
+                        <th class="px-6 py-4">Peran Sistem</th>
+                        <th class="px-6 py-4">Tanggal Gabung</th>
+                        <th class="px-6 py-4 text-right">Tindakan</th>
                     </tr>
                 </thead>
 
-                <tbody class="divide-y divide-slate-100 text-sm">
-
+                <tbody class="divide-y divide-blue-50">
                     @forelse ($petugas as $item)
+                        <tr class="hover:bg-blue-50/40 transition">
 
-                    <tr class="hover:bg-slate-50/40 transition-colors duration-150 group">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm uppercase">
+                                        {{ strtoupper(substr($item->name, 0, 2)) }}
+                                    </div>
 
-                        {{-- Profile --}}
-                        <td class="py-4 px-6">
-                            <div class="flex items-center gap-4">
+                                    <div>
+                                        <p class="font-bold text-slate-800">
+                                            {{ $item->name }}
+                                        </p>
 
-                                <div class="w-10 h-10 rounded-full bg-indigo-50 border border-indigo-100/80 text-indigo-700 font-bold text-sm flex items-center justify-center tracking-wider shrink-0 group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all uppercase">
-                                    {{ substr($item->name, 0, 2) }}
+                                        <p class="text-xs text-slate-400 mt-0.5">
+                                            PTG-{{ str_pad($item->id, 5, '0', STR_PAD_LEFT) }}
+                                        </p>
+                                    </div>
                                 </div>
+                            </td>
 
-                                <div>
-                                    <span class="font-bold text-slate-900 block text-[15px] tracking-tight leading-tight">
-                                        {{ $item->name }}
-                                    </span>
+                            <td class="px-6 py-4 text-slate-500">
+                                {{ $item->email }}
+                            </td>
 
-                                    <span class="text-xs text-slate-400 block mt-0.5">
-                                        ID: PTG-{{ str_pad($item->id, 5, '0', STR_PAD_LEFT) }}
-                                    </span>
-                                </div>
+                            <td class="px-6 py-4">
+                                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-50 text-blue-600 text-xs font-semibold border border-blue-100 uppercase">
+                                    <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                                    Petugas
+                                </span>
+                            </td>
 
-                            </div>
-                        </td>
+                            <td class="px-6 py-4 text-slate-500">
+                                {{ $item->created_at?->format('d M Y') ?? '-' }}
+                            </td>
 
-                        {{-- Email --}}
-                        <td class="py-4 px-6 text-slate-600 font-normal text-[14px]">
-                            {{ $item->email }}
-                        </td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-2">
 
-                        {{-- Role --}}
-                        <td class="py-4 px-6">
-                            <span class="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 border border-blue-200/60 font-bold text-xs px-2.5 py-0.5 rounded-md uppercase tracking-wider">
-                                PETUGAS
-                            </span>
-                        </td>
-
-                        {{-- Date --}}
-                        <td class="py-4 px-6 text-slate-500 text-[13.5px] font-medium">
-                            {{ $item->created_at?->format('d M Y') ?? '-' }}
-                        </td>
-
-                        {{-- Action --}}
-                        <td class="py-4 px-6 text-center">
-                            <div class="flex justify-center items-center gap-1.5">
-
-                                <a href="{{ route('admin.petugas.edit', $item->id) }}"
-                                   class="inline-flex items-center justify-center w-8 h-8 text-slate-400 hover:text-slate-800 hover:bg-slate-100 border border-transparent hover:border-slate-200 rounded-lg transition-all"
-                                   title="Edit Petugas">
-
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                                    </svg>
-
-                                </a>
-
-                                <form action="{{ route('admin.petugas.destroy', $item->id) }}"
-                                      method="POST"
-                                      class="inline">
-
-                                    @csrf
-                                    @method('DELETE')
-
-                                    <button type="submit"
-                                            onclick="return confirm('Hapus akun petugas ini?')"
-                                            class="inline-flex items-center justify-center w-8 h-8 text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-100 rounded-lg transition-all"
-                                            title="Hapus Petugas">
-
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    <a href="{{ route('admin.petugas.edit', $item->id) }}"
+                                       class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition"
+                                       title="Edit Petugas">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                             viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
                                         </svg>
+                                    </a>
 
-                                    </button>
-                                </form>
+                                    <form action="{{ route('admin.petugas.destroy', $item->id) }}"
+                                          method="POST"
+                                          onsubmit="return confirm('Hapus akun petugas ini?')">
+                                        @csrf
+                                        @method('DELETE')
 
-                            </div>
-                        </td>
+                                        <button type="submit"
+                                                class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition"
+                                                title="Hapus Petugas">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                                 viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m2 0H7m3-3h4a1 1 0 011 1v2H9V5a1 1 0 011-1z"/>
+                                            </svg>
+                                        </button>
+                                    </form>
 
-                    </tr>
+                                </div>
+                            </td>
 
+                        </tr>
                     @empty
+                        <tr>
+                            <td colspan="5" class="px-6 py-20 text-center">
+                                <div class="w-16 h-16 bg-blue-50 border border-blue-100 rounded-2xl flex items-center justify-center mx-auto text-blue-600 shadow-sm mb-4">
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2"
+                                         viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M12 14c3.866 0 7 1.79 7 4v1H5v-1c0-2.21 3.134-4 7-4zM12 12a4 4 0 100-8 4 4 0 000 8z"/>
+                                    </svg>
+                                </div>
 
-                    <tr>
-                        <td colspan="5" class="py-16 text-center text-slate-400">
+                                <h3 class="text-base font-bold text-slate-800">
+                                    Belum Ada Petugas
+                                </h3>
 
-                            <div class="text-slate-300 flex justify-center mb-3">
-                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                        d="M17 20h5V4H2v16h5m10 0v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4m10 0H7"/>
-                                </svg>
-                            </div>
+                                <p class="text-sm text-slate-400 mt-1">
+                                    Sistem belum mendeteksi akun petugas yang terdaftar.
+                                </p>
 
-                            <h3 class="text-sm font-bold text-slate-900">
-                                Belum Ada Petugas
-                            </h3>
-
-                            <p class="text-xs text-slate-400 mt-1">
-                                Sistem belum mendeteksi akun petugas yang terdaftar.
-                            </p>
-
-                        </td>
-                    </tr>
-
+                                <a href="{{ route('admin.petugas.create') }}"
+                                   class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold shadow-md hover:bg-blue-700 transition mt-5">
+                                    Tambah Petugas
+                                </a>
+                            </td>
+                        </tr>
                     @endforelse
-
                 </tbody>
             </table>
         </div>
+
     </div>
+
 </div>
 @endsection

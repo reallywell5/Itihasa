@@ -2,7 +2,7 @@
     use Illuminate\Support\Str;
 @endphp
 
-@extends('layouts.app')
+@extends('layouts.petugas')
 
 @section('title', 'Generate QR Code')
 
@@ -15,14 +15,14 @@
             <p class="text-sm text-zinc-500 mt-1">Buat QR Code untuk tiket pengunjung.</p>
         </div>
 
-        <a href="{{ route('qrcodes.index') }}"
+        <a href="{{ route('petugas.qrcodes.index') }}"
            class="px-4 py-2 rounded-lg border border-zinc-200 text-sm font-semibold text-zinc-700 hover:bg-zinc-100">
             Kembali
         </a>
     </div>
 
     <div class="bg-white border border-zinc-200 rounded-2xl shadow-sm p-8">
-        <form action="{{ route('qrcodes.store') }}" method="POST" class="space-y-6">
+        <form action="{{ route('petugas.qrcodes.store') }}" method="POST" class="space-y-6">
             @csrf
 
             <div>
