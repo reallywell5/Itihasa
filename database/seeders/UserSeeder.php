@@ -2,32 +2,51 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\User;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
-        User::create([
-            'name' => 'Admin',
-            'email' => 'admin@gmail.com',
-            'password' => bcrypt('123456'),
-            'role' => 'admin',
-        ]);
+        $users = [
+            [
+                'name' => 'Admin',
+                'email' => 'admin@itihasa.com',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+            ],
+            [
+                'name' => 'Staff',
+                'email' => 'staff@itihasa.com',
+                'password' => Hash::make('password'),
+                'role' => 'petugas',
+            ],
+            [
+                'name' => 'Visitor',
+                'email' => 'visitor@itihasa.com',
+                'password' => Hash::make('password'),
+                'role' => 'visitor',
+            ],
+        ];
 
-        User::create([
-            'name' => 'Visitor',
-            'email' => 'visitor@gmail.com',
-            'password' => bcrypt('123456'),
-            'role' => 'visitor',
-        ]);
+        foreach ($users as $user) {
+            if (!User::where('email', $user['email'])->exists()) {
+                User::create($user);
+                $this->command->info("✅ Created user: {$user['email']}");
+            } else {
+                $this->command->info("⏭️ User already exists: {$user['email']}");
+            }
+        }
 
-        User::create([
-            'name' => 'Staff',
-            'email' => 'staff@gmail.com',
-            'password' => bcrypt('123456'),
-            'role' => 'staff',
-        ]);
+        $this->command->newLine();
+        $this->command->info('===========================================');
+        $this->command->info('✅ Users seeded successfully!');
+        $this->command->info('===========================================');
+        $this->command->info('📧 Admin   : admin@itihasa.com | password');
+        $this->command->info('📧 Staff   : staff@itihasa.com | password');
+        $this->command->info('📧 Visitor : visitor@itihasa.com | password');
+        $this->command->info('===========================================');
     }
 }

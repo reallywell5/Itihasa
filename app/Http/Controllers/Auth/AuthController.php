@@ -49,16 +49,21 @@ class AuthController extends Controller
             'password.confirmed' => 'Konfirmasi password tidak sesuai.',
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => strip_tags($request->name),
             'email' => strtolower($request->email),
-            'role' => 'user',
+            'role' => 'visitor', // <-- role visitor
             'password' => Hash::make($request->password),
         ]);
 
-        return redirect()
-            ->route('login')
-            ->with('success', 'Registrasi berhasil. Silakan login.');
+        // ✅ Langsung login setelah registrasi
+        Auth::login($user);
+
+        // Regenerasi session untuk keamanan
+        $request->session()->regenerate();
+
+        // Redirect ke halaman home
+        return redirect()->route('home');
     }
 
     public function login(Request $request)
@@ -87,19 +92,19 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        if (Auth::user()->role === 'admin') {
+        $user = Auth::user();
+
+        // Redirect berdasarkan role
+        if ($user->role === 'admin') {
             return redirect()->route('admin.dashboard');
         }
 
-        if (Auth::user()->role === 'petugas') {
+        if ($user->role === 'petugas') {
             return redirect()->route('petugas.dashboard');
         }
 
-        Auth::logout();
-
-        return redirect()
-            ->route('login')
-            ->with('error', 'Akun ini belum memiliki akses ke dashboard.');
+        // Selain admin/petugas -> visitor -> home
+        return redirect()->route('home');
     }
 
     public function logout(Request $request)
