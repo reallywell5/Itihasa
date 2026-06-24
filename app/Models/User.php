@@ -2,13 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use Notifiable;
 
     protected $fillable = [
         'name',
@@ -24,16 +23,20 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
     ];
 
-    public function transactions()
+    public function isAdmin()
     {
-        return $this->hasMany(Transaction::class);
+        return $this->role === 'admin';
     }
 
-    public function reviews()
+    public function isPetugas()
     {
-        return $this->hasMany(Review::class);
+        return $this->role === 'staff';
+    }
+
+    public function isVisitor()
+    {
+        return $this->role === 'visitor';
     }
 }
