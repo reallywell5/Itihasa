@@ -26,6 +26,17 @@
             @csrf
 
             <div class="p-6 sm:p-8 space-y-6">
+                {{-- Tampilkan semua error --}}
+                @if ($errors->any())
+                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4">
+                        <ul class="list-disc list-inside text-sm">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <div>
                     <label for="name" class="block text-sm font-semibold text-zinc-700 mb-1.5">Nama Museum</label>
                     <input
@@ -77,7 +88,7 @@
                         name="image"
                         class="w-full rounded-xl border border-zinc-200 px-4 py-2.5 text-sm text-zinc-700 bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-900"
                     >
-                    <p class="text-xs text-zinc-400 mt-1">Format: PNG, JPG, JPEG.</p>
+                    <p class="text-xs text-zinc-400 mt-1">Format: PNG, JPG, JPEG. Maksimal 2MB.</p>
                     @error('image')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
                     @enderror

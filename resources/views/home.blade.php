@@ -17,9 +17,20 @@
     <div class="museum-grid">
         @forelse($museums as $museum)
         <div class="museum-card">
-            @if($museum->image)
-                <img src="{{ asset('storage/' . $museum->image) }}" alt="{{ $museum->name }}" style="width: 100%; height: 200px; object-fit: cover;">
+            @php
+                $imagePath = $museum->image;
+            @endphp
+
+            @if($imagePath)
+                <img src="{{ asset('storage/' . $imagePath) }}" 
+                     alt="{{ $museum->name }}" 
+                     style="width: 100%; height: 200px; object-fit: cover;">
+            @else
+                <img src="{{ asset('images/default-museum.jpg') }}" 
+                     alt="Default Museum" 
+                     style="width: 100%; height: 200px; object-fit: cover; background: #eee;">
             @endif
+
             <div class="content">
                 <h3>{{ $museum->name }}</h3>
                 <p class="location">📍 {{ $museum->address ?? 'Location not specified' }}</p>
@@ -28,6 +39,7 @@
             </div>
         </div>
         @empty
+        <!-- Dummy data jika belum ada museum -->
         <div class="museum-card">
             <div class="content">
                 <h3>National Museum</h3>

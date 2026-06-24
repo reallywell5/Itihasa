@@ -10,9 +10,7 @@ class HomeController extends Controller
 {
     public function index()
     {
-        // Ambil semua museum tanpa filter 'status'
-        $museums = Museum::all();
-        
+        $museums = Museum::all(); // Sudah benar
         return view('home', compact('museums'));
     }
 }
