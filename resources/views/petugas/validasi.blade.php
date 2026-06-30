@@ -30,12 +30,14 @@
             Cari Tiket
         </h2>
 
-        <form>
+        <form method="GET" action="{{ route('petugas.validasi') }}">
 
             <div class="grid md:grid-cols-4 gap-4">
 
                 <input
                     type="text"
+                    name="invoice_code"
+                    value="{{ request('invoice_code') }}"
                     placeholder="Masukkan kode tiket..."
                     class="md:col-span-3 px-4 py-3 border border-blue-100 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:outline-none">
 
@@ -52,6 +54,7 @@
     </div>
 
     {{-- HASIL VALIDASI --}}
+    @if(isset($transaction))
     <div class="bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
 
         <h2 class="text-lg font-bold text-slate-800 mb-4">
@@ -61,57 +64,57 @@
         <div class="grid md:grid-cols-2 gap-6">
 
             <div>
-                <p class="text-sm text-slate-400">
-                    Nama Pengunjung
-                </p>
-
+                <p class="text-sm text-slate-400">Nama Pengunjung</p>
                 <h3 class="font-bold text-slate-800 mt-1">
-                    Budi Santoso
+                    {{ $transaction->booking->user->name }}
                 </h3>
             </div>
 
             <div>
-                <p class="text-sm text-slate-400">
-                    Kode Tiket
-                </p>
-
+                <p class="text-sm text-slate-400">Kode Tiket</p>
                 <h3 class="font-bold text-slate-800 mt-1">
-                    TKT-0001
+                    {{ $transaction->invoice_code }}
                 </h3>
             </div>
 
             <div>
-                <p class="text-sm text-slate-400">
-                    Museum
-                </p>
-
+                <p class="text-sm text-slate-400">Museum</p>
                 <h3 class="font-bold text-slate-800 mt-1">
-                    Museum Nasional
+                    {{ $transaction->booking->museum->name }}
                 </h3>
             </div>
 
             <div>
-                <p class="text-sm text-slate-400">
-                    Status
-                </p>
+                <p class="text-sm text-slate-400">Status</p>
 
-                <span class="inline-flex items-center px-3 py-1.5 mt-1 rounded-xl bg-blue-50 text-blue-600 text-xs font-semibold border border-blue-100">
-                    Valid
-                </span>
+                @if($transaction->used_at)
+                    <span class="inline-flex items-center px-3 py-1.5 mt-1 rounded-xl bg-gray-100 text-gray-600 text-xs font-semibold border border-gray-200">
+                        Sudah Digunakan
+                    </span>
+                @else
+                    <span class="inline-flex items-center px-3 py-1.5 mt-1 rounded-xl bg-green-50 text-green-600 text-xs font-semibold border border-green-100">
+                        Valid
+                    </span>
+                @endif
             </div>
 
         </div>
 
-        <div class="mt-6">
+        @if(!empty($qr))
+            <form action="{{ route('petugas.validateQr') }}" method="POST">
+                @csrf
 
-            <button
-                class="px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl font-semibold">
-                Tandai Sudah Digunakan
-            </button>
+                <input type="hidden" name="invoice_code" value="{{ $qr->qr_code }}">
 
-        </div>
+                <button type="submit"
+                    class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">
+                    Tandai Sudah Digunakan
+                </button>
+            </form>
+        @endif
 
     </div>
+    @endif
 
 </div>
 

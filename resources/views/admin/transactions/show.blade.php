@@ -1,63 +1,167 @@
+@php
+    use SimpleSoftwareIO\QrCode\Facades\QrCode;
+@endphp
+
 @extends('layouts.app')
 
-@section('title', 'Detail Transaksi #' . $transaction->id)
+@section('title', 'Detail Transaksi')
 
 @section('content')
-<div class="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-md">
+<div class="max-w-5xl mx-auto space-y-6">
 
-    <div class="mb-6">
-        <a href="{{ route('transactions.index') }}" class="text-sm text-gray-500 hover:text-gray-700">← Kembali ke Daftar</a>
-    </div>
+    {{-- HEADER --}}
+    <div class="flex items-center justify-between">
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 border-t pt-6">
-        <!-- Informasi Transaksi -->
         <div>
-            <h3 class="text-lg font-bold text-gray-800 mb-4">Rincian Pembelian</h3>
-            <div class="space-y-4 text-sm text-gray-600">
-                <div>
-                    <span class="block text-gray-400">Pembeli</span>
-                    <strong class="text-gray-800 text-base">{{ $transaction->user?->name ?? 'Guest' }}</strong>
-                </div>
-                <div>
-                    <span class="block text-gray-400">Email Akun</span>
-                    <span>{{ $transaction->user?->email ?? '-' }}</span>
-                </div>
-                <div>
-                    <span class="block text-gray-400">Waktu Transaksi</span>
-                    <span>{{ $transaction->created_at?->format('d F Y, H:i') ?? '-' }} WIB</span>
-                </div>
-                <div>
-                    <span class="block text-gray-400">Total Tagihan</span>
-                    <strong class="text-lg text-indigo-600">Rp {{ number_format($transaction->total_price ?? 0) }}</strong>
-                </div>
-                <div>
-                    <span class="block text-gray-400 mb-1">Status Tiket</span>
-                    <span class="px-2.5 py-1 rounded-full text-xs font-bold
-                        {{ $transaction->status == 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
-                        {{ ucfirst($transaction->status ?? 'pending') }}
-                    </span>
-                </div>
-            </div>
+            <p class="text-sm font-semibold text-blue-600 mb-2">
+                Transaction Detail
+            </p>
+
+            <h1 class="text-2xl font-bold text-slate-800">
+                Detail Transaksi
+            </h1>
+
+            <p class="text-sm text-slate-500 mt-1">
+                Informasi lengkap transaksi tiket museum.
+            </p>
         </div>
 
-        <!-- Kolom Informasi Tiket & QR Code -->
-        <div class="flex flex-col items-center justify-center p-6 bg-gray-50 rounded-2xl border">
-            <h4 class="text-sm font-bold text-gray-700 mb-4">QR Code Masuk Museum</h4>
+        <a href="{{ route('transactions.index') }}"
+           class="px-4 py-2 rounded-xl border border-zinc-200 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 transition">
+            Kembali
+        </a>
 
-            @if(!empty($transaction->qr_code))
-                <!-- Jika Anda menggunakan library QR Code generator (seperti simplesoftwareio/simple-qrcode) -->
-                <div class="bg-white p-4 rounded-xl shadow-sm mb-2">
-                    {!! QrCode::size(150)->generate($transaction->qr_code) !!}
-                </div>
-                <span class="text-xs font-mono text-gray-400">{{ $transaction->qr_code }}</span>
+    </div>
+
+    {{-- HERO --}}
+    <div class="bg-white rounded-3xl border border-blue-100 shadow-sm p-6 flex items-center justify-between">
+
+        <div>
+            <p class="text-sm text-slate-400 mb-2">
+                Invoice Code
+            </p>
+
+            <h2 class="text-2xl font-bold text-slate-800">
+                {{ $transaction->invoice_code ?? 'TRX-'.$transaction->id }}
+            </h2>
+        </div>
+
+        <div>
+            @if($transaction->payment_status == 'paid')
+                <span class="px-4 py-2 rounded-full bg-green-50 text-green-600 text-sm font-semibold">
+                    Paid
+                </span>
+
+            @elseif($transaction->payment_status == 'pending')
+                <span class="px-4 py-2 rounded-full bg-yellow-50 text-yellow-600 text-sm font-semibold">
+                    Pending
+                </span>
+
             @else
-                <!-- Jika data QR Code tidak ada / belum digenerate -->
-                <div class="text-center p-4">
-                    <span class="text-3xl block mb-2">🎫</span>
-                    <p class="text-xs text-gray-400">QR Code akan aktif setelah status transaksi berubah menjadi 'Paid' di aplikasi user.</p>
-                </div>
+                <span class="px-4 py-2 rounded-full bg-red-50 text-red-600 text-sm font-semibold">
+                    Failed
+                </span>
             @endif
         </div>
+
     </div>
+
+    {{-- DETAIL --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        {{-- LEFT --}}
+        <div class="bg-white rounded-3xl border border-zinc-200 shadow-sm p-8">
+
+            <h3 class="text-lg font-bold text-slate-800 mb-6">
+                Informasi Pembeli
+            </h3>
+
+            <div class="space-y-5">
+
+                <div>
+                    <p class="text-xs uppercase font-bold text-zinc-400">
+                        Nama Pengunjung
+                    </p>
+                    <p class="mt-2 text-lg font-bold text-zinc-900">
+                        {{ $transaction->user?->name ?? 'Guest' }}
+                    </p>
+                </div>
+
+                <div>
+                    <p class="text-xs uppercase font-bold text-zinc-400">
+                        Email
+                    </p>
+                    <p class="mt-2 text-sm text-zinc-700">
+                        {{ $transaction->user?->email ?? '-' }}
+                    </p>
+                </div>
+
+                <div>
+                    <p class="text-xs uppercase font-bold text-zinc-400">
+                        Waktu Transaksi
+                    </p>
+                    <p class="mt-2 text-sm text-zinc-700">
+                        {{ $transaction->created_at?->format('d M Y • H:i') }}
+                    </p>
+                </div>
+
+                <div>
+                    <p class="text-xs uppercase font-bold text-zinc-400">
+                        Total Pembayaran
+                    </p>
+                    <p class="mt-2 text-2xl font-bold text-blue-600">
+                        Rp {{ number_format($transaction->total_amount ?? 0, 0, ',', '.') }}
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+        {{-- RIGHT --}}
+        <div class="bg-white rounded-3xl border border-zinc-200 shadow-sm p-8">
+
+            <h3 class="text-lg font-bold text-slate-800 mb-6">
+                QR Code Tiket
+            </h3>
+
+            @if($transaction->payment_status == 'paid')
+
+                <div class="flex flex-col items-center">
+
+                    <div class="bg-white p-4 rounded-2xl border border-zinc-200 shadow-sm mb-4">
+                        {!! QrCode::size(220)->generate($transaction->invoice_code) !!}
+                    </div>
+
+                    <p class="text-xs font-mono text-zinc-500">
+                        {{ $transaction->invoice_code }}
+                    </p>
+
+                </div>
+
+            @else
+
+                <div class="h-full flex flex-col items-center justify-center text-center py-12">
+
+                    <div class="w-20 h-20 rounded-3xl bg-yellow-50 text-yellow-600 flex items-center justify-center text-3xl mb-4">
+                        🎫
+                    </div>
+
+                    <p class="text-sm font-semibold text-slate-700">
+                        QR Code Belum Aktif
+                    </p>
+
+                    <p class="text-xs text-slate-400 mt-2 max-w-xs">
+                        QR Code akan tersedia setelah pembayaran berhasil.
+                    </p>
+
+                </div>
+
+            @endif
+
+        </div>
+
+    </div>
+
 </div>
 @endsection

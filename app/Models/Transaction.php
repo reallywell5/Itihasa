@@ -7,31 +7,50 @@ use Illuminate\Database\Eloquent\Model;
 class Transaction extends Model
 {
     protected $fillable = [
-        'user_id',
-        'transaction_date',
-        'total_price',
-        'status',
+        'booking_id',
+        'invoice_code',
+        'payment_method',
+        'subtotal',
+        'service_fee',
+        'total_amount',
+        'payment_status',
+        'used_at'
     ];
 
     protected $casts = [
-        'transaction_date' => 'datetime',
-        'total_price' => 'decimal:2',
+        'subtotal' => 'integer',
+        'service_fee' => 'integer',
+        'total_amount' => 'integer',
+        'used_at' => 'datetime',
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | RELATIONSHIPS
-    |--------------------------------------------------------------------------
-    */
+    public function booking()
+    {
+        return $this->belongsTo(Booking::class);
+    }
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->hasOneThrough(
+            User::class,
+            Booking::class,
+            'id',
+            'id',
+            'booking_id',
+            'user_id'
+        );
     }
 
-    public function transactionDetails()
+    public function museum()
     {
-        return $this->hasMany(TransactionDetail::class);
+        return $this->hasOneThrough(
+            Museum::class,
+            Booking::class,
+            'id',
+            'id',
+            'booking_id',
+            'museum_id'
+        );
     }
 
     public function payment()

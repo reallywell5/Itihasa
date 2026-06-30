@@ -25,17 +25,23 @@
 
         <div class="bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
             <p class="text-sm text-slate-400">Total Scan</p>
-            <h2 class="text-3xl font-bold text-slate-800 mt-2">156</h2>
+            <h2 class="text-3xl font-bold text-slate-800 mt-2">
+                {{ $totalScan }}
+            </h2>
         </div>
 
         <div class="bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
             <p class="text-sm text-slate-400">Scan Valid</p>
-            <h2 class="text-3xl font-bold text-slate-800 mt-2">140</h2>
+            <h2 class="text-3xl font-bold text-slate-800 mt-2">
+                {{ $validScan }}
+            </h2>
         </div>
 
         <div class="bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
             <p class="text-sm text-slate-400">QR Used</p>
-            <h2 class="text-3xl font-bold text-slate-800 mt-2">16</h2>
+            <h2 class="text-3xl font-bold text-slate-800 mt-2">
+                {{ $usedScan }}
+            </h2>
         </div>
 
         <div class="bg-blue-600 rounded-3xl p-6 text-white shadow-sm">
@@ -48,34 +54,14 @@
     {{-- TABLE --}}
     <div class="bg-white rounded-3xl border border-blue-100 overflow-hidden shadow-sm">
 
-        <div class="px-6 py-5 border-b border-blue-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="px-6 py-5 border-b border-blue-50">
+            <h2 class="text-lg font-bold text-slate-800">
+                Daftar Riwayat Scan
+            </h2>
 
-            <div>
-                <h2 class="text-lg font-bold text-slate-800">
-                    Daftar Riwayat Scan
-                </h2>
-
-                <p class="text-sm text-slate-400">
-                    Aktivitas scan tiket terbaru.
-                </p>
-            </div>
-
-            <div class="flex items-center bg-blue-50 rounded-xl px-4 py-2 w-full sm:w-72">
-                <svg class="w-4 h-4 text-blue-600 mr-2"
-                     fill="none"
-                     stroke="currentColor"
-                     stroke-width="2"
-                     viewBox="0 0 24 24">
-                    <path stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"/>
-                </svg>
-
-                <input type="text"
-                       placeholder="Search riwayat..."
-                       class="bg-transparent outline-none text-sm w-full text-slate-600">
-            </div>
-
+            <p class="text-sm text-slate-400">
+                Aktivitas scan tiket terbaru.
+            </p>
         </div>
 
         <div class="overflow-x-auto">
@@ -94,89 +80,49 @@
 
                 <tbody class="divide-y divide-blue-50">
 
+                    @forelse($transactions as $transaction)
                     <tr class="hover:bg-blue-50/40">
+
                         <td class="px-6 py-4 font-semibold text-slate-800">
-                            Petugas 01
+                            {{ auth()->user()->name }}
                         </td>
 
                         <td class="px-6 py-4 text-slate-500">
-                            Budi Santoso
+                            {{ $transaction->booking->user->name }}
                         </td>
 
                         <td class="px-6 py-4 font-mono text-slate-500">
-                            QRC-0001
+                            {{ $transaction->invoice_code }}
                         </td>
 
                         <td class="px-6 py-4 text-slate-500">
-                            Museum Nasional
+                            {{ $transaction->booking->museum->name }}
                         </td>
 
                         <td class="px-6 py-4 text-slate-500">
-                            09:45 WIB
+                            {{ $transaction->used_at ? $transaction->used_at->format('H:i') : '-' }} WIB
                         </td>
 
                         <td class="px-6 py-4">
-                            <span class="px-3 py-1.5 rounded-xl bg-blue-50 text-blue-600 text-xs font-semibold border border-blue-100">
-                                Valid
-                            </span>
+                            @if($transaction->used_at)
+                                <span class="px-3 py-1.5 rounded-xl bg-green-50 text-green-600 text-xs font-semibold border border-green-100">
+                                    Valid
+                                </span>
+                            @else
+                                <span class="px-3 py-1.5 rounded-xl bg-yellow-50 text-yellow-600 text-xs font-semibold border border-yellow-100">
+                                    Pending
+                                </span>
+                            @endif
+                        </td>
+
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="px-6 py-8 text-center text-slate-400">
+                            Belum ada riwayat scan.
                         </td>
                     </tr>
-
-                    <tr class="hover:bg-blue-50/40">
-                        <td class="px-6 py-4 font-semibold text-slate-800">
-                            Petugas 01
-                        </td>
-
-                        <td class="px-6 py-4 text-slate-500">
-                            Andi Wijaya
-                        </td>
-
-                        <td class="px-6 py-4 font-mono text-slate-500">
-                            QRC-0002
-                        </td>
-
-                        <td class="px-6 py-4 text-slate-500">
-                            Museum Nasional
-                        </td>
-
-                        <td class="px-6 py-4 text-slate-500">
-                            10:10 WIB
-                        </td>
-
-                        <td class="px-6 py-4">
-                            <span class="px-3 py-1.5 rounded-xl bg-blue-50 text-blue-600 text-xs font-semibold border border-blue-100">
-                                Used
-                            </span>
-                        </td>
-                    </tr>
-
-                    <tr class="hover:bg-blue-50/40">
-                        <td class="px-6 py-4 font-semibold text-slate-800">
-                            Petugas 02
-                        </td>
-
-                        <td class="px-6 py-4 text-slate-500">
-                            Siti Aulia
-                        </td>
-
-                        <td class="px-6 py-4 font-mono text-slate-500">
-                            QRC-0003
-                        </td>
-
-                        <td class="px-6 py-4 text-slate-500">
-                            Museum Sejarah
-                        </td>
-
-                        <td class="px-6 py-4 text-slate-500">
-                            11:25 WIB
-                        </td>
-
-                        <td class="px-6 py-4">
-                            <span class="px-3 py-1.5 rounded-xl bg-blue-50 text-blue-600 text-xs font-semibold border border-blue-100">
-                                Valid
-                            </span>
-                        </td>
-                    </tr>
+                    @endforelse
 
                 </tbody>
 

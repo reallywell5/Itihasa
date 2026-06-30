@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Wishlist;
 
 class User extends Authenticatable
 {
@@ -38,5 +39,20 @@ class User extends Authenticatable
     public function isVisitor()
     {
         return $this->role === 'visitor';
+    }
+
+    public function tickets()
+    {
+    return $this->hasMany(Ticket::class);
+    }
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class, 'user_id');
     }
 }

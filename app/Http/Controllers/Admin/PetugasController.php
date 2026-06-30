@@ -11,7 +11,7 @@ class PetugasController extends Controller
 {
     public function index()
     {
-        $petugas = User::where('role', 'petugas')->latest()->get();
+        $petugas = User::where('role', 'staff')->latest()->get();
 
         return view('admin.petugas.index', compact('petugas'));
     }
@@ -40,7 +40,7 @@ class PetugasController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'petugas',
+            'role' => 'staff',
         ]);
 
         return redirect()

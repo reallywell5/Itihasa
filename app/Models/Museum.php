@@ -16,6 +16,7 @@ class Museum extends Model
         'address',
         'description',
         'image',
+        'rating',
         'opening_time',
         'closing_time',
     ];
@@ -36,6 +37,13 @@ class Museum extends Model
         return $this->hasMany(Review::class);
     }
 
-    // Hapus scope 'active' jika ada, karena kolom 'status' tidak ada
-    // public function scopeActive($query) { ... }
+    public function averageRating()
+    {
+        return $this->reviews()->avg('rating') ?? 0;
+    }
+
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
 }

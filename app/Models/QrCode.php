@@ -10,7 +10,7 @@ class QrCode extends Model
         'transaction_id',
         'qr_code',
         'scan_status',
-        'scanned_at',
+        'scanned_at'
     ];
 
     protected $casts = [
@@ -20,6 +20,6 @@ class QrCode extends Model
 
     public function transaction()
     {
-        return $this->belongsTo(Transaction::class);
+        return $this->belongsTo(Transaction::class, 'transaction_id');
     }
 }

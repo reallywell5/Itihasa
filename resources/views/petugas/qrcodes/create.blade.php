@@ -1,7 +1,3 @@
-@php
-    use Illuminate\Support\Str;
-@endphp
-
 @extends('layouts.petugas')
 
 @section('title', 'Generate QR Code')
@@ -11,8 +7,13 @@
 
     <div class="flex items-center justify-between">
         <div>
-            <h1 class="text-2xl font-bold text-zinc-900">Generate QR Code</h1>
-            <p class="text-sm text-zinc-500 mt-1">Buat QR Code untuk tiket pengunjung.</p>
+            <h1 class="text-2xl font-bold text-zinc-900">
+                Generate QR Code
+            </h1>
+
+            <p class="text-sm text-zinc-500 mt-1">
+                Buat QR Code berdasarkan transaksi yang sudah dibayar.
+            </p>
         </div>
 
         <a href="{{ route('petugas.qrcodes.index') }}"
@@ -22,48 +23,50 @@
     </div>
 
     <div class="bg-white border border-zinc-200 rounded-2xl shadow-sm p-8">
+
         <form action="{{ route('petugas.qrcodes.store') }}" method="POST" class="space-y-6">
             @csrf
 
+            {{-- PILIH TRANSAKSI --}}
             <div>
                 <label class="block text-sm font-semibold text-zinc-700 mb-2">
-                    Transaction Detail
+                    Pilih Transaksi
                 </label>
 
-                <select name="transaction_detail_id"
+                <select name="transaction_id"
                         class="w-full border border-zinc-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
                         required>
-                    <option value="">Pilih Transaction Detail</option>
 
-                    @foreach($transactionDetails as $detail)
-                        <option value="{{ $detail->id }}">
-                            Transaction Detail #{{ $detail->id }}
+                    <option value="">Pilih transaksi</option>
+
+                    @foreach($transactions as $transaction)
+                        <option value="{{ $transaction->id }}">
+                            {{ $transaction->invoice_code }}
+                            - {{ $transaction->booking->user->name }}
+                            - {{ $transaction->booking->museum->name }}
                         </option>
                     @endforeach
+
                 </select>
 
-                @error('transaction_detail_id')
-                    <p class="text-sm text-red-600 mt-2">{{ $message }}</p>
+                @error('transaction_id')
+                    <p class="text-sm text-red-600 mt-2">
+                        {{ $message }}
+                    </p>
                 @enderror
             </div>
 
+            {{-- STATUS --}}
             <div>
                 <label class="block text-sm font-semibold text-zinc-700 mb-2">
-                    QR Code
+                    Status QR
                 </label>
 
                 <input type="text"
-                       name="qr_code"
-                       value="{{ old('qr_code', 'QR-' . strtoupper(Str::random(10))) }}"
-                       class="w-full border border-zinc-200 rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
-                       required>
-
-                @error('qr_code')
-                    <p class="text-sm text-red-600 mt-2">{{ $message }}</p>
-                @enderror
+                       value="pending"
+                       disabled
+                       class="w-full border border-zinc-200 rounded-lg px-4 py-3 text-sm bg-zinc-50">
             </div>
-
-            <input type="hidden" name="scan_status" value="valid">
 
             <div class="flex justify-end">
                 <button type="submit"
@@ -71,7 +74,9 @@
                     Simpan QR Code
                 </button>
             </div>
+
         </form>
+
     </div>
 
 </div>
