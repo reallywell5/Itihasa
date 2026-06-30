@@ -11,12 +11,8 @@ class TicketWebController extends Controller
 {
     public function index()
     {
-        $tickets = Ticket::with('museum')
-            ->paginate(10);
-
-        return view('admin.tickets.index', [
-            'tickets' => $tickets,
-        ]);
+        $tickets = Ticket::with('museum')->get();
+        return view('admin.tickets.index', compact('tickets'));
     }
 
     public function create()

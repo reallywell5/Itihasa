@@ -28,22 +28,30 @@
 
         <div class="bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
             <p class="text-sm text-slate-400">Total Pengunjung</p>
-            <h2 class="text-3xl font-bold text-slate-800 mt-2">128</h2>
+            <h2 class="text-3xl font-bold text-slate-800 mt-2">
+                {{ $totalVisitors }}
+            </h2>
         </div>
 
         <div class="bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
             <p class="text-sm text-slate-400">Dewasa</p>
-            <h2 class="text-3xl font-bold text-slate-800 mt-2">85</h2>
+            <h2 class="text-3xl font-bold text-slate-800 mt-2">
+                {{ $adultCount }}
+            </h2>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
+            <p class="text-sm text-slate-400">Pelajar</p>
+            <h2 class="text-3xl font-bold text-slate-800 mt-2">
+                {{ $studentCount }}
+            </h2>
         </div>
 
         <div class="bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
             <p class="text-sm text-slate-400">Anak-anak</p>
-            <h2 class="text-3xl font-bold text-slate-800 mt-2">43</h2>
-        </div>
-
-        <div class="bg-blue-600 rounded-3xl p-6 text-white shadow-sm">
-            <p class="text-blue-100">Status</p>
-            <h2 class="text-2xl font-bold mt-2">Aktif</h2>
+            <h2 class="text-3xl font-bold text-slate-800 mt-2">
+                {{ $childCount }}
+            </h2>
         </div>
 
     </div>
@@ -51,17 +59,15 @@
     {{-- TABLE --}}
     <div class="bg-white rounded-3xl border border-blue-100 overflow-hidden shadow-sm">
 
-        <div class="px-6 py-5 border-b border-blue-50 flex justify-between items-center">
+        <div class="px-6 py-5 border-b border-blue-50">
 
-            <div>
-                <h2 class="text-lg font-bold text-slate-800">
-                    Daftar Pengunjung
-                </h2>
+            <h2 class="text-lg font-bold text-slate-800">
+                Daftar Pengunjung
+            </h2>
 
-                <p class="text-sm text-slate-400">
-                    Pengunjung yang telah berhasil masuk museum.
-                </p>
-            </div>
+            <p class="text-sm text-slate-400">
+                Pengunjung yang berhasil masuk museum.
+            </p>
 
         </div>
 
@@ -70,80 +76,54 @@
             <table class="w-full text-sm">
 
                 <thead class="bg-blue-50 text-blue-600 uppercase text-xs font-bold">
-
                     <tr>
-                        <th class="px-6 py-4 text-left">
-                            Nama Pengunjung
-                        </th>
-
-                        <th class="px-6 py-4 text-left">
-                            Kode Tiket
-                        </th>
-
-                        <th class="px-6 py-4 text-left">
-                            Museum
-                        </th>
-
-                        <th class="px-6 py-4 text-left">
-                            Jam Masuk
-                        </th>
-
-                        <th class="px-6 py-4 text-left">
-                            Status
-                        </th>
+                        <th class="px-6 py-4 text-left">Nama Pengunjung</th>
+                        <th class="px-6 py-4 text-left">Kode Tiket</th>
+                        <th class="px-6 py-4 text-left">Museum</th>
+                        <th class="px-6 py-4 text-left">Jam Masuk</th>
+                        <th class="px-6 py-4 text-left">Status</th>
                     </tr>
-
                 </thead>
 
                 <tbody class="divide-y divide-blue-50">
 
+                    @forelse($transactions as $transaction)
+
                     <tr class="hover:bg-blue-50/40">
+
                         <td class="px-6 py-4 font-semibold text-slate-800">
-                            Budi Santoso
+                            {{ $transaction->booking->user->name }}
                         </td>
 
                         <td class="px-6 py-4 text-slate-500">
-                            TKT-0001
+                            {{ $transaction->invoice_code }}
                         </td>
 
                         <td class="px-6 py-4 text-slate-500">
-                            Museum Nasional
+                            {{ $transaction->booking->museum->name }}
                         </td>
 
                         <td class="px-6 py-4 text-slate-500">
-                            09:45 WIB
+                            {{ $transaction->used_at->format('H:i') }} WIB
                         </td>
 
                         <td class="px-6 py-4">
-                            <span class="px-3 py-1.5 rounded-xl bg-blue-50 text-blue-600 text-xs font-semibold border border-blue-100">
+                            <span class="px-3 py-1.5 rounded-xl bg-green-50 text-green-600 text-xs font-semibold border border-green-100">
                                 Sudah Masuk
                             </span>
                         </td>
+
                     </tr>
 
-                    <tr class="hover:bg-blue-50/40">
-                        <td class="px-6 py-4 font-semibold text-slate-800">
-                            Andi Wijaya
-                        </td>
+                    @empty
 
-                        <td class="px-6 py-4 text-slate-500">
-                            TKT-0002
-                        </td>
-
-                        <td class="px-6 py-4 text-slate-500">
-                            Museum Nasional
-                        </td>
-
-                        <td class="px-6 py-4 text-slate-500">
-                            10:10 WIB
-                        </td>
-
-                        <td class="px-6 py-4">
-                            <span class="px-3 py-1.5 rounded-xl bg-blue-50 text-blue-600 text-xs font-semibold border border-blue-100">
-                                Sudah Masuk
-                            </span>
+                    <tr>
+                        <td colspan="5" class="px-6 py-6 text-center text-slate-400">
+                            Belum ada pengunjung yang masuk.
                         </td>
                     </tr>
+
+                    @endforelse
 
                 </tbody>
 

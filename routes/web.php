@@ -14,21 +14,83 @@ use App\Http\Controllers\Admin\PetugasController;
 use App\Http\Controllers\Petugas\DashboardController;
 use App\Http\Controllers\Petugas\QRCodeController;
 use App\Http\Controllers\Petugas\ValidasiController;
+use App\Http\Controllers\Petugas\ScanController;
 use App\Http\Controllers\Petugas\PengunjungController;
+use App\Http\Controllers\Petugas\ProfileController as PetugasProfileController;
 use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\Frontend\HomeController;
-use App\Http\Controllers\Frontend\BookingController;
-use App\Http\Controllers\Frontend\SuccessController;
-use App\Http\Controllers\Frontend\AboutController;
+use App\Http\Controllers\User\HomeController;
+use App\Http\Controllers\User\WishlistController;
+use App\Http\Controllers\User\UserProfileController;
+use App\Http\Controllers\User\BookingController;
+use App\Http\Controllers\User\PaymentController;
+use App\Http\Controllers\User\TransactionController;
+use App\Http\Controllers\User\ReviewController;
+use App\Http\Controllers\User\MuseumController;
 
-// =============================
-// ROUTE FRONTEND - PUBLIC
-// =============================
-Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/booking', [BookingController::class, 'index'])->name('booking');
-Route::post('/booking/store', [BookingController::class, 'store'])->name('booking.store');
-Route::get('/success', [SuccessController::class, 'index'])->name('success');
-Route::get('/about', [AboutController::class, 'index'])->name('about');
+Route::get('/', [HomeController::class, 'landing'])->name('landing');
+
+Route::prefix('user')->middleware('auth')->group(function () {
+
+    Route::get('/home', [HomeController::class, 'index'])->name('user.home');
+
+    Route::get('/wishlist', [WishlistController::class, 'index'])
+        ->name('user.wishlist');
+
+    Route::post('/wishlist/{museum}', [WishlistController::class, 'store'])
+        ->name('user.wishlist.store');
+
+    Route::delete('/wishlist/{wishlist}', [WishlistController::class, 'destroy'])
+        ->name('user.wishlist.destroy');
+
+    Route::get('/profile', [UserProfileController::class, 'index'])
+        ->name('user.profile');
+
+    Route::get('/profile/edit', [UserProfileController::class, 'edit'])
+        ->name('user.profile.edit');
+
+    Route::put('/profile/update', [UserProfileController::class, 'update'])
+        ->name('user.profile.update');
+
+    // BOOKING
+    Route::get('/booking/{museum}', [BookingController::class, 'create'])
+        ->name('user.booking');
+
+    Route::post('/booking/{museum}', [BookingController::class, 'store'])
+        ->name('user.booking.store');
+
+    // PAYMENT
+    Route::get('/payment/{booking}', [PaymentController::class, 'index'])
+        ->name('user.payment');
+
+    Route::post('/payment/{booking}', [PaymentController::class, 'process'])
+        ->name('user.payment.process');
+
+    Route::get('/payment/show/{transaction}', [PaymentController::class, 'show3'])
+        ->name('user.payment.show3');
+
+    Route::post('/payment/confirm/{transaction}', [PaymentController::class, 'confirm'])
+    ->name('user.payment.confirm');
+
+    // TRANSACTION
+    Route::get('/transaction/{transaction}', [TransactionController::class, 'show'])
+        ->name('user.transaction.show');
+
+    // QR TICKET
+    Route::get('/ticket/{transaction}', [TransactionController::class, 'ticket'])
+        ->name('user.ticket');
+
+    // USER MUSEUM DETAIL
+    Route::get('/museum/{museum}', [MuseumController::class, 'show'])
+        ->name('museum.detail');
+
+    // REVIEW
+    Route::post('/review/{transaction}', [ReviewController::class, 'store'])
+        ->name('user.review.store');
+
+    Route::get('/ticket/thank-you/{qrCode}', [QRCodeController::class, 'thankYou'])
+        ->name('ticket.thankyou');
+});
+
 
 // Rute Uji Coba QR
 Route::get('/test-qr', function () {
@@ -78,25 +140,27 @@ Route::prefix('petugas')->middleware(['auth', 'petugas'])->group(function () {
     Route::resource('qrcodes', QRCodeController::class)
         ->names('petugas.qrcodes');
 
-    Route::get('/qrcodes-scan', [QRCodeController::class, 'scan'])
+    Route::get('/scan', [ScanController::class, 'index'])
         ->name('petugas.qrcodes.scan');
 
-    Route::post('/qrcodes-validate', [QRCodeController::class, 'validateQr'])
+    Route::post('/scan/validate', [ScanController::class, 'validateQr'])
         ->name('petugas.qrcodes.validate');
 
     Route::get('/validasi', [ValidasiController::class, 'index'])
         ->name('petugas.validasi');
 
+    Route::post('/petugas/validate', [QRCodeController::class, 'validateQr'])
+        ->name('petugas.validateQr');
+
     Route::get('/pengunjung', [PengunjungController::class, 'index'])
         ->name('petugas.pengunjung');
 
-    Route::get('/riwayat', function () {
-        return view('petugas.riwayat');
-    })->name('petugas.riwayat');
+    Route::get('/riwayat', [ScanController::class, 'riwayat'])
+        ->name('petugas.riwayat');
 
-    Route::get('/profil', function () {
-        return view('petugas.profil');
-    })->name('petugas.profil');
+    Route::get('/profil', [PetugasProfileController::class, 'index'])
+        ->name('petugas.profil');
+
 });
 
 // Route Auth
@@ -105,3 +169,4 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.process');
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.process');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+

@@ -7,7 +7,6 @@
 
     {{-- HEADER --}}
     <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-
         <div>
             <p class="text-sm font-semibold text-blue-600 mb-2">
                 Museum Management
@@ -18,70 +17,45 @@
             </h1>
 
             <p class="text-sm text-slate-500 max-w-xl">
-                Kelola data museum, alamat, dan jam operasional museum melalui halaman admin.
+                Kelola data museum, alamat, foto, dan jam operasional museum.
             </p>
         </div>
 
         <a href="{{ route('museums.create') }}"
-           class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold shadow-md hover:bg-blue-700 transition">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-            </svg>
-            Tambah Museum
+           class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition">
+            + Tambah Museum
         </a>
-
     </div>
 
-    {{-- SUCCESS ALERT --}}
+    {{-- ALERT --}}
     @if(session('success'))
-        <div class="bg-white border border-blue-100 rounded-2xl p-4 shadow-sm flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-                ✓
-            </div>
-
-            <p class="text-sm font-semibold text-slate-700">
-                {{ session('success') }}
-            </p>
+        <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl">
+            {{ session('success') }}
         </div>
     @endif
 
-    {{-- SUMMARY CARD --}}
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+    {{-- SUMMARY --}}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
         <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
-            <p class="text-sm text-slate-400 font-semibold mb-2">
-                Total Museum
-            </p>
-            <h2 class="text-3xl font-bold text-slate-800">
+            <p class="text-sm text-slate-400">Total Museum</p>
+            <h2 class="text-3xl font-bold text-slate-800 mt-2">
                 {{ $museums->count() }}
             </h2>
-            <p class="text-sm text-blue-600 font-semibold mt-2">
-                Data terdaftar
-            </p>
         </div>
 
         <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
-            <p class="text-sm text-slate-400 font-semibold mb-2">
-                Status Data
-            </p>
-            <h2 class="text-3xl font-bold text-slate-800">
-                Aktif
+            <p class="text-sm text-slate-400">Museum Aktif</p>
+            <h2 class="text-3xl font-bold text-slate-800 mt-2">
+                {{ $museums->count() }}
             </h2>
-            <p class="text-sm text-blue-600 font-semibold mt-2">
-                Siap dikelola
-            </p>
         </div>
 
         <div class="bg-blue-600 rounded-3xl shadow-sm p-6 text-white">
-            <p class="text-sm text-blue-100 mb-2">
-                Quick Action
-            </p>
-            <h2 class="text-2xl font-bold">
-                Tambah Data
+            <p class="text-sm text-blue-100">Quick Action</p>
+            <h2 class="text-2xl font-bold mt-2">
+                Tambah Museum Baru
             </h2>
-            <p class="text-sm text-blue-100 mt-2">
-                Input museum baru ke sistem.
-            </p>
         </div>
 
     </div>
@@ -89,142 +63,111 @@
     {{-- TABLE --}}
     <div class="bg-white rounded-3xl shadow-sm border border-blue-100 overflow-hidden">
 
-        <div class="px-6 py-5 border-b border-blue-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="px-6 py-5 border-b border-blue-50 flex justify-between items-center">
             <div>
                 <h2 class="text-lg font-bold text-slate-800">
                     Daftar Museum
                 </h2>
 
                 <p class="text-sm text-slate-400">
-                    Menampilkan seluruh data museum yang tersedia.
+                    Menampilkan semua museum yang tersedia.
                 </p>
-            </div>
-
-            <div class="flex items-center bg-blue-50 rounded-xl px-4 py-2 w-full sm:w-72">
-                <svg class="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" stroke-width="2"
-                     viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"/>
-                </svg>
-
-                <input type="text"
-                       placeholder="Search museum..."
-                       class="bg-transparent outline-none text-sm w-full text-slate-600">
             </div>
         </div>
 
         <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left">
-                <thead class="bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-wider">
+            <table class="w-full text-sm">
+
+                <thead class="bg-blue-50 text-blue-600 uppercase text-xs font-bold">
                     <tr>
-                        <th class="px-6 py-4">Detail Museum</th>
-                        <th class="px-6 py-4">Alamat</th>
-                        <th class="px-6 py-4">Jam Operasional</th>
-                        <th class="px-6 py-4 text-right">Tindakan</th>
+                        <th class="px-6 py-4 text-left">Museum</th>
+                        <th class="px-6 py-4 text-left">Alamat</th>
+                        <th class="px-6 py-4 text-left">Jam Operasional</th>
+                        <th class="px-6 py-4 text-left">Status</th>
+                        <th class="px-6 py-4 text-right">Aksi</th>
                     </tr>
                 </thead>
 
                 <tbody class="divide-y divide-blue-50">
+
                     @forelse($museums as $museum)
-                        <tr class="hover:bg-blue-50/40 transition">
+                    <tr class="hover:bg-blue-50/30 transition">
 
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-sm">
-                                        {{ strtoupper(substr($museum->name, 0, 1)) }}
-                                    </div>
+                        {{-- MUSEUM --}}
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-4">
 
-                                    <div>
-                                        <p class="font-bold text-slate-800">
-                                            {{ $museum->name }}
-                                        </p>
+                                <img
+                                    src="{{ $museum->image ? asset('storage/' . $museum->image) : asset('images/default-museum.jpg') }}"
+                                    class="w-14 h-14 rounded-2xl object-cover border border-blue-100">
 
-                                        <p class="text-xs text-slate-400 mt-0.5">
-                                            M-{{ str_pad($museum->id, 4, '0', STR_PAD_LEFT) }}
-                                        </p>
-                                    </div>
-                                </div>
-                            </td>
+                                <div>
+                                    <h3 class="font-bold text-slate-800">
+                                        {{ $museum->name }}
+                                    </h3>
 
-                            <td class="px-6 py-4 text-slate-500 max-w-md">
-                                {{ $museum->address ?? '-' }}
-                            </td>
-
-                            <td class="px-6 py-4">
-                                @if($museum->operational_hours)
-                                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-50 text-blue-600 text-xs font-semibold border border-blue-100">
-                                        <span class="w-2 h-2 rounded-full bg-blue-600"></span>
-                                        {{ $museum->operational_hours }}
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-blue-50 text-blue-600 text-xs font-semibold border border-blue-100">
-                                        <span class="w-2 h-2 rounded-full bg-blue-600"></span>
-                                        Belum diatur
-                                    </span>
-                                @endif
-                            </td>
-
-                            <td class="px-6 py-4 text-right">
-                                <div class="flex items-center justify-end gap-2">
-
-                                    <a href="{{ route('museums.edit', $museum->id) }}"
-                                       class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition"
-                                       title="Edit">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
-                                             viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                        </svg>
-                                    </a>
-
-                                    <form action="{{ route('museums.destroy', $museum->id) }}"
-                                          method="POST"
-                                          onsubmit="return confirm('Apakah Anda yakin ingin menghapus museum ini?')">
-                                        @csrf
-                                        @method('DELETE')
-
-                                        <button type="submit"
-                                                class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-600 hover:text-white transition"
-                                                title="Hapus">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
-                                                 viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m2 0H7m3-3h4a1 1 0 011 1v2H9V5a1 1 0 011-1z"/>
-                                            </svg>
-                                        </button>
-                                    </form>
-
-                                </div>
-                            </td>
-
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="px-6 py-20 text-center">
-                                <div class="w-16 h-16 bg-blue-50 border border-blue-100 rounded-2xl flex items-center justify-center mx-auto text-blue-600 shadow-sm mb-4">
-                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2"
-                                         viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/>
-                                    </svg>
+                                    <p class="text-xs text-slate-400">
+                                        ID: M-{{ str_pad($museum->id, 4, '0', STR_PAD_LEFT) }}
+                                    </p>
                                 </div>
 
-                                <h3 class="text-base font-bold text-slate-800">
-                                    Belum Ada Data Museum
-                                </h3>
+                            </div>
+                        </td>
 
-                                <p class="text-sm text-slate-400 mt-1">
-                                    Mulai tambahkan museum pertama ke dalam sistem.
-                                </p>
+                        {{-- ADDRESS --}}
+                        <td class="px-6 py-4 text-slate-500 max-w-sm">
+                            {{ $museum->address }}
+                        </td>
 
-                                <a href="{{ route('museums.create') }}"
-                                   class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold shadow-md hover:bg-blue-700 transition mt-5">
-                                    Tambah Museum
+                        {{-- HOURS --}}
+                        <td class="px-6 py-4 text-slate-600">
+                            {{ $museum->opening_time }} - {{ $museum->closing_time }}
+                        </td>
+
+                        {{-- STATUS --}}
+                        <td class="px-6 py-4">
+                            <span class="px-3 py-1 rounded-full bg-green-50 text-green-600 text-xs font-semibold">
+                                Aktif
+                            </span>
+                        </td>
+
+                        {{-- ACTION --}}
+                        <td class="px-6 py-4">
+                            <div class="flex justify-end gap-2">
+
+                                <a href="{{ route('museums.edit', $museum->id) }}"
+                                   class="px-3 py-2 rounded-xl bg-blue-50 text-blue-600 text-sm font-semibold hover:bg-blue-600 hover:text-white transition">
+                                    Edit
                                 </a>
-                            </td>
-                        </tr>
+
+                                <form action="{{ route('museums.destroy', $museum->id) }}"
+                                      method="POST"
+                                      onsubmit="return confirm('Yakin hapus museum ini?')">
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button type="submit"
+                                            class="px-3 py-2 rounded-xl bg-red-50 text-red-600 text-sm font-semibold hover:bg-red-600 hover:text-white transition">
+                                        Hapus
+                                    </button>
+                                </form>
+
+                            </div>
+                        </td>
+
+                    </tr>
+                    @empty
+
+                    <tr>
+                        <td colspan="5" class="px-6 py-16 text-center text-slate-400">
+                            Belum ada data museum.
+                        </td>
+                    </tr>
+
                     @endforelse
+
                 </tbody>
+
             </table>
         </div>
 

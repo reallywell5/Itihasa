@@ -21,7 +21,7 @@
                 <div class="flex flex-col sm:flex-row sm:items-end gap-5">
                     <div class="w-32 h-32 rounded-3xl bg-white p-2 shadow-lg">
                         <div class="w-full h-full rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-5xl font-extrabold">
-                            P
+                            {{ strtoupper(substr($petugas->name, 0, 1)) }}
                         </div>
                     </div>
 
@@ -37,16 +37,17 @@
                         </div>
 
                         <h1 class="text-3xl font-bold text-slate-800">
-                            Petugas Museum
+                            {{ $petugas->name }}
                         </h1>
 
                         <p class="text-sm text-slate-500 mt-1">
-                            Staff validasi tiket dan QR Code Museum Nasional
+                            Staff validasi tiket dan QR Code
                         </p>
                     </div>
                 </div>
 
                 <div class="flex flex-col sm:flex-row gap-3">
+
                     <button class="px-5 py-3 rounded-2xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition shadow-sm">
                         Edit Profil
                     </button>
@@ -55,9 +56,14 @@
                         Ganti Password
                     </button>
 
-                    <button type="submit" class="px-5 py-3 rounded-2xl bg-white border border-blue-100 text-blue-600 text-sm font-semibold hover:bg-blue-50 transition">
-                        Logout
-                    </button>
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <button type="submit"
+                            class="px-5 py-3 rounded-2xl bg-white border border-blue-100 text-blue-600 text-sm font-semibold hover:bg-blue-50 transition">
+                            Logout
+                        </button>
+                    </form>
+
                 </div>
 
             </div>
@@ -69,84 +75,40 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
         <div class="bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
-            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M4 4h5v5H4V4zm11 0h5v5h-5V4zM4 15h5v5H4v-5zm11 0h2v2h-2v-2z"/>
-                </svg>
-            </div>
-
-            <p class="text-sm text-slate-400 font-semibold">
-                Total Scan QR
-            </p>
-
+            <p class="text-sm text-slate-400 font-semibold">Total Scan QR</p>
             <h2 class="text-3xl font-bold text-slate-800 mt-2">
-                1.250
+                {{ $totalScan }}
             </h2>
-
             <p class="text-sm text-blue-600 font-semibold mt-2">
                 Semua aktivitas
             </p>
         </div>
 
         <div class="bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
-            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-            </div>
-
-            <p class="text-sm text-slate-400 font-semibold">
-                Tiket Valid
-            </p>
-
+            <p class="text-sm text-slate-400 font-semibold">Tiket Valid</p>
             <h2 class="text-3xl font-bold text-slate-800 mt-2">
-                1.100
+                {{ $validTickets }}
             </h2>
-
             <p class="text-sm text-blue-600 font-semibold mt-2">
                 Berhasil diverifikasi
             </p>
         </div>
 
         <div class="bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
-            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M18.364 18.364A9 9 0 115.636 5.636m12.728 12.728L5.636 5.636"/>
-                </svg>
-            </div>
-
-            <p class="text-sm text-slate-400 font-semibold">
-                Tiket Ditolak
-            </p>
-
+            <p class="text-sm text-slate-400 font-semibold">Tiket Ditolak</p>
             <h2 class="text-3xl font-bold text-slate-800 mt-2">
-                150
+                {{ $rejectedTickets }}
             </h2>
-
             <p class="text-sm text-blue-600 font-semibold mt-2">
                 QR sudah digunakan
             </p>
         </div>
 
         <div class="bg-blue-600 rounded-3xl p-6 text-white shadow-sm">
-            <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center mb-4">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M17 20h5v-2a4 4 0 00-5-4M9 20H4v-2a4 4 0 015-4m4-4a4 4 0 11-8 0 4 4 0 018 0"/>
-                </svg>
-            </div>
-
-            <p class="text-sm text-blue-100">
-                Pengunjung Dilayani
-            </p>
-
+            <p class="text-sm text-blue-100">Pengunjung Dilayani</p>
             <h2 class="text-3xl font-bold mt-2">
-                980
+                {{ $totalVisitors }}
             </h2>
-
             <p class="text-sm text-blue-100 mt-2">
                 Total visitor
             </p>
@@ -157,8 +119,8 @@
     {{-- PROFILE DETAIL --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {{-- LEFT DETAIL --}}
         <div class="lg:col-span-2 bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
+
             <div class="flex items-center justify-between mb-6">
                 <div>
                     <h2 class="text-lg font-bold text-slate-800">
@@ -178,64 +140,35 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
                 <div class="p-4 rounded-2xl bg-blue-50/60 border border-blue-100">
-                    <p class="text-xs text-slate-400 font-semibold mb-1">
-                        Nama Lengkap
-                    </p>
+                    <p class="text-xs text-slate-400 font-semibold mb-1">Nama Lengkap</p>
+                    <h3 class="font-bold text-slate-800">{{ $petugas->name }}</h3>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-blue-50/60 border border-blue-100">
+                    <p class="text-xs text-slate-400 font-semibold mb-1">Email</p>
+                    <h3 class="font-bold text-slate-800">{{ $petugas->email }}</h3>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-blue-50/60 border border-blue-100">
+                    <p class="text-xs text-slate-400 font-semibold mb-1">ID Petugas</p>
                     <h3 class="font-bold text-slate-800">
-                        Petugas Museum
+                        PTG-{{ str_pad($petugas->id, 5, '0', STR_PAD_LEFT) }}
                     </h3>
                 </div>
 
                 <div class="p-4 rounded-2xl bg-blue-50/60 border border-blue-100">
-                    <p class="text-xs text-slate-400 font-semibold mb-1">
-                        Email
-                    </p>
+                    <p class="text-xs text-slate-400 font-semibold mb-1">Bergabung Sejak</p>
                     <h3 class="font-bold text-slate-800">
-                        petugas@gmail.com
-                    </h3>
-                </div>
-
-                <div class="p-4 rounded-2xl bg-blue-50/60 border border-blue-100">
-                    <p class="text-xs text-slate-400 font-semibold mb-1">
-                        Nomor Telepon
-                    </p>
-                    <h3 class="font-bold text-slate-800">
-                        0812-3456-7890
-                    </h3>
-                </div>
-
-                <div class="p-4 rounded-2xl bg-blue-50/60 border border-blue-100">
-                    <p class="text-xs text-slate-400 font-semibold mb-1">
-                        ID Petugas
-                    </p>
-                    <h3 class="font-bold text-slate-800">
-                        PTG-00001
-                    </h3>
-                </div>
-
-                <div class="p-4 rounded-2xl bg-blue-50/60 border border-blue-100">
-                    <p class="text-xs text-slate-400 font-semibold mb-1">
-                        Museum Bertugas
-                    </p>
-                    <h3 class="font-bold text-slate-800">
-                        Museum Nasional
-                    </h3>
-                </div>
-
-                <div class="p-4 rounded-2xl bg-blue-50/60 border border-blue-100">
-                    <p class="text-xs text-slate-400 font-semibold mb-1">
-                        Bergabung Sejak
-                    </p>
-                    <h3 class="font-bold text-slate-800">
-                        12 Juni 2026
+                        {{ $petugas->created_at->format('d F Y') }}
                     </h3>
                 </div>
 
             </div>
         </div>
 
-        {{-- RIGHT SHIFT --}}
+        {{-- SHIFT --}}
         <div class="bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
+
             <h2 class="text-lg font-bold text-slate-800 mb-1">
                 Shift Hari Ini
             </h2>
@@ -245,9 +178,7 @@
             </p>
 
             <div class="bg-blue-600 rounded-3xl p-5 text-white mb-5">
-                <p class="text-sm text-blue-100">
-                    Shift Pagi
-                </p>
+                <p class="text-sm text-blue-100">Shift Pagi</p>
 
                 <h3 class="text-2xl font-bold mt-2">
                     08.00 - 16.00
@@ -258,24 +189,6 @@
                 </p>
             </div>
 
-            <div class="space-y-4">
-
-                <div class="flex justify-between border-b border-blue-50 pb-3">
-                    <span class="text-sm text-slate-400">Status</span>
-                    <span class="text-sm font-bold text-blue-600">Sedang Bertugas</span>
-                </div>
-
-                <div class="flex justify-between border-b border-blue-50 pb-3">
-                    <span class="text-sm text-slate-400">Lokasi</span>
-                    <span class="text-sm font-bold text-slate-800">Lobby Utama</span>
-                </div>
-
-                <div class="flex justify-between">
-                    <span class="text-sm text-slate-400">Role</span>
-                    <span class="text-sm font-bold text-slate-800">Petugas</span>
-                </div>
-
-            </div>
         </div>
 
     </div>
@@ -289,77 +202,47 @@
             </h2>
 
             <p class="text-sm text-slate-400">
-                Aktivitas validasi tiket yang baru dilakukan.
+                Aktivitas validasi tiket terbaru.
             </p>
         </div>
 
         <div class="p-6 space-y-5">
 
+            @forelse($recentActivities as $activity)
+
             <div class="flex items-start gap-4">
+
                 <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
                     ✓
                 </div>
 
                 <div class="flex-1">
+
                     <div class="flex justify-between gap-4">
                         <h3 class="text-sm font-bold text-slate-800">
-                            QR Code QRC-0001 berhasil divalidasi
+                            QR Code {{ $activity->invoice_code }} berhasil divalidasi
                         </h3>
 
                         <span class="text-xs text-slate-400">
-                            09:10 WIB
+                            {{ $activity->used_at ? $activity->used_at->format('H:i') : '-' }} WIB
                         </span>
                     </div>
 
                     <p class="text-sm text-slate-400 mt-1">
-                        Tiket milik Budi Santoso berhasil digunakan untuk masuk museum.
+                        Tiket milik {{ $activity->booking->user->name }} berhasil digunakan.
                     </p>
+
                 </div>
+
             </div>
 
-            <div class="flex items-start gap-4">
-                <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-                    ✓
-                </div>
+            @empty
 
-                <div class="flex-1">
-                    <div class="flex justify-between gap-4">
-                        <h3 class="text-sm font-bold text-slate-800">
-                            QR Code QRC-0002 berhasil divalidasi
-                        </h3>
+            <p class="text-slate-400 text-sm">
+                Belum ada aktivitas.
+            </p>
 
-                        <span class="text-xs text-slate-400">
-                            09:30 WIB
-                        </span>
-                    </div>
-
-                    <p class="text-sm text-slate-400 mt-1">
-                        Pengunjung Andi Wijaya telah berhasil masuk.
-                    </p>
-                </div>
-            </div>
-
-            <div class="flex items-start gap-4">
-                <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-                    !
-                </div>
-
-                <div class="flex-1">
-                    <div class="flex justify-between gap-4">
-                        <h3 class="text-sm font-bold text-slate-800">
-                            QR Code QRC-0003 sudah digunakan
-                        </h3>
-
-                        <span class="text-xs text-slate-400">
-                            10:15 WIB
-                        </span>
-                    </div>
-
-                    <p class="text-sm text-slate-400 mt-1">
-                        Sistem menolak QR Code karena status tiket sudah digunakan.
-                    </p>
-                </div>
-            </div>
+            @endforelse
 
         </div>
 

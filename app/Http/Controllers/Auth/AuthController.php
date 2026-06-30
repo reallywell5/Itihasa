@@ -56,14 +56,8 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        // ✅ Langsung login setelah registrasi
-        Auth::login($user);
-
-        // Regenerasi session untuk keamanan
-        $request->session()->regenerate();
-
-        // Redirect ke halaman home
-        return redirect()->route('home');
+        return redirect()->route('login')
+        ->with('success', 'Registration successful. Please login to continue.');
     }
 
     public function login(Request $request)
@@ -99,12 +93,13 @@ class AuthController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        if ($user->role === 'petugas') {
+        if ($user->role === 'staff') {
             return redirect()->route('petugas.dashboard');
         }
 
-        // Selain admin/petugas -> visitor -> home
-        return redirect()->route('home');
+        // User biasa
+        return redirect()->route('user.home');
+
     }
 
     public function logout(Request $request)

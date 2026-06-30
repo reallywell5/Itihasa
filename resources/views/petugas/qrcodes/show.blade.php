@@ -9,10 +9,16 @@
 @section('content')
 <div class="space-y-6">
 
+    {{-- HEADER --}}
     <div class="flex items-center justify-between">
         <div>
-            <h1 class="text-2xl font-bold text-zinc-900">Detail QR Code</h1>
-            <p class="text-sm text-zinc-500 mt-1">Informasi lengkap QR Code tiket.</p>
+            <h1 class="text-2xl font-bold text-zinc-900">
+                Detail QR Code
+            </h1>
+
+            <p class="text-sm text-zinc-500 mt-1">
+                Informasi lengkap tiket dan status validasi.
+            </p>
         </div>
 
         <a href="{{ route('petugas.qrcodes.index') }}"
@@ -22,48 +28,78 @@
     </div>
 
     <div class="bg-white border border-zinc-200 rounded-2xl shadow-sm p-8">
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 
+            {{-- INVOICE --}}
             <div>
                 <p class="text-xs uppercase tracking-widest font-bold text-zinc-400">
-                    Transaction Detail ID
+                    Invoice Code
                 </p>
+
                 <p class="mt-2 text-lg font-bold text-zinc-900">
-                    #{{ $qrCode->transaction_detail_id }}
+                    {{ $qrCode->transactionDetail?->transaction?->invoice_code ?? '-' }}
                 </p>
             </div>
 
+            {{-- PENGUNJUNG --}}
             <div>
                 <p class="text-xs uppercase tracking-widest font-bold text-zinc-400">
-                    QR Code
+                    Nama Pengunjung
                 </p>
-                <p class="mt-2 text-sm font-mono text-zinc-700">
-                    {{ $qrCode->qr_code }}
+
+                <p class="mt-2 text-lg font-semibold text-zinc-900">
+                    {{ $qr?->transaction?->booking?->user?->name ?? '-' }}
                 </p>
             </div>
 
+            {{-- MUSEUM --}}
             <div>
                 <p class="text-xs uppercase tracking-widest font-bold text-zinc-400">
-                    Scan Status
+                    Museum
+                </p>
+
+                <p class="mt-2 text-lg font-semibold text-zinc-900">
+                    {{ $qr?->transaction?->booking?->museum?->name ?? '-' }}
+                </p>
+            </div>
+
+            {{-- TOTAL --}}
+            <div>
+                <p class="text-xs uppercase tracking-widest font-bold text-zinc-400">
+                    Total Pembayaran
+                </p>
+
+                <p class="mt-2 text-lg font-bold text-zinc-900">
+                    Rp {{ number_format($qrCode->transaction?->total_amount ?? 0, 0, ',', '.') }}
+                </p>
+            </div>
+
+            {{-- STATUS --}}
+            <div>
+                <p class="text-xs uppercase tracking-widest font-bold text-zinc-400">
+                    Status Tiket
                 </p>
 
                 <div class="mt-2">
-                    @if($qrCode->scan_status == 'used')
-                        <span class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">
+                    @if($qr->scan_status == 'used')
+                        <span class="bg-green-100 text-green-700 px-4 py-2 rounded-xl">
                             Used
                         </span>
                     @else
-                        <span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
+                        <span class="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-xl">
                             Valid
                         </span>
                     @endif
                 </div>
             </div>
 
+            {{-- SCANNED --}}
             <div>
                 <p class="text-xs uppercase tracking-widest font-bold text-zinc-400">
                     Scanned At
                 </p>
+
                 <p class="mt-2 text-sm text-zinc-700">
                     {{ $qrCode->scanned_at ? $qrCode->scanned_at->format('d M Y H:i') : '-' }}
                 </p>
@@ -71,15 +107,19 @@
 
         </div>
 
+        {{-- QR DISPLAY --}}
         <div class="mt-10 border-t border-zinc-100 pt-8">
+
             <p class="text-xs uppercase tracking-widest font-bold text-zinc-400 mb-4">
-                Tampilan QR Code
+                QR Code Ticket
             </p>
 
             <div class="inline-block p-5 border border-zinc-200 rounded-xl bg-white">
-                {!! QrCode::size(200)->generate($qrCode->qr_code) !!}
+                {!! QrCode::size(220)->generate($qrCode->qr_code) !!}
             </div>
+
         </div>
+
     </div>
 
 </div>

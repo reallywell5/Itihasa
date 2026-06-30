@@ -1,32 +1,42 @@
 @extends('layouts.app')
 
-@section('title', 'Tambah Pengguna Baru')
+@section('title', 'Tambah Pengguna')
 
 @section('content')
-<div class="max-w-2xl mx-auto px-6 py-8">
+<div class="max-w-3xl mx-auto space-y-6">
 
-    <div class="mb-6">
-        <a href="{{ route('users.index') }}" class="text-sm text-zinc-500 hover:text-zinc-900 transition">
-            ← Kembali ke Daftar
-        </a>
-
-        <h1 class="text-2xl font-bold text-zinc-900 mt-4">
+    {{-- HEADER --}}
+    <div>
+        <h1 class="text-2xl font-bold text-zinc-900">
             Tambah Pengguna Baru
         </h1>
 
         <p class="text-sm text-zinc-500 mt-1">
-            Isi data akun pengguna baru untuk sistem.
+            Tambahkan akun pengguna baru ke dalam sistem Itihasa.
         </p>
     </div>
 
+    {{-- FORM --}}
     <div class="bg-white border border-zinc-200 rounded-2xl shadow-sm overflow-hidden">
         <form action="{{ route('users.store') }}" method="POST">
             @csrf
 
             <div class="p-6 space-y-5">
 
+                {{-- ERROR GLOBAL --}}
+                @if ($errors->any())
+                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+                        <ul class="list-disc list-inside text-sm space-y-1">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                {{-- NAME --}}
                 <div>
-                    <label for="name" class="block text-sm font-semibold text-zinc-700 mb-1.5">
+                    <label for="name" class="block text-sm font-semibold text-zinc-700 mb-2">
                         Nama Lengkap
                     </label>
 
@@ -35,18 +45,16 @@
                         type="text"
                         name="name"
                         value="{{ old('name') }}"
-                        class="w-full px-4 py-2.5 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         placeholder="Masukkan nama lengkap"
+                        required
+                        class="w-full px-4 py-3 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
                     >
-
-                    @error('name')
-                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-                    @enderror
                 </div>
 
+                {{-- EMAIL --}}
                 <div>
-                    <label for="email" class="block text-sm font-semibold text-zinc-700 mb-1.5">
-                        Alamat Email
+                    <label for="email" class="block text-sm font-semibold text-zinc-700 mb-2">
+                        Email
                     </label>
 
                     <input
@@ -54,41 +62,43 @@
                         type="email"
                         name="email"
                         value="{{ old('email') }}"
-                        class="w-full px-4 py-2.5 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         placeholder="Masukkan email"
+                        required
+                        class="w-full px-4 py-3 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
                     >
-
-                    @error('email')
-                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-                    @enderror
                 </div>
 
+                {{-- ROLE --}}
                 <div>
-                    <label for="role" class="block text-sm font-semibold text-zinc-700 mb-1.5">
-                        Hak Akses / Role
+                    <label for="role" class="block text-sm font-semibold text-zinc-700 mb-2">
+                        Role
                     </label>
 
                     <select
                         id="role"
                         name="role"
-                        class="w-full px-4 py-2.5 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        required
+                        class="w-full px-4 py-3 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
                     >
-                        <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>
-                            User
-                        </option>
+                        <option value="">Pilih Role</option>
 
                         <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>
                             Admin
                         </option>
-                    </select>
 
-                    @error('role')
-                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-                    @enderror
+                        <option value="staff" {{ old('role') == 'staff' ? 'selected' : '' }}>
+                            Petugas
+                        </option>
+
+                        <option value="visitor" {{ old('role') == 'visitor' ? 'selected' : '' }}>
+                            Visitor
+                        </option>
+                    </select>
                 </div>
 
+                {{-- PASSWORD --}}
                 <div>
-                    <label for="password" class="block text-sm font-semibold text-zinc-700 mb-1.5">
+                    <label for="password" class="block text-sm font-semibold text-zinc-700 mb-2">
                         Password
                     </label>
 
@@ -96,17 +106,15 @@
                         id="password"
                         type="password"
                         name="password"
-                        class="w-full px-4 py-2.5 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         placeholder="Masukkan password"
+                        required
+                        class="w-full px-4 py-3 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
                     >
-
-                    @error('password')
-                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-                    @enderror
                 </div>
 
+                {{-- PASSWORD CONFIRMATION --}}
                 <div>
-                    <label for="password_confirmation" class="block text-sm font-semibold text-zinc-700 mb-1.5">
+                    <label for="password_confirmation" class="block text-sm font-semibold text-zinc-700 mb-2">
                         Konfirmasi Password
                     </label>
 
@@ -114,23 +122,27 @@
                         id="password_confirmation"
                         type="password"
                         name="password_confirmation"
-                        class="w-full px-4 py-2.5 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         placeholder="Ulangi password"
+                        required
+                        class="w-full px-4 py-3 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
                     >
                 </div>
 
             </div>
 
+            {{-- ACTION --}}
             <div class="px-6 py-5 bg-zinc-50 border-t border-zinc-100 flex items-center justify-end gap-3">
+
                 <a href="{{ route('users.index') }}"
                    class="px-5 py-2.5 rounded-xl border border-zinc-200 text-zinc-700 text-sm font-semibold hover:bg-zinc-100 transition">
-                    Kembali
+                    Batal
                 </a>
 
                 <button type="submit"
-                        class="px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition">
-                    Simpan Akun
+                        class="px-5 py-2.5 rounded-xl bg-zinc-900 text-white text-sm font-semibold hover:bg-zinc-800 transition">
+                    Simpan Pengguna
                 </button>
+
             </div>
 
         </form>
