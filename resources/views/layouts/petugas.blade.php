@@ -6,7 +6,7 @@
     <title>@yield('title') - Petugas Panel</title>
 
     @if (file_exists(public_path('build/manifest.json')))
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @vite(['resources/css/app.css', 'resources/js/main.js'])
     @else
         <script src="https://cdn.tailwindcss.com"></script>
     @endif

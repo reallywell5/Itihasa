@@ -73,17 +73,17 @@
                     <div class="hidden md:flex items-center gap-8 text-sm font-semibold">
 
                         <a href="{{ route('user.home') }}"
-                           class="{{ request()->routeIs('user.home') ? 'nav-active' : 'text-slate-500 hover:text-[#102A43]' }}">
+                        class="{{ request()->routeIs('user.home') ? 'nav-active' : '' }}">
                             Home
                         </a>
 
-                        <a href="{{ route('user.wishlist') }}"
-                           class="{{ request()->routeIs('user.wishlist') ? 'nav-active' : 'text-slate-500 hover:text-[#102A43]' }}">
+                        <a href="{{ auth()->check() ? route('user.wishlist') : route('login') }}"
+                        class="{{ request()->routeIs('user.wishlist') ? 'nav-active' : '' }}">
                             Wishlist
                         </a>
 
-                        <a href="{{ route('user.profile') }}"
-                           class="{{ request()->routeIs('user.profile') ? 'nav-active' : 'text-slate-500 hover:text-[#102A43]' }}">
+                        <a href="{{ auth()->check() ? route('user.profile') : route('login') }}"
+                        class="{{ request()->routeIs('user.profile') ? 'nav-active' : '' }}">
                             Profile
                         </a>
 

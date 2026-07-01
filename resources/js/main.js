@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     initializeTicketSelector();
+    initializeSearch();
     initializeSmoothScroll();
     initializeObserverAnimation();
 });
@@ -63,6 +64,30 @@ function updateOrderSummary() {
 
 
 // ==========================================
+// SEARCH FUNCTION
+// ==========================================
+function initializeSearch() {
+    const searchInput = document.querySelector('.search-box input');
+    if (!searchInput) return;
+
+    searchInput.addEventListener('input', function () {
+        const query = this.value.toLowerCase();
+        const cards = document.querySelectorAll('.museum-card');
+
+        cards.forEach(card => {
+            const title = card.querySelector('h3')?.textContent.toLowerCase() || '';
+            const location = card.querySelector('.location')?.textContent.toLowerCase() || '';
+
+            card.style.display =
+                title.includes(query) || location.includes(query)
+                    ? 'block'
+                    : 'none';
+        });
+    });
+}
+
+
+// ==========================================
 // SMOOTH SCROLL
 // ==========================================
 function initializeSmoothScroll() {
@@ -105,7 +130,7 @@ function initializeObserverAnimation() {
 // ==========================================
 // VALIDATE BOOKING
 // ==========================================
-function validateBooking() {
+window.validateBooking = function () {
     const dateInput = document.querySelector('input[type="date"]');
     const totalElement = document.querySelector('#total-price');
 
@@ -120,20 +145,26 @@ function validateBooking() {
     }
 
     return true;
-}
+};
 
-function onScanSuccess(decodedText) {
-    if (isProcessing) return;
 
-    isProcessing = true;
+// ==========================================
+// QR SCAN SUCCESS
+// ==========================================
+window.onScanSuccess = function (decodedText) {
+    if (window.isProcessing) return;
+
+    window.isProcessing = true;
 
     try {
-        beep.play();
+        window.beep?.play();
     } catch (e) {}
 
     const inputField = document.getElementById('qr_code');
     const resultContainer = document.getElementById('result');
     const submitBtn = document.getElementById('submit-btn');
+
+    if (!inputField || !resultContainer || !submitBtn) return;
 
     inputField.value = decodedText;
 
@@ -152,6 +183,5 @@ function onScanSuccess(decodedText) {
     submitBtn.disabled = false;
     submitBtn.innerHTML = 'Validasi Tiket';
 
-    // stop scanner biar nggak scan ulang
-    html5QrcodeScanner.clear();
-}
+    window.html5QrcodeScanner?.clear();
+};
