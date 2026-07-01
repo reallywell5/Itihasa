@@ -96,7 +96,7 @@
                                 <input type="radio" name="payment_method" value="bank_transfer">
                                 <span class="font-semibold text-[#102A43]">Transfer Bank</span>
                             </div>
-                            <span class="text-slate-400">BCA / BNI</span>
+                            <span class="text-slate-400">BCA</span>
                         </label>
 
                         {{-- E-wallet --}}

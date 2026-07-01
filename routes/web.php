@@ -27,11 +27,15 @@ use App\Http\Controllers\User\TransactionController;
 use App\Http\Controllers\User\ReviewController;
 use App\Http\Controllers\User\MuseumController;
 
-Route::get('/', [HomeController::class, 'landing'])->name('landing');
+    Route::get('/', [HomeController::class, 'index'])->name('landing');
 
-Route::prefix('user')->middleware('auth')->group(function () {
+    Route::get('/user/home', [HomeController::class, 'index'])->name('user.home');
 
-    Route::get('/home', [HomeController::class, 'index'])->name('user.home');
+    Route::get('/museum/{museum}', [MuseumController::class, 'show'])
+        ->name('museum.detail');
+
+
+Route::middleware(['auth'])->group(function () {
 
     Route::get('/wishlist', [WishlistController::class, 'index'])
         ->name('user.wishlist');
@@ -79,18 +83,10 @@ Route::prefix('user')->middleware('auth')->group(function () {
     Route::get('/ticket/{transaction}', [TransactionController::class, 'ticket'])
         ->name('user.ticket');
 
-    // USER MUSEUM DETAIL
-    Route::get('/museum/{museum}', [MuseumController::class, 'show'])
-        ->name('museum.detail');
-
     // REVIEW
     Route::post('/review/{transaction}', [ReviewController::class, 'store'])
         ->name('user.review.store');
-
-    Route::get('/ticket/thank-you/{qrCode}', [QRCodeController::class, 'thankYou'])
-        ->name('ticket.thankyou');
 });
-
 
 // Rute Uji Coba QR
 Route::get('/test-qr', function () {

@@ -39,18 +39,23 @@
                     </div>
 
                     @auth
-                    @php
-                        $isWishlisted = $museum->wishlists->contains('user_id', auth()->id());
-                    @endphp
+                        @php
+                            $isWishlisted = $museum->wishlists->contains('user_id', auth()->id());
+                        @endphp
 
-                    <form action="{{ route('user.wishlist.store', $museum->id) }}" method="POST">
-                        @csrf
-                        <button
-                            class="w-12 h-12 rounded-full flex items-center justify-center transition
-                            {{ $isWishlisted ? 'bg-red-100 text-red-500' : 'bg-[#F6F1E8] text-[#B88A44]' }}">
-                            {{ $isWishlisted ? '♥' : '♡' }}
-                        </button>
-                    </form>
+                        <form action="{{ route('user.wishlist.store', $museum->id) }}" method="POST">
+                            @csrf
+                            <button
+                                class="w-10 h-10 rounded-full flex items-center justify-center transition
+                                {{ $isWishlisted ? 'bg-red-100 text-red-500' : 'bg-[#F6F1E8] text-[#B88A44]' }}">
+                                {{ $isWishlisted ? '♥' : '♡' }}
+                            </button>
+                        </form>
+                    @else
+                        <a href="{{ route('login') }}"
+                        class="w-10 h-10 rounded-full flex items-center justify-center bg-[#F6F1E8] text-[#B88A44]">
+                            ♡
+                        </a>
                     @endauth
 
                 </div>

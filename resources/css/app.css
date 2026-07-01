@@ -36,3 +36,215 @@
     opacity: 1;
     transform: translateY(0);
 }
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #FAF9F6;
+    color: #2C2C2C;
+}
+
+.home-container {
+    padding: 20px;
+    padding-bottom: 100px;
+}
+
+/* Header */
+.header h1 {
+    color: #1E3A5F;
+    font-size: 28px;
+    margin-bottom: 5px;
+}
+
+.header p {
+    color: #8b8b8b;
+    font-size: 14px;
+}
+
+/* Search */
+.search-box {
+    margin-top: 20px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 15px;
+    background: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+/* Hero Banner */
+.hero-banner {
+    margin-top: 20px;
+    background: linear-gradient(135deg, #1E3A5F, #8B6F47);
+    border-radius: 25px;
+    padding: 25px;
+    color: white;
+}
+
+.hero-content h2 {
+    font-size: 24px;
+}
+
+.hero-content p {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.hero-content button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    background: #F5E6D3;
+    color: #1E3A5F;
+    font-weight: bold;
+}
+
+/* Section */
+.section-title {
+    margin-top: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.section-title h2 {
+    font-size: 20px;
+}
+
+.section-title a {
+    text-decoration: none;
+    color: #8B6F47;
+}
+
+/* Museum Slider */
+.museum-slider {
+    display: flex;
+    overflow-x: auto;
+    gap: 15px;
+    margin-top: 15px;
+    scrollbar-width: none;
+}
+
+.museum-slider::-webkit-scrollbar {
+    display: none;
+}
+
+.museum-card {
+    min-width: 250px;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+}
+
+.museum-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+}
+
+.museum-info {
+    padding: 15px;
+}
+
+.museum-info h3 {
+    font-size: 18px;
+}
+
+.museum-info p {
+    color: gray;
+    margin-top: 5px;
+}
+
+.rating {
+    margin-top: 10px;
+    color: #8B6F47;
+}
+
+/* Categories */
+.category-slider {
+    display: flex;
+    overflow-x: auto;
+    gap: 10px;
+    margin-top: 15px;
+    scrollbar-width: none;
+}
+
+.category-card {
+    background: #F5E6D3;
+    padding: 12px 20px;
+    border-radius: 20px;
+    white-space: nowrap;
+    color: #1E3A5F;
+    font-weight: bold;
+}
+
+/* Recommended */
+.recommended-list {
+    margin-top: 15px;
+}
+
+.recommended-card {
+    display: flex;
+    gap: 15px;
+    background: white;
+    border-radius: 20px;
+    padding: 15px;
+    margin-bottom: 15px;
+}
+
+.recommended-card img {
+    width: 80px;
+    height: 80px;
+    border-radius: 15px;
+    object-fit: cover;
+}
+
+.recommended-info h3 {
+    font-size: 16px;
+}
+
+.recommended-info p {
+    color: gray;
+    margin: 5px 0;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background: white;
+    display: flex;
+    justify-content: space-around;
+    padding: 15px 0;
+    border-top: 1px solid #ddd;
+}
+
+.bottom-nav a {
+    text-decoration: none;
+    color: gray;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 18px;
+}
+
+.bottom-nav a span {
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.bottom-nav .active {
+    color: #1E3A5F;
+    font-weight: bold;
+}

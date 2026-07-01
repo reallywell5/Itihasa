@@ -154,6 +154,11 @@
                                 {{ $isWishlisted ? '♥' : '♡' }}
                             </button>
                         </form>
+                    @else
+                        <a href="{{ route('login') }}"
+                        class="w-10 h-10 rounded-full flex items-center justify-center bg-[#F6F1E8] text-[#B88A44]">
+                            ♡
+                        </a>
                     @endauth
 
                 </div>
