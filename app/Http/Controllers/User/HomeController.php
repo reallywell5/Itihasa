@@ -10,23 +10,21 @@ class HomeController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Museum::query();
+        $query = Museum::with('wishlists');
 
-        if ($request->search) {
-            $query->where('name', 'like', '%' . $request->search . '%')
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
                   ->orWhere('address', 'like', '%' . $request->search . '%');
+            });
         }
 
-        if ($request->category) {
+        if ($request->filled('category')) {
             $query->where('category', $request->category);
         }
 
-        $museums = $query->with('wishlists')->latest()->get();
-        $recommended = Museum::withCount('wishlists')
-            ->orderByDesc('wishlists_count')
-            ->take(4)
-            ->get();
+        $museums = $query->orderBy('name')->get();
 
-        return view('user.home', compact('museums', 'recommended'));
+        return view('user.home', compact('museums'));
     }
 }

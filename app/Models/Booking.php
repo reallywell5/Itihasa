@@ -8,6 +8,7 @@ class Booking extends Model
 {
     protected $fillable = [
         'user_id',
+        'ticket_id',
         'museum_id',
         'visit_date',
         'adult_qty',
@@ -25,5 +26,10 @@ class Booking extends Model
     public function museum()
     {
         return $this->belongsTo(Museum::class);
+    }
+
+    public function ticket()
+    {
+        return $this->belongsTo(Ticket::class);
     }
 }

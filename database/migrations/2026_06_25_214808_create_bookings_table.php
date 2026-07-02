@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('museum_id')->constrained()->onDelete('cascade');
 
             $table->date('visit_date');
@@ -27,6 +28,7 @@ return new class extends Migration
 
             $table->string('status')->default('pending');
 
+            $table->json('ticket_summary')->nullable();
             $table->timestamps();
         });
     }

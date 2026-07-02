@@ -9,7 +9,6 @@ use App\Http\Controllers\Admin\TransactionWebController;
 use App\Http\Controllers\Admin\DashboardWebController;
 use App\Http\Controllers\Admin\UserWebController;
 use App\Http\Controllers\Admin\PaymentWebController;
-use App\Http\Controllers\Admin\ReviewWebController;
 use App\Http\Controllers\Admin\PetugasController;
 use App\Http\Controllers\Petugas\DashboardController;
 use App\Http\Controllers\Petugas\QRCodeController;
@@ -24,7 +23,6 @@ use App\Http\Controllers\User\UserProfileController;
 use App\Http\Controllers\User\BookingController;
 use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\TransactionController;
-use App\Http\Controllers\User\ReviewController;
 use App\Http\Controllers\User\MuseumController;
 
     Route::get('/', [HomeController::class, 'index'])->name('landing');
@@ -83,9 +81,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/ticket/{transaction}', [TransactionController::class, 'ticket'])
         ->name('user.ticket');
 
-    // REVIEW
-    Route::post('/review/{transaction}', [ReviewController::class, 'store'])
-        ->name('user.review.store');
 });
 
 // Rute Uji Coba QR
@@ -120,9 +115,6 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/transactions/{id}', [TransactionWebController::class, 'show'])
         ->name('transactions.show');
-
-    Route::resource('reviews', ReviewWebController::class)
-        ->only(['index', 'show', 'destroy']);
 });
 
 // =============================

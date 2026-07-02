@@ -113,13 +113,19 @@
 
                     <div class="w-full h-56 rounded-2xl border overflow-hidden bg-zinc-50">
                         <img id="preview-image"
-                             src="{{ $museum->image ? asset('storage/' . $museum->image) : asset('images/default-museum.jpg') }}"
+                             src="{{ $museum->image
+                                ? (Str::startsWith($museum->image, 'storage/')
+                                    ? asset($museum->image)
+                                    : asset('storage/' . $museum->image))
+                                : asset('images/default-museum.jpg') }}"
+                             alt="{{ $museum->name }}"
                              class="w-full h-full object-cover">
                     </div>
 
                     <input type="file"
                            id="image"
                            name="image"
+                           accept="image/*"
                            class="mt-4 w-full text-sm">
 
                     <p class="text-xs text-zinc-400 mt-2">
@@ -174,23 +180,27 @@
 </div>
 
 <script>
-document.getElementById('image').addEventListener('change', function(e) {
+const imageInput = document.getElementById('image');
+
+imageInput.addEventListener('change', function(e) {
+    if (!e.target.files.length) return;
+
     const reader = new FileReader();
 
     reader.onload = function(event) {
         document.getElementById('preview-image').src = event.target.result;
-    }
+    };
 
     reader.readAsDataURL(e.target.files[0]);
 });
 
 function updateOperationalPreview() {
-    let open = document.getElementById('opening_time').value;
-    let close = document.getElementById('closing_time').value;
+    const open = document.getElementById('opening_time').value;
+    const close = document.getElementById('closing_time').value;
 
     if (open && close) {
         document.getElementById('operational-preview').innerText =
-            open + ' - ' + close;
+            `${open} - ${close}`;
     }
 }
 

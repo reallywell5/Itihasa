@@ -99,40 +99,39 @@
                     Pilih Tiket
                 </h2>
 
-                {{-- Dewasa --}}
-                @foreach([
-                    ['adult', 'Dewasa', 25000, 1],
-                    ['student', 'Pelajar', 15000, 1],
-                    ['child', 'Anak-anak', 10000, 0]
-                ] as $ticket)
+                @foreach($museum->tickets as $ticket)
 
                 <div class="flex justify-between items-center py-6 border-b">
 
                     <div>
-                        <h3 class="font-bold text-xl">{{ $ticket[1] }}</h3>
+                        <h3 class="font-bold text-xl">{{ $ticket->ticket_name }}</h3>
                         <p class="text-slate-500">
-                            Rp {{ number_format($ticket[2],0,',','.') }}
+                            Rp {{ number_format($ticket->price, 0, ',', '.') }}
                         </p>
                     </div>
 
                     <input type="hidden"
-                           name="{{ $ticket[0] }}_qty"
-                           id="{{ $ticket[0] }}-input"
-                           value="{{ $ticket[3] }}">
+                        name="ticket_{{ $ticket->id }}"
+                        id="ticket-{{ $ticket->id }}-input"
+                        value="0">
 
                     <div class="flex items-center gap-4">
                         <button type="button"
-                            onclick="changeQty('{{ $ticket[0] }}', -1)"
-                            class="w-12 h-12 rounded-xl bg-[#F9F7F2] text-xl">-</button>
+                            onclick="changeQty({{ $ticket->id }}, -1)"
+                            class="w-12 h-12 rounded-xl bg-[#F9F7F2] text-xl">
+                            -
+                        </button>
 
-                        <span id="{{ $ticket[0] }}-qty"
-                              class="text-xl font-bold w-8 text-center">
-                              {{ $ticket[3] }}
+                        <span id="ticket-{{ $ticket->id }}-qty"
+                            class="text-xl font-bold w-8 text-center">
+                            0
                         </span>
 
                         <button type="button"
-                            onclick="changeQty('{{ $ticket[0] }}', 1)"
-                            class="w-12 h-12 rounded-xl bg-[#F9F7F2] text-xl">+</button>
+                            onclick="changeQty({{ $ticket->id }}, 1)"
+                            class="w-12 h-12 rounded-xl bg-[#F9F7F2] text-xl">
+                            +
+                        </button>
                     </div>
 
                 </div>
@@ -194,44 +193,62 @@
 </form>
 
 <script>
-const prices = {
-    adult: 25000,
-    student: 15000,
-    child: 10000
-};
+function changeQty(ticketId, change) {
+    let input = document.getElementById('ticket-' + ticketId + '-input');
+    let qtyText = document.getElementById('ticket-' + ticketId + '-qty');
 
-function changeQty(type, change) {
-    let qtyEl = document.getElementById(type + '-qty');
-    let inputEl = document.getElementById(type + '-input');
+    let current = parseInt(input.value);
+    let updated = current + change;
 
-    let qty = parseInt(qtyEl.innerText);
-    qty += change;
+    if (updated < 0) updated = 0;
 
-    if (qty < 0) qty = 0;
+    input.value = updated;
+    qtyText.innerText = updated;
 
-    qtyEl.innerText = qty;
-    inputEl.value = qty;
-
-    updateSummary();
+    updateTotal();
 }
 
-function updateSummary() {
-    let adult = parseInt(document.getElementById('adult-input').value);
-    let student = parseInt(document.getElementById('student-input').value);
-    let child = parseInt(document.getElementById('child-input').value);
+function updateTotal() {
+    let total = 0;
+    let summaryHtml = '';
 
-    let summary = '';
+    @foreach($museum->tickets as $ticket)
+        let qty{{ $ticket->id }} = parseInt(
+            document.getElementById('ticket-{{ $ticket->id }}-input').value
+        );
 
-    if (adult > 0) summary += `<div class="flex justify-between"><span>${adult} Dewasa</span><span>Rp ${(adult * prices.adult).toLocaleString('id-ID')}</span></div>`;
-    if (student > 0) summary += `<div class="flex justify-between"><span>${student} Pelajar</span><span>Rp ${(student * prices.student).toLocaleString('id-ID')}</span></div>`;
-    if (child > 0) summary += `<div class="flex justify-between"><span>${child} Anak-anak</span><span>Rp ${(child * prices.child).toLocaleString('id-ID')}</span></div>`;
+        if (qty{{ $ticket->id }} > 0) {
+            let subtotal = qty{{ $ticket->id }} * {{ $ticket->price }};
+            total += subtotal;
 
-    document.getElementById('ticket-summary').innerHTML = summary;
+            summaryHtml += `
+                <div class="flex justify-between items-center py-3 border-b border-[#EADBC8]">
 
-    let total =
-        (adult * prices.adult) +
-        (student * prices.student) +
-        (child * prices.child);
+                    <div>
+                        <p class="font-semibold text-[#102A43] text-lg">
+                            {{ $ticket->ticket_name }} x ${qty{{ $ticket->id }}}
+                        </p>
+
+                        <p class="text-sm text-slate-400">
+                            Rp {{ number_format($ticket->price, 0, ',', '.') }} / tiket
+                        </p>
+                    </div>
+
+                    <span class="font-bold text-[#102A43] text-lg">
+                        Rp ${subtotal.toLocaleString('id-ID')}
+                    </span>
+
+                </div>
+            `;
+        }
+    @endforeach
+
+    document.getElementById('ticket-summary').innerHTML =
+        summaryHtml || `
+            <div class="py-6 text-center text-slate-400">
+                Belum ada tiket dipilih
+            </div>
+        `;
 
     document.getElementById('total-price').innerText =
         'Rp ' + total.toLocaleString('id-ID');
@@ -242,7 +259,7 @@ document.getElementById('visit-date').addEventListener('change', function () {
         'Tanggal: ' + this.value;
 });
 
-updateSummary();
+updateTotal();
 </script>
 
 @endsection

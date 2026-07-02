@@ -16,4 +16,5 @@ class QrCodeController extends Controller
 
         return view('user.transaction.show2', compact('transaction'));
     }
+
 }

@@ -36,10 +36,12 @@
             <div class="relative">
 
                 <img src="{{ $wishlist->museum->image
-                    ? asset('storage/' . $wishlist->museum->image)
+                    ? (Str::startsWith($wishlist->museum->image, 'storage/')
+                        ? asset($wishlist->museum->image)
+                        : asset('storage/' . $wishlist->museum->image))
                     : asset('images/default-museum.jpg') }}"
-                     alt="{{ $wishlist->museum->name }}"
-                     class="h-56 w-full object-cover">
+                    alt="{{ $wishlist->museum->name }}"
+                    class="h-56 w-full object-cover">
 
                 <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-white/90 text-[#B88A44] text-xs font-bold">
                     Favorit
