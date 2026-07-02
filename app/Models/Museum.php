@@ -32,16 +32,6 @@ class Museum extends Model
         return $this->hasMany(Transaction::class);
     }
 
-    public function reviews()
-    {
-        return $this->hasMany(Review::class);
-    }
-
-    public function averageRating()
-    {
-        return $this->reviews()->avg('rating') ?? 0;
-    }
-
     public function wishlists()
     {
         return $this->hasMany(Wishlist::class);

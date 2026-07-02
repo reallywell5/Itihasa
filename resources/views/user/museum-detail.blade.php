@@ -7,9 +7,13 @@
 {{-- HERO IMAGE --}}
 <section class="relative h-[520px] overflow-hidden">
 
-    <img src="{{ asset('storage/' . $museum->image) }}"
-         alt="{{ $museum->name }}"
-         class="w-full h-full object-cover">
+    <img src="{{ $museum->image
+        ? (Str::startsWith($museum->image, 'storage/')
+            ? asset($museum->image)
+            : asset('storage/' . $museum->image))
+        : asset('images/default-museum.jpg') }}"
+        alt="{{ $museum->name }}"
+        class="w-full h-[500px] object-cover rounded-[32px] border border-[#EADBC8] shadow-xl mb-8">
 
     <div class="absolute inset-0 bg-black/35"></div>
 
@@ -61,102 +65,39 @@
                 </div>
 
                 <div class="flex flex-wrap items-center gap-4 mb-6">
-
-                    <span class="text-[#B88A44] font-bold">
-                        ⭐ {{ number_format($museum->averageRating() ?? 0, 1) }}
-                    </span>
-
-                    <span class="text-slate-400">
-                        {{ $museum->reviews->count() }} Ulasan
-                    </span>
-
                     <span class="text-slate-400">
                         • {{ $museum->address }}
                     </span>
-
                 </div>
 
-                <p class="text-slate-600 leading-relaxed text-lg">
-                    {{ $museum->description }}
-                </p>
-
-            </div>
-
-            {{-- TENTANG --}}
-            <div class="bg-white rounded-[28px] border border-[#EADBC8] p-8">
-
-                <h2 class="text-2xl font-bold text-[#102A43] mb-5">
-                    Tentang Museum
-                </h2>
-
-                <p class="text-slate-600 leading-relaxed">
-                    {{ $museum->description }}
-                </p>
-
-            </div>
-
-            {{-- GALLERY --}}
-            <div>
-
-                <h2 class="text-2xl font-bold text-[#102A43] mb-6">
-                    Galeri
-                </h2>
-
-                <div class="grid grid-cols-2 gap-4">
-
-                    @for($i=0;$i<4;$i++)
-                    <img src="{{ asset('storage/' . $museum->image) }}"
-                         class="rounded-[20px] h-56 w-full object-cover hover:scale-[1.02] transition">
-                    @endfor
-
+                {{-- Multi paragraph description --}}
+                <div class="text-slate-600 leading-relaxed text-lg space-y-5">
+                    @foreach(explode("\n", $museum->description) as $paragraph)
+                        @if(trim($paragraph))
+                            <p>{{ $paragraph }}</p>
+                        @endif
+                    @endforeach
                 </div>
 
             </div>
 
-            {{-- REVIEWS --}}
+            {{-- LOCATION MAP --}}
             <div class="bg-white rounded-[28px] border border-[#EADBC8] p-8">
 
-                <h2 class="text-2xl font-bold text-[#102A43] mb-8">
-                    Ulasan Pengunjung
-                </h2>
+                <h3 class="text-xl font-bold text-[#102A43] mb-6">
+                    Location Map
+                </h3>
 
-                <div class="space-y-6">
+                <div class="rounded-2xl overflow-hidden border border-[#EADBC8]">
 
-                    @forelse($museum->reviews as $review)
-
-                    <div class="border-b pb-6">
-
-                        <div class="flex items-center gap-4 mb-4">
-
-                            <div class="w-12 h-12 rounded-full bg-[#102A43] text-white flex items-center justify-center font-bold">
-                                {{ strtoupper(substr($review->user->name, 0, 1)) }}
-                            </div>
-
-                            <div>
-                                <h3 class="font-bold text-[#102A43]">
-                                    {{ $review->user->name }}
-                                </h3>
-
-                                <p class="text-sm text-[#B88A44]">
-                                    @for($i=0;$i<$review->rating;$i++) ⭐ @endfor
-                                </p>
-                            </div>
-
-                        </div>
-
-                        <p class="text-slate-600">
-                            {{ $review->comment }}
-                        </p>
-
-                    </div>
-
-                    @empty
-
-                    <div class="text-center text-slate-500 py-6">
-                        Belum ada ulasan untuk museum ini.
-                    </div>
-
-                    @endforelse
+                    <iframe
+                        src="https://www.google.com/maps?q={{ urlencode($museum->address) }}&output=embed"
+                        width="100%"
+                        height="350"
+                        style="border:0;"
+                        allowfullscreen=""
+                        loading="lazy">
+                    </iframe>
 
                 </div>
 
@@ -232,12 +173,10 @@
                     </h3>
 
                     <div class="space-y-4 text-slate-600">
-
                         <p>✔ Area Parkir</p>
                         <p>✔ Kafe</p>
                         <p>✔ Toko Souvenir</p>
                         <p>✔ Tur Pemandu</p>
-
                     </div>
 
                 </div>

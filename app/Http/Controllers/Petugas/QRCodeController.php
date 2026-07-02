@@ -92,12 +92,7 @@ class QRCodeController extends Controller
 
         $invoiceCode = trim($request->invoice_code);
 
-        $qr = QrCode::with([
-            'transaction.booking.user',
-            'transaction.booking.museum'
-        ])
-        ->where('qr_code', trim($request->invoice_code))
-        ->first();
+        $qr = QrCode::where('qr_code', $invoiceCode)->first();
 
         if (!$qr) {
             return back()->with('error', 'QR Code tidak ditemukan.');
@@ -113,21 +108,16 @@ class QRCodeController extends Controller
             'scanned_at' => now(),
         ]);
 
-        return redirect()->route('ticket.thankyou', $qr->id);
-
-        // update transaksi juga
         if ($qr->transaction) {
-            $qr->transaction->update([
-                'used_at' => now()
+        $qr->transaction->update([
+            'used_at' => now()
             ]);
         }
 
         return redirect()
-            ->route('petugas.scan', [
-                'invoice_code' => $qr->qr_code
-            ])
+            ->route('petugas.riwayat')
             ->with('success', 'Tiket berhasil digunakan.');
-    }
+            }
 
     public function riwayat()
     {
@@ -141,13 +131,4 @@ class QRCodeController extends Controller
         return view('petugas.riwayat', compact('qrCodes'));
     }
 
-    public function thankYou(QrCode $qrCode)
-    {
-        $qrCode->load([
-            'transaction.booking.user',
-            'transaction.booking.museum'
-        ]);
-
-        return view('user.thankyou', compact('qrCode'));
-    }
 }

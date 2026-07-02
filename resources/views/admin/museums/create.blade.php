@@ -30,7 +30,9 @@
         </div>
     </div>
 
-    <form action="{{ route('museums.store') }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('museums.store') }}"
+          method="POST"
+          enctype="multipart/form-data">
         @csrf
 
         <div class="grid lg:grid-cols-3 gap-8">
@@ -38,6 +40,7 @@
             {{-- LEFT --}}
             <div class="lg:col-span-2 bg-white border border-zinc-200 rounded-2xl shadow-sm p-8 space-y-6">
 
+                {{-- ERROR --}}
                 @if ($errors->any())
                     <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
                         <ul class="list-disc list-inside text-sm">
@@ -53,6 +56,7 @@
                     <label class="block text-sm font-semibold text-zinc-700 mb-2">
                         Nama Museum
                     </label>
+
                     <input type="text"
                            name="name"
                            value="{{ old('name') }}"
@@ -65,6 +69,7 @@
                     <label class="block text-sm font-semibold text-zinc-700 mb-2">
                         Alamat Museum
                     </label>
+
                     <textarea name="address"
                               rows="4"
                               placeholder="Masukkan alamat lengkap..."
@@ -76,6 +81,7 @@
                     <label class="block text-sm font-semibold text-zinc-700 mb-2">
                         Deskripsi Museum
                     </label>
+
                     <textarea name="description"
                               rows="6"
                               placeholder="Ceritakan sejarah, koleksi, dan keunikan museum..."
@@ -89,6 +95,7 @@
                         <label class="block text-sm font-semibold text-zinc-700 mb-2">
                             Jam Buka
                         </label>
+
                         <input type="time"
                                id="opening_time"
                                name="opening_time"
@@ -100,6 +107,7 @@
                         <label class="block text-sm font-semibold text-zinc-700 mb-2">
                             Jam Tutup
                         </label>
+
                         <input type="time"
                                id="closing_time"
                                name="closing_time"
@@ -116,6 +124,7 @@
 
                 {{-- IMAGE --}}
                 <div class="bg-white border border-zinc-200 rounded-2xl shadow-sm p-6">
+
                     <label class="block text-sm font-semibold text-zinc-700 mb-4">
                         Foto Museum
                     </label>
@@ -123,13 +132,20 @@
                     <div class="w-full h-56 rounded-2xl border border-dashed border-zinc-300 overflow-hidden bg-zinc-50 flex items-center justify-center">
                         <img id="preview-image"
                              src="{{ asset('images/default-museum.jpg') }}"
+                             alt="Preview"
                              class="w-full h-full object-cover">
                     </div>
 
                     <input type="file"
                            id="image"
                            name="image"
+                           accept="image/*"
                            class="mt-4 w-full text-sm">
+
+                    <p class="text-xs text-zinc-400 mt-2">
+                        Upload gambar museum.
+                    </p>
+
                 </div>
 
                 {{-- STATUS --}}
@@ -141,13 +157,16 @@
 
                     <div class="flex justify-between">
                         <span class="text-sm text-zinc-500">Jam Operasional</span>
-                        <span id="operational-preview" class="text-sm font-semibold text-zinc-900">
+
+                        <span id="operational-preview"
+                              class="text-sm font-semibold text-zinc-900">
                             -
                         </span>
                     </div>
 
                     <div class="flex justify-between">
                         <span class="text-sm text-zinc-500">Status</span>
+
                         <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-semibold">
                             Menunggu Publish
                         </span>
@@ -177,23 +196,27 @@
 </div>
 
 <script>
-document.getElementById('image').addEventListener('change', function(e) {
+const imageInput = document.getElementById('image');
+
+imageInput.addEventListener('change', function(e) {
+    if (!e.target.files.length) return;
+
     const reader = new FileReader();
 
     reader.onload = function(event) {
         document.getElementById('preview-image').src = event.target.result;
-    }
+    };
 
     reader.readAsDataURL(e.target.files[0]);
 });
 
 function updateOperationalPreview() {
-    let open = document.getElementById('opening_time').value;
-    let close = document.getElementById('closing_time').value;
+    const open = document.getElementById('opening_time').value;
+    const close = document.getElementById('closing_time').value;
 
     if (open && close) {
         document.getElementById('operational-preview').innerText =
-            open + ' - ' + close;
+            `${open} - ${close}`;
     }
 }
 

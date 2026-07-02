@@ -12,6 +12,8 @@ class BookingController extends Controller
 {
     public function create(Museum $museum)
     {
+        $museum->load('tickets');
+
         return view('user.booking', compact('museum'));
     }
 
@@ -21,23 +23,31 @@ class BookingController extends Controller
             'visit_date' => 'required|date',
         ]);
 
-        $adult = $request->adult_qty ?? 0;
-        $student = $request->student_qty ?? 0;
-        $child = $request->child_qty ?? 0;
+        $museum->load('tickets');
 
-        $total =
-            ($adult * 25000) +
-            ($student * 15000) +
-            ($child * 10000);
+        $total = 0;
+        $ticketData = [];
+
+        foreach ($museum->tickets as $ticket) {
+            $qty = $request->input('ticket_' . $ticket->id, 0);
+
+            if ($qty > 0) {
+                $total += $qty * $ticket->price;
+
+                $ticketData[] = [
+                    'ticket_name' => $ticket->ticket_name,
+                    'qty' => $qty,
+                    'price' => $ticket->price
+                ];
+            }
+        }
 
         $booking = Booking::create([
             'user_id' => Auth::id(),
-            'museum_id' => $museum->id, // FIX ambil dari route
+            'museum_id' => $museum->id,
             'visit_date' => $request->visit_date,
-            'adult_qty' => $adult,
-            'student_qty' => $student,
-            'child_qty' => $child,
             'total_price' => $total,
+            'ticket_summary' => json_encode($ticketData),
             'status' => 'pending'
         ]);
 
