@@ -36,4 +36,9 @@ class Museum extends Model
     {
         return $this->hasMany(Wishlist::class);
     }
+
+    public function lowestTicketPrice()
+    {
+        return $this->tickets()->min('price');
+    }
 }

@@ -144,11 +144,11 @@
 
                             <div>
                                 <p class="text-sm text-slate-400">
-                                    Harga Mulai
+                                    Mulai dari
                                 </p>
 
                                 <h3 class="text-2xl font-bold text-[#B88A44]">
-                                    Rp 25.000
+                                    Rp {{ number_format($museum->lowestTicketPrice() ?? 0, 0, ',', '.') }}
                                 </h3>
                             </div>
 
