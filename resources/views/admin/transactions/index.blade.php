@@ -81,7 +81,7 @@
 
         <div class="overflow-x-auto">
 
-            <table class="w-full text-sm text-left">
+            <table class="min-w-[900px] w-full">
 
                 <thead class="bg-blue-50 text-blue-600 text-xs font-bold uppercase">
                     <tr>

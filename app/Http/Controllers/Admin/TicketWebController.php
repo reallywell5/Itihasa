@@ -62,12 +62,23 @@ class TicketWebController extends Controller
         $ticket->update($validated);
 
         return redirect()
-            ->route('tickets.show', $ticket->id) // atau $ticket jika menggunakan Route Model Binding
+            ->route('tickets.index')
             ->with('success', 'Tiket berhasil diperbarui!');
     }
 
-    public function destroy(Ticket $ticket)
+    public function show(string $id)
     {
+        // Jika tidak sengaja mengarah ke GET, lempar langsung ke fungsi update atau kembalikan ke form edit
+        return redirect()->route('tickets.edit', $id);
+    }
+
+    public function destroy(Request $request, Ticket $ticket)
+    {
+        if (! $ticket) {
+            $ticketId = $request->input('ticket_id') ?? $request->route('ticket');
+            $ticket = Ticket::findOrFail($ticketId);
+        }
+
         $ticket->delete();
 
         return redirect()

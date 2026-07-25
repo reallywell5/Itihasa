@@ -53,7 +53,42 @@
 <div class="flex min-h-screen">
 
     {{-- SIDEBAR PETUGAS --}}
-    <aside class="w-72 bg-white border-r border-blue-50 flex flex-col shrink-0">
+    <aside class="hidden lg:flex w-72 bg-white border-r border-blue-50 flex-col shrink-0">
+
+    {{-- SIDEBAR TABLET --}}
+    <aside class="hidden md:flex lg:hidden w-20 bg-white border-r border-blue-50 flex-col items-center py-6">
+
+        <a href="{{ route('petugas.dashboard') }}"
+        class="p-3 rounded-xl hover:bg-blue-50 mb-2">
+            🏠
+        </a>
+
+        <a href="{{ route('petugas.qrcodes.index') }}"
+        class="p-3 rounded-xl hover:bg-blue-50 mb-2">
+            📱
+        </a>
+
+        <a href="{{ route('petugas.validasi') }}"
+        class="p-3 rounded-xl hover:bg-blue-50 mb-2">
+            ✔️
+        </a>
+
+        <a href="{{ route('petugas.pengunjung') }}"
+        class="p-3 rounded-xl hover:bg-blue-50 mb-2">
+            👥
+        </a>
+
+        <a href="{{ route('petugas.riwayat') }}"
+        class="p-3 rounded-xl hover:bg-blue-50 mb-2">
+            🕒
+        </a>
+
+        <a href="{{ route('petugas.profil') }}"
+        class="p-3 rounded-xl hover:bg-blue-50">
+            🙍
+        </a>
+
+    </aside>
 
         {{-- LOGO --}}
         <div class="h-16 px-6 flex items-center gap-3 border-b border-blue-50">
@@ -143,7 +178,7 @@
     <div class="flex-1 flex flex-col min-w-0">
 
         {{-- TOP NAVBAR --}}
-        <header class="h-16 bg-white border-b border-blue-50 px-8 flex items-center justify-between shadow-sm">
+        <header class="h-16 bg-white border-b border-blue-50 px-4 md:px-6 lg:px-8 flex items-center justify-between shadow-sm">
 
             <div>
                 <p class="text-xs text-slate-400 font-semibold">
@@ -156,7 +191,7 @@
 
             <div class="flex items-center gap-4">
 
-                <div class="hidden md:flex items-center bg-blue-50 rounded-xl px-4 py-2 w-72">
+                <div class="hidden lg:flex items-center bg-blue-50 rounded-xl px-4 py-2 w-72">
                     <svg class="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" stroke-width="2"
                          viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -168,7 +203,7 @@
                            class="bg-transparent outline-none text-sm w-full text-slate-600">
                 </div>
 
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2">
                     <div class="text-right hidden sm:block">
                         <p class="text-sm font-bold text-slate-800 leading-none">
                             Petugas
@@ -186,9 +221,48 @@
             </div>
         </header>
 
+        {{-- MOBILE NAVIGATION --}}
+        <div class="md:hidden bg-white border-b border-blue-50 overflow-x-auto">
+
+            <div class="flex gap-3 px-4 py-3 w-max">
+
+                <a href="{{ route('petugas.dashboard') }}"
+                class="px-4 py-2 rounded-xl bg-blue-600 text-white whitespace-nowrap">
+                    Dashboard
+                </a>
+
+                <a href="{{ route('petugas.qrcodes.index') }}"
+                class="px-4 py-2 rounded-xl bg-slate-100 whitespace-nowrap">
+                    QR Code
+                </a>
+
+                <a href="{{ route('petugas.validasi') }}"
+                class="px-4 py-2 rounded-xl bg-slate-100 whitespace-nowrap">
+                    Validasi
+                </a>
+
+                <a href="{{ route('petugas.pengunjung') }}"
+                class="px-4 py-2 rounded-xl bg-slate-100 whitespace-nowrap">
+                    Pengunjung
+                </a>
+
+                <a href="{{ route('petugas.riwayat') }}"
+                class="px-4 py-2 rounded-xl bg-slate-100 whitespace-nowrap">
+                    Riwayat
+                </a>
+
+                <a href="{{ route('petugas.profil') }}"
+                class="px-4 py-2 rounded-xl bg-slate-100 whitespace-nowrap">
+                    Profil
+                </a>
+
+            </div>
+
+        </div>
+
         {{-- PAGE CONTENT --}}
-        <main class="flex-1 p-8 overflow-y-auto">
-            <div class="max-w-7xl mx-auto">
+        <main class="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
+            <div class="w-full max-w-7xl mx-auto">
                 @yield('content')
             </div>
         </main>
