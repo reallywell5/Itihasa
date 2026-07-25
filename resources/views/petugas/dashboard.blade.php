@@ -28,7 +28,7 @@
     </div>
 
     {{-- STATISTICS --}}
-    <div class="grid grid-cols-1 sm:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
 
         <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
             <p class="text-sm text-slate-400 font-semibold mb-2">
@@ -95,7 +95,7 @@
 
         <div class="overflow-x-auto">
 
-            <table class="w-full text-sm text-left">
+            <table class="min-w-[900px] w-full">
 
                 <thead class="bg-blue-50 text-blue-600 text-xs font-bold uppercase">
                     <tr>
