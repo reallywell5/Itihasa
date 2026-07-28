@@ -84,6 +84,7 @@ class TransactionController extends Controller
         );
 
         Browsershot::html($html)
+            ->setChromePath('/usr/bin/chromium-browser') 
             ->windowSize(900,1400)
             ->fullPage()
             ->deviceScaleFactor(2)
