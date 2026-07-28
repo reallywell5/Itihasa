@@ -45,8 +45,32 @@
                 </h2>
 
                 <div class="mt-6 inline-flex px-4 py-2 rounded-xl bg-[#F9F7F2] border border-[#EADBC8] text-[#B88A44] font-semibold text-sm">
-                    {{ $transaction->museum->name }}
+                    {{ $transaction->booking->museum->name }}
                 </div>
+
+            </div>
+
+            <div class="mt-6 flex justify-center">
+
+                <a href="{{ route('user.ticket.download',$transaction->id) }}"
+                class="inline-flex items-center gap-2 bg-[#4E342E] hover:bg-[#3A2722] text-white px-6 py-3 rounded-xl shadow-md transition duration-300">
+
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        class="w-5 h-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor">
+
+                        <path stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 4v12m0 0l-4-4m4 4l4-4"/>
+
+                    </svg>
+
+                    Unduh Tiket Digital
+
+                </a>
 
             </div>
 
@@ -66,21 +90,21 @@
                     <div class="flex justify-between border-b pb-4">
                         <span class="text-slate-500">Nama Pengunjung</span>
                         <span class="font-semibold text-[#102A43]">
-                            {{ $transaction->user->name }}
+                            {{ $transaction->booking->user->name }}
                         </span>
                     </div>
 
                     <div class="flex justify-between border-b pb-4">
                         <span class="text-slate-500">Museum</span>
                         <span class="font-semibold text-[#102A43]">
-                            {{ $transaction->museum->name }}
+                            {{ $transaction->booking->museum->name }}
                         </span>
                     </div>
 
                     <div class="flex justify-between border-b pb-4">
                         <span class="text-slate-500">Tanggal Transaksi</span>
                         <span class="font-semibold text-[#102A43]">
-                            {{ \Carbon\Carbon::parse($transaction->transaction_date)->format('d F Y') }}
+                            {{ $transaction->created_at->format('d F Y') }}
                         </span>
                     </div>
 

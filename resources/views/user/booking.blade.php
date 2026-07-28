@@ -12,7 +12,7 @@
     {{-- HEADER --}}
     <div class="flex items-center justify-between mb-12">
 
-        <a href="{{ route('museum.detail', $museum->id) }}"
+        <a href="{{ route('user.home', $museum->id) }}"
            class="flex items-center gap-2 text-[#102A43] font-medium hover:text-[#B88A44] transition">
             ← Kembali
         </a>

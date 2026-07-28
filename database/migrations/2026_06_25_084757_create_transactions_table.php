@@ -21,7 +21,6 @@ return new class extends Migration
             $table->string('payment_method');
 
             $table->integer('subtotal');
-            $table->integer('service_fee')->default(2000);
             $table->integer('total_amount');
 
             $table->enum('payment_status', [
@@ -30,6 +29,10 @@ return new class extends Migration
                 'failed'
             ])->default('pending');
 
+             // Batas waktu pembayaran
+            $table->timestamp('expired_at')->nullable();
+
+            // Waktu tiket digunakan
             $table->timestamp('used_at')->nullable();
 
             $table->timestamps();

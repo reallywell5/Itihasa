@@ -25,62 +25,37 @@ use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\TransactionController;
 use App\Http\Controllers\User\MuseumController;
 
-    Route::get('/', [HomeController::class, 'index'])->name('landing');
-
-    Route::get('/user/home', [HomeController::class, 'index'])->name('user.home');
-
-    Route::get('/museum/{museum}', [MuseumController::class, 'show'])
-        ->name('museum.detail');
-
+Route::get('/', [HomeController::class, 'index'])->name('landing');
+Route::get('/user/home', [HomeController::class, 'index'])->name('user.home');
+Route::get('/museum/{museum}', [MuseumController::class, 'show'])->name('museum.detail');
 
 Route::middleware(['auth'])->group(function () {
 
-    Route::get('/wishlist', [WishlistController::class, 'index'])
-        ->name('user.wishlist');
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('user.wishlist');
+    Route::post('/wishlist/{museum}', [WishlistController::class, 'store'])->name('user.wishlist.store');
+    Route::delete('/wishlist/{wishlist}', [WishlistController::class, 'destroy'])->name('user.wishlist.destroy');
 
-    Route::post('/wishlist/{museum}', [WishlistController::class, 'store'])
-        ->name('user.wishlist.store');
-
-    Route::delete('/wishlist/{wishlist}', [WishlistController::class, 'destroy'])
-        ->name('user.wishlist.destroy');
-
-    Route::get('/profile', [UserProfileController::class, 'index'])
-        ->name('user.profile');
-
-    Route::get('/profile/edit', [UserProfileController::class, 'edit'])
-        ->name('user.profile.edit');
-
-    Route::put('/profile/update', [UserProfileController::class, 'update'])
-        ->name('user.profile.update');
+    Route::get('/profile', [UserProfileController::class, 'index'])->name('user.profile');
+    Route::get('/profile/edit', [UserProfileController::class, 'edit'])->name('user.profile.edit');
+    Route::put('/profile/update', [UserProfileController::class, 'update'])->name('user.profile.update');
 
     // BOOKING
-    Route::get('/booking/{museum}', [BookingController::class, 'create'])
-        ->name('user.booking');
-
-    Route::post('/booking/{museum}', [BookingController::class, 'store'])
-        ->name('user.booking.store');
+    Route::get('/booking/{museum}', [BookingController::class, 'create'])->name('user.booking');
+    Route::post('/booking/{museum}', [BookingController::class, 'store'])->name('user.booking.store');
 
     // PAYMENT
-    Route::get('/payment/{booking}', [PaymentController::class, 'index'])
-        ->name('user.payment');
-
-    Route::post('/payment/{booking}', [PaymentController::class, 'process'])
-        ->name('user.payment.process');
-
-    Route::get('/payment/show/{transaction}', [PaymentController::class, 'show3'])
-        ->name('user.payment.show3');
-
-    Route::post('/payment/confirm/{transaction}', [PaymentController::class, 'confirm'])
-    ->name('user.payment.confirm');
+    Route::get('/payment/{booking}', [PaymentController::class, 'index'])->name('user.payment');
+    Route::post('/payment/{booking}', [PaymentController::class, 'process'])->name('user.payment.process');
+    Route::get('/payment/show/{transaction}', [PaymentController::class, 'show3'])->name('user.payment.show3');
+    Route::post('/payment/confirm/{transaction}', [PaymentController::class, 'confirm'])->name('user.payment.confirm');
 
     // TRANSACTION
-    Route::get('/transaction/{transaction}', [TransactionController::class, 'show'])
-        ->name('user.transaction.show');
+    Route::get('/transaction/{transaction}', [TransactionController::class, 'show'])->name('user.transaction.show');
 
     // QR TICKET
-    Route::get('/ticket/{transaction}', [TransactionController::class, 'ticket'])
-        ->name('user.ticket');
-
+    Route::get('/ticket/{transaction}', [TransactionController::class, 'ticket'])->name('user.ticket');
+    Route::get('/transaction/{id}/download-ticket', [TransactionController::class, 'downloadTicket'])
+        ->name('user.ticket.download');
 });
 
 // Rute Uji Coba QR
@@ -93,8 +68,7 @@ Route::get('/test-qr', function () {
 // =============================
 Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 
-    Route::get('/dashboard', [DashboardWebController::class, 'index'])
-        ->name('admin.dashboard');
+    Route::get('/dashboard', [DashboardWebController::class, 'index'])->name('admin.dashboard');
 
     Route::resource('petugas', PetugasController::class)->names([
         'index'   => 'admin.petugas.index',
@@ -110,11 +84,8 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::resource('users', UserWebController::class);
     Route::resource('payments', PaymentWebController::class);
 
-    Route::get('/transactions', [TransactionWebController::class, 'index'])
-        ->name('transactions.index');
-
-    Route::get('/transactions/{id}', [TransactionWebController::class, 'show'])
-        ->name('transactions.show');
+    Route::get('/transactions', [TransactionWebController::class, 'index'])->name('transactions.index');
+    Route::get('/transactions/{id}', [TransactionWebController::class, 'show'])->name('transactions.show');
 });
 
 // =============================
@@ -122,33 +93,22 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
 // =============================
 Route::prefix('petugas')->middleware(['auth', 'petugas'])->group(function () {
 
-    Route::get('/dashboard', [DashboardController::class, 'index'])
-        ->name('petugas.dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('petugas.dashboard');
 
-    Route::resource('qrcodes', QRCodeController::class)
-        ->names('petugas.qrcodes');
+    Route::resource('qrcodes', QRCodeController::class)->names('petugas.qrcodes');
 
-    Route::get('/scan', [ScanController::class, 'index'])
-        ->name('petugas.qrcodes.scan');
+    Route::get('/scan', [ScanController::class, 'index'])->name('petugas.qrcodes.scan');
+    Route::post('/scan/validate', [ScanController::class, 'validateQr'])->name('petugas.qrcodes.validate');
 
-    Route::post('/scan/validate', [ScanController::class, 'validateQr'])
-        ->name('petugas.qrcodes.validate');
+    Route::get('/validasi', [ValidasiController::class, 'index'])->name('petugas.validasi');
+    Route::post('/petugas/validate', [QRCodeController::class, 'validateQr'])->name('petugas.validateQr');
 
-    Route::get('/validasi', [ValidasiController::class, 'index'])
-        ->name('petugas.validasi');
+    Route::get('/pengunjung', [PengunjungController::class, 'index'])->name('petugas.pengunjung');
+    Route::get('/riwayat', [ScanController::class, 'riwayat'])->name('petugas.riwayat');
 
-    Route::post('/petugas/validate', [QRCodeController::class, 'validateQr'])
-        ->name('petugas.validateQr');
-
-    Route::get('/pengunjung', [PengunjungController::class, 'index'])
-        ->name('petugas.pengunjung');
-
-    Route::get('/riwayat', [ScanController::class, 'riwayat'])
-        ->name('petugas.riwayat');
-
-    Route::get('/profil', [PetugasProfileController::class, 'index'])
-        ->name('petugas.profil');
-
+    Route::get('/profil', [PetugasProfileController::class, 'index'])->name('petugas.profil');
+    Route::get('/profil/edit', [PetugasProfileController::class, 'edit'])->name('petugas.profil.edit');
+    Route::put('/profil/update', [PetugasProfileController::class, 'update'])->name('petugas.profil.update');
 });
 
 // Route Auth
@@ -157,4 +117,3 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.process');
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.process');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-

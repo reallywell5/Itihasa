@@ -83,7 +83,7 @@
                         Nama Pengunjung
                     </p>
                     <p class="mt-2 text-lg font-bold text-zinc-900">
-                        {{ $transaction->user?->name ?? 'Guest' }}
+                        {{ $transaction->booking->user->name ?? 'Guest' }}
                     </p>
                 </div>
 
@@ -92,7 +92,7 @@
                         Email
                     </p>
                     <p class="mt-2 text-sm text-zinc-700">
-                        {{ $transaction->user?->email ?? '-' }}
+                        {{ $transaction->booking->user->email ?? '-' }}
                     </p>
                 </div>
 

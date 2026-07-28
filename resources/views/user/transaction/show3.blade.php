@@ -43,7 +43,7 @@
                     Scan QRIS
                 </h2>
 
-                <img src="{{ asset('images/qris.png') }}"
+                <img src="{{ asset('images/qris-pembayaran.jpeg') }}"
                      class="w-72 mx-auto mb-6 rounded-2xl shadow">
 
                 <p class="text-slate-500 text-sm">
@@ -63,7 +63,7 @@
 
                 <div class="bg-[#F9F7F2] rounded-2xl p-6 inline-block">
                     <p class="text-slate-500 mb-2">
-                        BCA Virtual Account
+                        Seabank Virtual Account
                     </p>
 
                     <h3 class="text-3xl font-bold text-[#102A43]">
@@ -89,11 +89,11 @@
                 <div class="bg-[#F9F7F2] rounded-2xl p-6 inline-block">
 
                     <p class="text-slate-500 mb-2">
-                        DANA / OVO / GoPay
+                        DANA / GoPay
                     </p>
 
                     <h3 class="text-3xl font-bold text-[#102A43]">
-                        081234567890
+                        085142258437
                     </h3>
 
                     <p class="text-sm text-slate-400 mt-3">

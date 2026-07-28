@@ -34,21 +34,21 @@
         <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
             <p class="text-sm text-slate-400 mb-2">Total Transaksi</p>
             <h2 class="text-3xl font-bold text-slate-800">
-                {{ method_exists($transactions, 'total') ? $transactions->total() : $transactions->count() }}
+                {{ $transactions->total() }}
             </h2>
         </div>
 
         <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
             <p class="text-sm text-slate-400 mb-2">Total Pendapatan</p>
             <h2 class="text-3xl font-bold text-slate-800">
-                Rp {{ number_format($transactions->sum('total_amount'), 0, ',', '.') }}
+                Rp {{ number_format($totalRevenue, 0, ',', '.') }}
             </h2>
         </div>
 
         <div class="bg-blue-600 rounded-3xl shadow-sm p-6 text-white">
             <p class="text-sm text-blue-100 mb-2">Transaksi Berhasil</p>
             <h2 class="text-2xl font-bold">
-                {{ $transactions->where('payment_status', 'paid')->count() }}
+                {{ $totalPaidTransactions }}
             </h2>
         </div>
 
@@ -123,7 +123,7 @@
 
                         {{-- USER --}}
                         <td class="px-6 py-4 text-slate-500">
-                            {{ $transaction->user->name ?? 'Guest' }}
+                            {{ $transaction->booking->user->name ?? 'Guest' }}
                         </td>
 
                         {{-- TOTAL --}}

@@ -83,6 +83,29 @@
                     </p>
                 </div>
 
+                <div class="mb-6">
+
+                    <a href="{{ route('user.home') }}"
+                    class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition">
+
+                        <svg class="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            viewBox="0 0 24 24">
+
+                            <path stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M15 19l-7-7 7-7"/>
+
+                        </svg>
+
+                        Kembali ke Beranda
+
+                    </a>
+
+                </div>
+
                 <form method="POST" action="{{ route('register.process') }}" class="space-y-5">
                     @csrf
 

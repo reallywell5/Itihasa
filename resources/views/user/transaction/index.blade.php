@@ -88,7 +88,7 @@
                                 <input type="radio" name="payment_method" value="bank_transfer">
                                 <span class="font-semibold text-[#102A43]">Transfer Bank</span>
                             </div>
-                            <span class="text-slate-400">BCA</span>
+                            <span class="text-slate-400">Seabank</span>
                         </label>
 
                         <label class="flex items-center justify-between p-5 rounded-2xl border border-[#EADBC8] cursor-pointer">
@@ -96,7 +96,7 @@
                                 <input type="radio" name="payment_method" value="e_wallet">
                                 <span class="font-semibold text-[#102A43]">E-Wallet</span>
                             </div>
-                            <span class="text-slate-400">OVO / DANA / GoPay</span>
+                            <span class="text-slate-400">DANA / GoPay</span>
                         </label>
 
                     </div>
@@ -111,8 +111,6 @@
                 @php
                     $ticketSummary = json_decode($booking->ticket_summary ?? '[]', true);
 
-                    $serviceFee = 2000;
-
                     $subtotal = collect($ticketSummary)->sum(function ($item) {
                         return $item['qty'] * $item['price'];
                     });
@@ -122,7 +120,7 @@
                         $subtotal = $booking->total_price;
                     }
 
-                    $total = $subtotal + $serviceFee;
+                    $total = $subtotal;
                 @endphp
 
                 <div class="sticky top-28 bg-white rounded-[32px] border border-[#EADBC8] p-8 shadow-xl">
@@ -170,11 +168,6 @@
                                 </div>
                             @endforelse
 
-                        </div>
-
-                        <div class="border-t pt-5 flex justify-between">
-                            <span>Biaya Layanan</span>
-                            <span>Rp {{ number_format($serviceFee, 0, ',', '.') }}</span>
                         </div>
 
                         <div class="border-t pt-5 flex justify-between items-center">

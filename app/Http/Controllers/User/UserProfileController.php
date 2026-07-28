@@ -19,10 +19,17 @@ class UserProfileController extends Controller
             'booking.museum',
             'booking'
         ])
+
         ->whereHas('booking', function ($query) use ($user) {
-            $query->where('user_id', $user->id);
+
+            $query->where('user_id',$user->id);
+
         })
+
+        ->where('payment_status','paid')
+
         ->latest()
+
         ->get();
 
         $wishlists = Wishlist::with('museum')

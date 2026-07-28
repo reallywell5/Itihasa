@@ -65,7 +65,8 @@
 
                     <div class="flex justify-between border-b pb-4">
                         <span class="text-slate-500">Status Pembayaran</span>
-                        <span class="px-3 py-1 rounded-full bg-green-100 text-green-600 text-sm font-semibold">
+                        <span class="px-3 py-1 rounded-full text-sm font-semibold
+                            {{ $transaction->payment_status == 'paid' ? 'bg-green-100 text-green-600' : ($transaction->payment_status == 'pending' ? 'bg-yellow-100 text-yellow-600' : 'bg-red-100 text-red-600') }}">
                             {{ ucfirst($transaction->payment_status) }}
                         </span>
                     </div>
