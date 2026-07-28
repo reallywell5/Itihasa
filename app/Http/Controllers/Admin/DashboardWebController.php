@@ -39,6 +39,17 @@ class DashboardWebController extends Controller
                 ->count();
         }
 
+        $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+        $data = [];
+
+        for ($i = 1; $i <= 12; $i++) {
+            $data[] = Transaction::query()
+                ->whereYear('created_at', now()->year)
+                ->whereMonth('created_at', $i)
+                ->count();
+        }
+
         $monthlyTransactions = [
             'labels' => $labels,
             'data' => $data,
