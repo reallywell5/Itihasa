@@ -30,6 +30,27 @@
             {{-- MAIN INFO --}}
             <div class="bg-white rounded-[32px] shadow-xl border border-[#EADBC8] p-8">
 
+                <div class="mb-4">
+                    <button onclick="history.back()"
+                        class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition">
+
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            class="w-5 h-5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor">
+
+                            <path stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M15 19l-7-7 7-7"/>
+
+                        </svg>
+
+                        Kembali
+                    </button>
+                </div>
+
                 <div class="flex items-center justify-between mb-5">
 
                     <div>

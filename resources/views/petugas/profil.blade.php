@@ -48,13 +48,11 @@
 
                 <div class="flex flex-col sm:flex-row gap-3">
 
-                    <button class="px-5 py-3 rounded-2xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition shadow-sm">
-                        Edit Profil
-                    </button>
-
-                    <button class="px-5 py-3 rounded-2xl bg-blue-50 text-blue-600 text-sm font-semibold hover:bg-blue-100 transition">
-                        Ganti Password
-                    </button>
+                    <a href="/petugas/profil/edit"
+   onclick="return true;"
+   class="px-5 py-3 rounded-2xl bg-blue-600 text-white">
+    Edit Profil
+</a>
 
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf

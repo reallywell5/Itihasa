@@ -108,11 +108,11 @@
 
                             <div>
                                 <h3 class="font-bold text-lg text-[#102A43]">
-                                    {{ $transaction->museum->name }}
+                                    {{ $transaction->booking->museum->name }}
                                 </h3>
 
                                 <p class="text-sm text-slate-500 mt-1">
-                                    {{ \Carbon\Carbon::parse($transaction->transaction_date)->format('d M Y') }}
+                                    {{ $transaction->created_at->format('d M Y') }}
                                 </p>
                             </div>
 

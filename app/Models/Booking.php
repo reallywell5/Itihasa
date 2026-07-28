@@ -16,6 +16,7 @@ class Booking extends Model
         'child_qty',
         'total_price',
         'status',
+        'ticket_summary',
     ];
 
     public function user()

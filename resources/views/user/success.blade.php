@@ -73,21 +73,21 @@
                     <div class="flex justify-between">
                         <span class="text-slate-500">Museum</span>
                         <span class="font-semibold text-[#102A43]">
-                            {{ $transaction->museum->name }}
+                            {{ $transaction->booking->museum->name }}
                         </span>
                     </div>
 
                     <div class="flex justify-between">
                         <span class="text-slate-500">Pengunjung</span>
                         <span class="font-semibold text-[#102A43]">
-                            {{ $transaction->user->name }}
+                            {{ $transaction->booking->user->name }}
                         </span>
                     </div>
 
                     <div class="flex justify-between">
                         <span class="text-slate-500">Tanggal Transaksi</span>
                         <span class="font-semibold text-[#102A43]">
-                            {{ \Carbon\Carbon::parse($transaction->transaction_date)->format('d M Y') }}
+                            {{ $transaction->created_at->format('d M Y') }}
                         </span>
                     </div>
 

@@ -90,16 +90,14 @@ class AuthController extends Controller
 
         // Redirect berdasarkan role
         if ($user->role === 'admin') {
-            return redirect()->route('admin.dashboard');
+            return redirect()->intended(route('admin.dashboard'));
         }
 
         if ($user->role === 'staff') {
-            return redirect()->route('petugas.dashboard');
+            return redirect()->intended(route('petugas.dashboard'));
         }
 
-        // User biasa
-        return redirect()->route('user.home');
-
+        return redirect()->intended(route('user.home'));
     }
 
     public function logout(Request $request)

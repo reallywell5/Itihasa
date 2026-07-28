@@ -57,38 +57,49 @@ Heritage Museum
 <a href="{{ route('user.home') }}"
 class="block px-4 py-3 rounded-xl hover:bg-[#F6F1E8]">
 
-🏠 Home
+Home
 
 </a>
 
 <a href="{{ route('user.wishlist') }}"
 class="block px-4 py-3 rounded-xl hover:bg-[#F6F1E8]">
 
-❤ Wishlist
+Wishlist
 
 </a>
 
 <a href="{{ route('user.profile') }}"
 class="block px-4 py-3 rounded-xl hover:bg-[#F6F1E8]">
 
-👤 Profile
+Profile
 
 </a>
 
-<form
-method="POST"
-action="{{ route('logout') }}">
+@auth
 
-@csrf
-
-<button
-class="w-full text-left px-4 py-3 rounded-xl text-red-600 hover:bg-red-50">
-
-🚪 Logout
-
-</button>
-
+<form method="POST" action="{{ route('logout') }}"
+class="block px-4 py-3 rounded-xl hover:bg-[#F6F1E8]">
+    @csrf
+    <button type="submit">
+        Logout
+    </button>
 </form>
+
+@endauth
+
+@guest
+
+<a href="{{ route('login') }}"
+class="block px-4 py-3 rounded-xl hover:bg-[#F6F1E8]">
+    Login
+</a>
+
+<a href="{{ route('register') }}"
+class="block px-4 py-3 rounded-xl hover:bg-[#F6F1E8]">
+    Register
+</a>
+
+@endguest
 
 </nav>
 
@@ -225,18 +236,6 @@ class="w-full text-left px-4 py-3 rounded-xl text-red-600 hover:bg-red-50">
 
                 {{-- RIGHT --}}
                 <div class="flex items-center gap-4">
-
-                    {{-- SEARCH --}}
-                    <div class="hidden md:flex items-center bg-[#F8F4EC] border border-[#EADBC8] rounded-xl px-4 py-2 w-56 lg:w-72">
-                        <svg class="w-4 h-4 text-[#B88A44]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 105.5 5.5a7.5 7.5 0 0011.15 11.15z"/>
-                        </svg>
-
-                        <input type="text"
-                               placeholder="Search museum..."
-                               class="bg-transparent outline-none px-3 text-sm w-full text-slate-700 placeholder:text-slate-400">
-                    </div>
 
                     {{-- PROFILE AVATAR --}}
                     <div class="w-10 h-10 md:w-11 md:h-11 rounded-full bg-[#102A43] text-white flex items-center justify-center font-bold shadow-md">
