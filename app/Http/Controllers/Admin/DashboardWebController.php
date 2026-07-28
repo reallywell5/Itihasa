@@ -21,10 +21,34 @@ class DashboardWebController extends Controller
         $totalRevenue = Transaction::where('payment_status', 'paid')
             ->sum('total_amount');
 
-        $recentTransactions = Transaction::with('user')
-            ->latest()
-            ->take(5)
-            ->get();
+        $recentTransactions = Transaction::with([
+            'booking.user'
+        ])
+        ->latest()
+        ->take(5)
+        ->get();
+
+        $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+        $data = [];
+
+        for ($i = 1; $i <= 12; $i++) {
+            $data[] = Transaction::query()
+                ->whereYear('created_at', now()->year)
+                ->whereMonth('created_at', $i)
+                ->count();
+        }
+
+        $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+        $data = [];
+
+        for ($i = 1; $i <= 12; $i++) {
+            $data[] = Transaction::query()
+                ->whereYear('created_at', now()->year)
+                ->whereMonth('created_at', $i)
+                ->count();
+        }
 
         $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
