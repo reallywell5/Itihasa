@@ -124,7 +124,7 @@
 
                         <div>
                             <h4 class="text-sm font-bold text-slate-700">
-                                {{ $transaction->user->name ?? 'Guest' }}
+                                {{ optional($transaction->booking->user)->name ?? 'Guest' }}
                             </h4>
 
                             <p class="text-xs text-slate-400">
