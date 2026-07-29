@@ -105,6 +105,32 @@
                     </p>
                 </div>
 
+                <div class="border-t border-zinc-100 pt-4">
+                    <p class="text-xs uppercase font-bold text-zinc-400 mb-3">
+                        Rincian Tiket Dibeli
+                    </p>
+                    <div class="space-y-2 mb-4 bg-zinc-50 p-4 rounded-2xl border border-zinc-200/60">
+                        @foreach($transaction->booking->ticket_items as $item)
+                            <div class="flex justify-between items-center text-sm">
+                                <div>
+                                    <span class="font-semibold text-zinc-800">{{ $item['ticket_name'] }}</span>
+                                    <span class="text-zinc-500 font-normal"> x {{ $item['qty'] }}</span>
+                                    @if($item['price'] > 0)
+                                        <span class="text-xs text-zinc-400">(@ Rp {{ number_format($item['price'], 0, ',', '.') }})</span>
+                                    @endif
+                                </div>
+                                <span class="font-semibold text-zinc-900">
+                                    @if($item['subtotal'] > 0)
+                                        Rp {{ number_format($item['subtotal'], 0, ',', '.') }}
+                                    @else
+                                        {{ $item['qty'] }} tiket
+                                    @endif
+                                </span>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+
                 <div>
                     <p class="text-xs uppercase font-bold text-zinc-400">
                         Total Pembayaran

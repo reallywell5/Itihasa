@@ -95,13 +95,13 @@ Route::prefix('petugas')->middleware(['auth', 'petugas'])->group(function () {
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('petugas.dashboard');
 
-    Route::resource('qrcodes', QRCodeController::class)->names('petugas.qrcodes');
+    Route::get('/qrcodes', [QRCodeController::class, 'index'])->name('petugas.qrcodes.index');
+    Route::get('/qrcodes/{transaction}', [QRCodeController::class, 'show'])->name('petugas.qrcodes.show');
 
     Route::get('/scan', [ScanController::class, 'index'])->name('petugas.qrcodes.scan');
     Route::post('/scan/validate', [ScanController::class, 'validateQr'])->name('petugas.qrcodes.validate');
 
     Route::get('/validasi', [ValidasiController::class, 'index'])->name('petugas.validasi');
-    Route::post('/petugas/validate', [QRCodeController::class, 'validateQr'])->name('petugas.validateQr');
 
     Route::get('/pengunjung', [PengunjungController::class, 'index'])->name('petugas.pengunjung');
     Route::get('/riwayat', [ScanController::class, 'riwayat'])->name('petugas.riwayat');

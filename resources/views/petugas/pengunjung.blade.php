@@ -57,17 +57,30 @@
     </div>
 
     {{-- TABLE --}}
-    <div class="bg-white rounded-3xl border border-blue-100 overflow-hidden shadow-sm">
+    <div x-data="{ search: '' }" class="bg-white rounded-3xl border border-blue-100 overflow-hidden shadow-sm">
 
-        <div class="px-6 py-5 border-b border-blue-50">
+        <div class="px-6 py-5 border-b border-blue-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
 
-            <h2 class="text-lg font-bold text-slate-800">
-                Daftar Pengunjung
-            </h2>
+            <div>
+                <h2 class="text-lg font-bold text-slate-800">
+                    Daftar Pengunjung
+                </h2>
 
-            <p class="text-sm text-slate-400">
-                Pengunjung yang berhasil masuk museum.
-            </p>
+                <p class="text-sm text-slate-400">
+                    Pengunjung yang telah memindai tiket dan masuk area museum.
+                </p>
+            </div>
+
+            {{-- SEARCH BAR --}}
+            <div class="relative w-full md:w-72">
+                <input type="text"
+                       x-model="search"
+                       placeholder="Cari nama atau invoice..."
+                       class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-blue-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"/>
+                </svg>
+            </div>
 
         </div>
 
@@ -80,6 +93,7 @@
                         <th class="px-6 py-4 text-left">Nama Pengunjung</th>
                         <th class="px-6 py-4 text-left">Kode Tiket</th>
                         <th class="px-6 py-4 text-left">Museum</th>
+                        <th class="px-6 py-4 text-left">Rincian Tiket</th>
                         <th class="px-6 py-4 text-left">Jam Masuk</th>
                         <th class="px-6 py-4 text-left">Status</th>
                     </tr>
@@ -89,18 +103,29 @@
 
                     @forelse($transactions as $transaction)
 
-                    <tr class="hover:bg-blue-50/40">
+                    <tr x-show="!search || '{{ strtolower($transaction->booking->user->name ?? '') }}'.includes(search.toLowerCase()) || '{{ strtolower($transaction->invoice_code) }}'.includes(search.toLowerCase())"
+                        class="hover:bg-blue-50/40">
 
                         <td class="px-6 py-4 font-semibold text-slate-800">
                             {{ $transaction->booking->user->name }}
                         </td>
 
-                        <td class="px-6 py-4 text-slate-500">
+                        <td class="px-6 py-4 text-slate-500 font-mono text-sm">
                             {{ $transaction->invoice_code }}
                         </td>
 
                         <td class="px-6 py-4 text-slate-500">
                             {{ $transaction->booking->museum->name }}
+                        </td>
+
+                        <td class="px-6 py-4 text-slate-700 text-sm">
+                            <div class="space-y-1">
+                                @foreach($transaction->booking->ticket_items as $item)
+                                    <div>
+                                        <span class="font-medium text-slate-800">{{ $item['ticket_name'] }}</span>: {{ $item['qty'] }}x
+                                    </div>
+                                @endforeach
+                            </div>
                         </td>
 
                         <td class="px-6 py-4 text-slate-500">
@@ -118,7 +143,7 @@
                     @empty
 
                     <tr>
-                        <td colspan="5" class="px-6 py-6 text-center text-slate-400">
+                        <td colspan="6" class="px-6 py-6 text-center text-slate-400">
                             Belum ada pengunjung yang masuk.
                         </td>
                     </tr>

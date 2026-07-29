@@ -9,9 +9,19 @@ use Illuminate\Support\Facades\Hash;
 
 class PetugasController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $petugas = User::where('role', 'staff')->latest()->get();
+        $petugas = User::where('role', 'staff')
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
         return view('admin.petugas.index', compact('petugas'));
     }
@@ -23,7 +33,7 @@ class PetugasController extends Controller
 
     public function edit($id)
     {
-        $petugas = User::findOrFail($id);
+        $petugas = User::where('role', 'staff')->findOrFail($id);
 
         return view('admin.petugas.edit', compact('petugas'));
     }
@@ -31,16 +41,16 @@ class PetugasController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
+            'password' => 'required|min:8|confirmed',
         ]);
 
         User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+            'name'     => $request->name,
+            'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'staff',
+            'role'     => 'staff',
         ]);
 
         return redirect()
@@ -50,11 +60,12 @@ class PetugasController extends Controller
 
     public function update(Request $request, $id)
     {
-        $petugas = User::findOrFail($id);
+        $petugas = User::where('role', 'staff')->findOrFail($id);
 
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $petugas->id,
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|string|email|max:255|unique:users,email,' . $petugas->id,
+            'password' => 'nullable|min:8|confirmed',
         ]);
 
         $petugas->name = $request->name;
@@ -69,5 +80,18 @@ class PetugasController extends Controller
         return redirect()
             ->route('admin.petugas.index')
             ->with('success', 'Data petugas berhasil diperbarui!');
+    }
+
+    public function destroy($id)
+    {
+        // Pastikan hanya bisa hapus user dengan role 'staff' lewat controller ini,
+        // supaya tidak bisa dipakai untuk menghapus admin/visitor secara tidak sengaja
+        $petugas = User::where('role', 'staff')->findOrFail($id);
+
+        $petugas->delete();
+
+        return redirect()
+            ->route('admin.petugas.index')
+            ->with('success', 'Akun petugas berhasil dihapus');
     }
 }

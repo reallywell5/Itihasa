@@ -4,13 +4,26 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Http\Request; // Menggunakan Request standar bawaan Laravel
+use Illuminate\Http\Request;
 
 class UserWebController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::latest()->paginate(10);
+        $users = User::query()
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->when($request->filled('role'), function ($query) use ($request) {
+                $query->where('role', $request->role);
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString(); // supaya search/filter tetap ada saat pindah halaman
 
         return view('admin.users.index', [
             'users' => $users,
@@ -22,15 +35,19 @@ class UserWebController extends Controller
         return view('admin.users.create');
     }
 
-    // Memperbaiki fungsi simpan data baru tanpa StoreUserRequest
     public function store(Request $request)
     {
         $data = $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
-            'role'     => 'required|in:admin,petugas,user',
+            'password' => 'required|string|min:8|confirmed',
+            'role'     => 'required|in:admin,staff,visitor',
         ]);
+
+        // PENTING: password wajib di-hash sebelum disimpan.
+        // Jika model User TIDAK punya cast 'password' => 'hashed',
+        // tanpa baris ini password akan tersimpan dalam bentuk plain text.
+        $data['password'] = bcrypt($data['password']);
 
         User::create($data);
 
@@ -55,22 +72,26 @@ class UserWebController extends Controller
         ]);
     }
 
-    // Memperbaiki fungsi update yang error tadi tanpa UpdateUserRequest
     public function update(Request $request, User $user)
     {
-        // Validasi data langsung di sini
         $data = $request->validate([
             'name'     => 'required|string|max:255',
-            'email'     => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'password'  => 'nullable|string|min:8', // Boleh kosong kalau tidak mau ganti password
-            'role'     => 'required|in:admin,petugas,user',
+            'email'    => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:8|confirmed',
+            'role'     => 'required|in:admin,staff,visitor',
         ]);
 
-        // Jika password di form dikosongkan, hapus dari array agar tidak ikut terupdate jadi kosong
+        // Cegah admin mengubah role dirinya sendiri jadi bukan admin
+        // (supaya tidak tidak sengaja menendang diri sendiri keluar dari akses admin)
+        if ($user->id === auth()->id() && $data['role'] !== 'admin') {
+            return redirect()
+                ->route('users.index')
+                ->with('error', 'Anda tidak bisa mengubah role akun Anda sendiri.');
+        }
+
         if (empty($data['password'])) {
             unset($data['password']);
         } else {
-            // Jika diisi, otomatis enkripsi password baru (opsional, tergantung setup Model Anda)
             $data['password'] = bcrypt($data['password']);
         }
 
@@ -83,6 +104,24 @@ class UserWebController extends Controller
 
     public function destroy(User $user)
     {
+        // Cegah admin menghapus akunnya sendiri
+        if ($user->id === auth()->id()) {
+            return redirect()
+                ->route('users.index')
+                ->with('error', 'Anda tidak bisa menghapus akun Anda sendiri.');
+        }
+
+        // Cegah penghapusan admin terakhir yang tersisa
+        if ($user->role === 'admin') {
+            $totalAdmin = User::where('role', 'admin')->count();
+
+            if ($totalAdmin <= 1) {
+                return redirect()
+                    ->route('users.index')
+                    ->with('error', 'Tidak bisa menghapus admin terakhir. Sistem wajib punya minimal 1 admin.');
+            }
+        }
+
         $user->delete();
 
         return redirect()

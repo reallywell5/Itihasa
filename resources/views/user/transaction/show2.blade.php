@@ -50,10 +50,10 @@
 
             </div>
 
-            <div class="mt-6 flex justify-center">
+            <div class="mt-6 flex flex-col items-center gap-4">
 
                 <a href="{{ route('user.ticket.download',$transaction->id) }}"
-                class="inline-flex items-center gap-2 bg-[#4E342E] hover:bg-[#3A2722] text-white px-6 py-3 rounded-xl shadow-md transition duration-300">
+                class="inline-flex items-center gap-2 bg-[#4E342E] hover:bg-[#3A2722] text-white px-6 py-3.5 rounded-2xl shadow-md transition duration-300 font-semibold text-sm">
 
                     <svg xmlns="http://www.w3.org/2000/svg"
                         class="w-5 h-5"
@@ -68,9 +68,19 @@
 
                     </svg>
 
-                    Unduh Tiket Digital
+                    Unduh Tiket Digital (Gambar)
 
                 </a>
+
+                {{-- PETUNJUK PENGGUNAAN TIKET GAMBAR --}}
+                <div class="p-4 rounded-2xl bg-[#F9F7F2] border border-[#EADBC8] text-center text-xs text-slate-600 space-y-1.5 w-full">
+                    <p class="font-bold text-[#102A43] flex items-center justify-center gap-1 text-sm">
+                        📸 Petunjuk Penggunaan Tiket Gambar
+                    </p>
+                    <p class="leading-relaxed">
+                        Klik tombol <strong>Unduh Tiket Digital</strong> di atas untuk menyimpan file gambar tiket ke galeri perangkat Anda. Tunjukkan QR Code pada gambar tersebut kepada petugas saat tiba di lokasi museum.
+                    </p>
+                </div>
 
             </div>
 
@@ -108,9 +118,36 @@
                         </span>
                     </div>
 
+                    <div class="border-b pb-4 space-y-3">
+                        <div class="flex justify-between">
+                            <span class="text-slate-500">Rincian Tiket</span>
+                            <span class="text-xs uppercase font-bold text-[#B88A44]">Pembelian Real-Time</span>
+                        </div>
+                        <div class="bg-[#F9F7F2] p-4 rounded-2xl border border-[#EADBC8] space-y-2">
+                            @foreach($transaction->booking->ticket_items as $item)
+                                <div class="flex justify-between items-center text-sm">
+                                    <div>
+                                        <span class="font-semibold text-[#102A43]">{{ $item['ticket_name'] }}</span>
+                                        <span class="text-slate-500"> x {{ $item['qty'] }}</span>
+                                        @if($item['price'] > 0)
+                                            <span class="text-xs text-slate-400">(@ Rp {{ number_format($item['price'], 0, ',', '.') }})</span>
+                                        @endif
+                                    </div>
+                                    <span class="font-semibold text-[#102A43]">
+                                        @if($item['subtotal'] > 0)
+                                            Rp {{ number_format($item['subtotal'], 0, ',', '.') }}
+                                        @else
+                                            {{ $item['qty'] }} Tiket
+                                        @endif
+                                    </span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
                     <div class="flex justify-between border-b pb-4">
                         <span class="text-slate-500">Total Pembayaran</span>
-                        <span class="font-semibold text-[#102A43]">
+                        <span class="font-bold text-[#B88A44] text-lg">
                             Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}
                         </span>
                     </div>

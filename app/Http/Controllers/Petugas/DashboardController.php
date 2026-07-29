@@ -10,19 +10,22 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $todayVisitors = Transaction::whereDate('created_at', Carbon::today())->count();
+        $todayVisitors = Transaction::whereDate('used_at', Carbon::today())->count();
 
         $validQr = Transaction::whereNotNull('used_at')->count();
 
-        $pendingTickets = Transaction::whereNull('used_at')->count();
+        $pendingTickets = Transaction::where('payment_status', 'paid')
+            ->whereNull('used_at')
+            ->count();
 
         $recentTransactions = Transaction::with([
             'booking.user',
-            'booking.museum'
+            'booking.museum',
         ])
-        ->latest()
-        ->take(5)
-        ->get();
+            ->whereNotNull('used_at')
+            ->orderByDesc('used_at')
+            ->take(5)
+            ->get();
 
         return view('petugas.dashboard', compact(
             'todayVisitors',

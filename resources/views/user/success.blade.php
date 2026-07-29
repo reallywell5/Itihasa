@@ -99,7 +99,29 @@
                         </span>
                     </div>
 
-                    <div class="border-t border-[#EADBC8] pt-5 flex justify-between">
+                    <div class="border-t border-[#EADBC8] pt-4 space-y-2">
+                        <p class="text-xs uppercase font-bold text-slate-400 mb-2">Rincian Tiket Dibeli</p>
+                        @foreach($transaction->booking->ticket_items as $item)
+                            <div class="flex justify-between items-center text-sm">
+                                <div>
+                                    <span class="font-semibold text-[#102A43]">{{ $item['ticket_name'] }}</span>
+                                    <span class="text-slate-400"> x {{ $item['qty'] }}</span>
+                                    @if($item['price'] > 0)
+                                        <span class="text-xs text-slate-400">(@ Rp {{ number_format($item['price'], 0, ',', '.') }})</span>
+                                    @endif
+                                </div>
+                                <span class="font-semibold text-[#102A43]">
+                                    @if($item['subtotal'] > 0)
+                                        Rp {{ number_format($item['subtotal'], 0, ',', '.') }}
+                                    @else
+                                        {{ $item['qty'] }} Qty
+                                    @endif
+                                </span>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <div class="border-t border-[#EADBC8] pt-4 flex justify-between items-center">
                         <span class="font-bold text-[#102A43]">
                             Total Dibayar
                         </span>

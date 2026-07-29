@@ -87,62 +87,117 @@
         <div class="space-y-10">
 
             {{-- RIWAYAT --}}
-            <div>
+            <div x-data="{ tab: 'semua' }">
 
-                <div class="mb-6">
-                    <h2 class="text-3xl font-bold text-[#102A43]">
-                        Riwayat Kunjungan
-                    </h2>
-                    <p class="text-slate-500 mt-2">
-                        Daftar museum yang pernah atau akan kamu kunjungi.
-                    </p>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="text-3xl font-bold text-[#102A43]">
+                            Riwayat Kunjungan
+                        </h2>
+                        <p class="text-slate-500 mt-1 text-sm">
+                            Daftar museum yang pernah atau akan kamu kunjungi.
+                        </p>
+                    </div>
+
+                    {{-- TAB FILTER --}}
+                    <div class="flex items-center gap-2 bg-white p-1.5 rounded-2xl border border-[#EADBC8] shadow-sm self-start sm:self-auto">
+                        <button type="button"
+                                @click="tab = 'semua'"
+                                :class="tab === 'semua' ? 'bg-[#102A43] text-white shadow-sm' : 'text-slate-600 hover:bg-[#F9F7F2]'"
+                                class="px-4 py-2 rounded-xl text-xs font-semibold transition">
+                            Semua
+                        </button>
+
+                        <button type="button"
+                                @click="tab = 'aktif'"
+                                :class="tab === 'aktif' ? 'bg-[#102A43] text-white shadow-sm' : 'text-slate-600 hover:bg-[#F9F7F2]'"
+                                class="px-4 py-2 rounded-xl text-xs font-semibold transition">
+                            Aktif
+                        </button>
+
+                        <button type="button"
+                                @click="tab = 'dipakai'"
+                                :class="tab === 'dipakai' ? 'bg-[#102A43] text-white shadow-sm' : 'text-slate-600 hover:bg-[#F9F7F2]'"
+                                class="px-4 py-2 rounded-xl text-xs font-semibold transition">
+                            Sudah Dipakai
+                        </button>
+                    </div>
                 </div>
 
                 <div class="space-y-5">
 
                     @forelse($transactions as $transaction)
+                        @php
+                            $statusTag = $transaction->used_at ? 'dipakai' : 'aktif';
+                        @endphp
 
-                    <div class="bg-white rounded-[24px] border border-[#EADBC8] p-6 shadow-sm">
+                        <div x-show="tab === 'semua' || tab === '{{ $statusTag }}'"
+                             x-transition
+                             class="bg-white rounded-[24px] border border-[#EADBC8] p-6 shadow-sm hover:shadow-md transition">
 
-                        <div class="flex justify-between items-center">
+                            <div class="flex justify-between items-start">
 
-                            <div>
-                                <h3 class="font-bold text-lg text-[#102A43]">
-                                    {{ $transaction->booking->museum->name }}
-                                </h3>
+                                <div>
+                                    <h3 class="font-bold text-lg text-[#102A43]">
+                                        {{ $transaction->booking->museum->name }}
+                                    </h3>
 
-                                <p class="text-sm text-slate-500 mt-1">
-                                    {{ $transaction->created_at->format('d M Y') }}
-                                </p>
+                                    <p class="text-xs text-slate-400 mt-1">
+                                        Tanggal Kunjungan: <strong class="text-slate-600">{{ \Carbon\Carbon::parse($transaction->booking->visit_date)->format('d M Y') }}</strong>
+                                    </p>
+
+                                    <p class="text-xs font-mono text-slate-400 mt-0.5">
+                                        Invoice: {{ $transaction->invoice_code }}
+                                    </p>
+                                </div>
+
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap
+                                    {{ $transaction->used_at ? 'bg-gray-100 text-gray-600 border border-gray-200' : 'bg-green-100 text-green-700 border border-green-200' }}">
+                                    {{ $transaction->used_at ? '✓ Sudah Dipakai' : '● Aktif' }}
+                                </span>
+
                             </div>
 
-                            <span class="px-3 py-1 rounded-full text-sm font-semibold
-                                {{ $transaction->used_at ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600' }}">
-                                {{ $transaction->used_at ? 'Sudah Dipakai' : 'Aktif' }}
-                            </span>
+                            {{-- RINCIAN TIKET PADA CARD RIWAYAT --}}
+                            <div class="mt-4 py-3 border-t border-b border-[#EADBC8]/60 space-y-1.5">
+                                <p class="text-[11px] uppercase font-bold tracking-wider text-[#B88A44]">Rincian Tiket:</p>
+                                @foreach($transaction->booking->ticket_items as $item)
+                                    <div class="flex justify-between text-xs text-slate-700">
+                                        <span>• {{ $item['ticket_name'] }} x {{ $item['qty'] }}</span>
+                                        <span class="font-semibold text-[#102A43]">
+                                            @if($item['subtotal'] > 0)
+                                                Rp {{ number_format($item['subtotal'], 0, ',', '.') }}
+                                            @else
+                                                {{ $item['qty'] }} Tiket
+                                            @endif
+                                        </span>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <div class="mt-4 flex justify-between items-center">
+
+                                <div>
+                                    <span class="text-xs text-slate-400 block">Total Pembayaran</span>
+                                    <p class="font-bold text-lg text-[#B88A44]">
+                                        Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}
+                                    </p>
+                                </div>
+
+                                <a href="{{ route('user.ticket', $transaction->id) }}"
+                                   class="px-5 py-2.5 rounded-xl bg-[#102A43] text-white text-xs font-semibold hover:bg-[#0c2238] transition shadow-sm">
+                                    Lihat Tiket QR
+                                </a>
+
+                            </div>
 
                         </div>
-
-                        <div class="mt-4 flex justify-between items-center border-t pt-4">
-
-                            <p class="font-semibold text-[#102A43]">
-                                Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}
-                            </p>
-
-                            <a href="{{ route('user.ticket', $transaction->id) }}"
-                               class="px-4 py-2 rounded-xl bg-[#102A43] text-white text-sm font-semibold">
-                                Lihat Tiket
-                            </a>
-
-                        </div>
-
-                    </div>
 
                     @empty
 
-                    <div class="bg-white rounded-[24px] border border-[#EADBC8] p-8 text-center text-slate-500">
-                        Belum ada riwayat kunjungan.
-                    </div>
+                        <div class="bg-white rounded-[24px] border border-[#EADBC8] p-8 text-center text-slate-500">
+                            Belum ada riwayat kunjungan.
+                        </div>
 
                     @endforelse
 
