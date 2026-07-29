@@ -4,10 +4,10 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
-use Spatie\Browsershot\Browsershot;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\View;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Spatie\Browsershot\Browsershot;
 
 class TransactionController extends Controller
 {
@@ -15,7 +15,7 @@ class TransactionController extends Controller
     {
         $transaction = Transaction::with([
             'booking.museum',
-            'booking.user'
+            'booking.user',
         ])->findOrFail($id);
 
         // Hanya user pemilik booking yang bisa akses
@@ -30,7 +30,7 @@ class TransactionController extends Controller
     {
         $transaction = Transaction::with([
             'booking.museum',
-            'booking.user'
+            'booking.user',
         ])->findOrFail($id);
 
         // Hanya user pemilik booking yang bisa akses
@@ -52,7 +52,7 @@ class TransactionController extends Controller
     {
         $transaction = Transaction::with([
             'booking.user',
-            'booking.museum'
+            'booking.museum',
         ])->findOrFail($id);
 
         // Hanya user pemilik booking yang bisa akses
@@ -72,26 +72,32 @@ class TransactionController extends Controller
 
         $html = View::make(
             'user.transaction.download-ticket',
-            compact('transaction','qrCode')
+            compact('transaction', 'qrCode')
         )->render();
 
         $tempHtml = storage_path('app/ticket.html');
 
-        File::put($tempHtml,$html);
+        File::put($tempHtml, $html);
 
         $image = storage_path(
             'app/public/ticket-'.$transaction->id.'.png'
         );
 
-        Browsershot::html($html)
-            ->setChromePath('/usr/bin/chromium-browser') 
-            ->windowSize(900,1400)
+        $browsershot = Browsershot::html($html)
+            ->windowSize(900, 1400)
             ->fullPage()
             ->deviceScaleFactor(2)
             ->showBackground()
-            ->margins(0,0,0,0)
-            ->save($image);
+            ->margins(0, 0, 0, 0);
 
-        return response()->download($image);
+        if (PHP_OS_FAMILY !== 'Windows' && file_exists('/usr/bin/chromium-browser')) {
+            $browsershot->setChromePath('/usr/bin/chromium-browser');
+        }
+
+        $browsershot->save($image);
+
+        return response()->download($image, 'Tiket-'.$transaction->invoice_code.'.png', [
+            'Content-Type' => 'image/png',
+        ]);
     }
 }

@@ -62,16 +62,19 @@
 
             <div class="bg-white rounded-2xl border border-zinc-200 shadow-sm p-6">
 
-                <h2 class="font-bold text-zinc-900 mb-4">
+                <h2 class="font-bold text-zinc-900 mb-3">
                     Hasil Scan
                 </h2>
 
-                <button type="submit"
-                    id="submit-btn"
-                    disabled
-                    class="w-full px-6 py-3.5 rounded-xl bg-zinc-900 text-white text-sm font-semibold disabled:opacity-50">
-                    Menunggu Scan...
-                </button>
+                <div id="result" class="mb-4">
+                    <p class="text-sm text-zinc-400">
+                        Belum ada QR Code yang dipindai.
+                    </p>
+                </div>
+
+                <div id="scan-status-badge" class="hidden p-3 rounded-xl bg-green-50 border border-green-200 text-green-700 text-xs font-semibold text-center">
+                    ✓ QR Berhasil Dibaca
+                </div>
 
             </div>
 
@@ -86,7 +89,7 @@
 
                     <div>
                         <label class="block text-sm font-semibold text-zinc-700 mb-2">
-                            Invoice Code
+                            Invoice Code / QR Tiket
                         </label>
 
                         <input type="text"
@@ -94,12 +97,13 @@
                                id="qr_code"
                                readonly
                                required
-                               class="w-full border border-zinc-200 rounded-xl px-4 py-3 bg-zinc-50 font-mono text-sm">
+                               placeholder="Menunggu scan kamera..."
+                               class="w-full border border-zinc-200 rounded-xl px-4 py-3 bg-zinc-50 font-mono text-sm text-zinc-800">
                     </div>
 
                     <button type="submit"
-                            id="submit-btn"
-                            class="w-full py-3 rounded-xl bg-zinc-900 text-white font-semibold hover:bg-zinc-800 transition">
+                            id="btn-validate-submit"
+                            class="w-full py-3.5 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition shadow-md">
                         Validasi Tiket
                     </button>
 
@@ -118,30 +122,57 @@
 <script>
 let isProcessing = false;
 
+function playBeep() {
+    try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.2);
+    } catch (e) {}
+}
+
 function onScanSuccess(decodedText) {
     if (isProcessing) return;
 
     isProcessing = true;
+    playBeep();
 
     document.getElementById('qr_code').value = decodedText;
 
-    document.getElementById('result').innerHTML = `
-        <div class="w-full">
-            <p class="font-bold text-green-600 mb-2">
-                QR Berhasil Dibaca
-            </p>
-            <div class="bg-white border rounded-lg p-3 text-xs font-mono break-all">
-                ${decodedText}
+    let resultEl = document.getElementById('result');
+    if (resultEl) {
+        resultEl.innerHTML = `
+            <div class="w-full bg-green-50 border border-green-200 rounded-xl p-4">
+                <p class="font-bold text-green-700 text-sm mb-1">
+                    ✓ QR Code Berhasil Dibaca!
+                </p>
+                <p class="font-mono text-xs text-zinc-700 break-all">
+                    ${decodedText}
+                </p>
             </div>
-        </div>
-    `;
+        `;
+    }
 
-    document.getElementById('submit-btn').innerText = 'Memproses...';
-    document.getElementById('submit-btn').disabled = true;
+    let badge = document.getElementById('scan-status-badge');
+    if (badge) badge.classList.remove('hidden');
+
+    let btn = document.getElementById('btn-validate-submit');
+    if (btn) {
+        btn.innerText = 'Memproses Validasi...';
+        btn.disabled = true;
+    }
 
     setTimeout(() => {
         document.getElementById('qr-form').submit();
-    }, 500);
+    }, 600);
 }
 
 let scanner = new Html5QrcodeScanner(

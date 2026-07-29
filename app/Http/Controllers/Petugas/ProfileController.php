@@ -31,7 +31,11 @@ class ProfileController extends Controller
                     ($transaction->booking->child_qty ?? 0);
             });
 
-        $recentActivities = $transactions->take(5);
+        // Hanya tiket yang SUDAH discan, diurutkan dari yang paling baru discan
+        $recentActivities = $transactions
+            ->whereNotNull('used_at')
+            ->sortByDesc('used_at')
+            ->take(5);
 
         return view('petugas.profil', compact(
             'petugas',

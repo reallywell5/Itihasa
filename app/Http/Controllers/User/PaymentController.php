@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Payment;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 
@@ -34,6 +35,14 @@ class PaymentController extends Controller
             'expired_at'     => now()->addMinutes(15),
         ]);
 
+        // Buat record Payment mengikuti transaksi yang baru dibuat
+        Payment::create([
+            'transaction_id' => $transaction->id,
+            'payment_method' => $transaction->payment_method,
+            'amount'         => $transaction->total_amount,
+            'payment_status' => 'pending',
+        ]);
+
         return redirect()->route('user.payment.show3', $transaction->id);
     }
 
@@ -53,6 +62,8 @@ class PaymentController extends Controller
             $transaction->update([
                 'payment_status' => 'failed',
             ]);
+
+            $this->syncPaymentStatus($transaction, 'failed');
 
             return redirect()
                 ->route('user.home')
@@ -85,6 +96,8 @@ class PaymentController extends Controller
                 'payment_status' => 'failed',
             ]);
 
+            $this->syncPaymentStatus($transaction, 'failed');
+
             return back()->with(
                 'error',
                 'Waktu pembayaran telah habis. Silakan lakukan pemesanan kembali.'
@@ -96,6 +109,34 @@ class PaymentController extends Controller
             'payment_status' => 'paid',
         ]);
 
+        $this->syncPaymentStatus($transaction, 'paid', now());
+
         return redirect()->route('user.transaction.show', $transaction->id);
+    }
+
+    /**
+     * Samakan status di tabel payments dengan status transaksi terkait.
+     * Kalau belum ada record Payment untuk transaksi ini (data lama sebelum
+     * fitur ini disambungkan), buat baru sebagai fallback.
+     */
+    private function syncPaymentStatus(Transaction $transaction, string $status, $paidAt = null): void
+    {
+        $payment = Payment::where('transaction_id', $transaction->id)->latest()->first();
+
+        if ($payment) {
+            $payment->update([
+                'payment_status' => $status,
+                'paid_at'        => $paidAt,
+            ]);
+            return;
+        }
+
+        Payment::create([
+            'transaction_id' => $transaction->id,
+            'payment_method' => $transaction->payment_method,
+            'amount'         => $transaction->total_amount,
+            'payment_status' => $status,
+            'paid_at'        => $paidAt,
+        ]);
     }
 }

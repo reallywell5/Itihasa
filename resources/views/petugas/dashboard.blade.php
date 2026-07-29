@@ -21,9 +21,9 @@
             </p>
         </div>
 
-        <a href="{{ route('petugas.qrcodes.index') }}"
-           class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold shadow-md hover:bg-blue-700 transition">
-            Buka QR Code
+        <a href="{{ route('petugas.qrcodes.scan') }}"
+           class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-blue-600 text-white text-sm font-bold shadow-md hover:bg-blue-700 transition">
+            Buka Kamera Scanner
         </a>
     </div>
 
@@ -126,7 +126,7 @@
                         </td>
 
                         <td class="px-6 py-4 text-slate-500">
-                            {{ $transaction->created_at->format('H:i') }} WIB
+                            {{ $transaction->used_at?->format('H:i') ?? '-' }} WIB
                         </td>
 
                         <td class="px-6 py-4">

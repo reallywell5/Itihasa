@@ -88,6 +88,7 @@
                        name="visit_date"
                        id="visit-date"
                        required
+                       min="{{ date('Y-m-d') }}"
                        class="w-full px-6 py-5 rounded-2xl border border-[#D9CBB8] text-lg">
 
             </div>

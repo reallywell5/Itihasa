@@ -28,6 +28,48 @@
         </a>
     </div>
 
+    {{-- SEARCH & FILTER --}}
+    <div class="bg-white rounded-2xl border border-zinc-200 p-4 mb-6">
+        <form method="GET" action="{{ route('users.index') }}" class="flex flex-col sm:flex-row gap-3">
+
+            <input
+                type="text"
+                name="search"
+                value="{{ request('search') }}"
+                placeholder="Cari nama atau email..."
+                class="flex-1 px-4 py-2.5 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            >
+
+            <select name="role" class="px-4 py-2.5 border border-zinc-200 rounded-xl text-sm">
+                <option value="">Semua Role</option>
+                <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                <option value="staff" {{ request('role') == 'staff' ? 'selected' : '' }}>Petugas</option>
+                <option value="visitor" {{ request('role') == 'visitor' ? 'selected' : '' }}>Visitor</option>
+            </select>
+
+            <button type="submit"
+                    class="px-5 py-2.5 rounded-xl bg-zinc-900 text-white text-sm font-semibold hover:bg-zinc-800 transition">
+                Cari
+            </button>
+
+            @if(request('search') || request('role'))
+                <a href="{{ route('users.index') }}"
+                class="px-5 py-2.5 rounded-xl border border-zinc-200 text-zinc-700 text-sm font-semibold hover:bg-zinc-100 transition text-center">
+                    Reset
+                </a>
+            @endif
+
+        </form>
+    </div>
+
+    {{-- ... TABEL DAFTAR PENGGUNA KAMU YANG SUDAH ADA DI SINI ... --}}
+
+    {{-- PAGINATION — taruh di bawah tabel, setelah </table> --}}
+    <div class="mt-6">
+        {{ $users->links() }}
+    </div>
+
+
     {{-- SUCCESS --}}
     @if(session('success'))
         <div class="bg-white border border-blue-100 rounded-2xl p-4 shadow-sm">

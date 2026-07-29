@@ -156,8 +156,25 @@
             </tr>
 
             <tr>
+                <td style="vertical-align: top;">Rincian Tiket</td>
+                <td style="text-align: right; line-height: 1.6;">
+                    @foreach($transaction->booking->ticket_items as $item)
+                        <div>
+                            <span>{{ $item['ticket_name'] }} x {{ $item['qty'] }}</span>
+                            @if($item['price'] > 0)
+                                <span style="color:#888; font-weight:normal; font-size:14px;"> (@ Rp {{ number_format($item['price'], 0, ',', '.') }})</span>
+                            @endif
+                            @if($item['subtotal'] > 0)
+                                <span style="color:#4E342E;"> = Rp {{ number_format($item['subtotal'], 0, ',', '.') }}</span>
+                            @endif
+                        </div>
+                    @endforeach
+                </td>
+            </tr>
+
+            <tr>
                 <td>Total Pembayaran</td>
-                <td style="color:#C08A3E;">
+                <td style="color:#C08A3E; font-size: 20px;">
                     Rp {{ number_format($transaction->total_amount,0,',','.') }}
                 </td>
             </tr>

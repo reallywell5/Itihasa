@@ -71,11 +71,35 @@
                         </span>
                     </div>
 
-                    <div class="flex justify-between">
-                        <span class="text-slate-500">Total Bayar</span>
-                        <span class="font-bold text-[#B88A44] text-xl">
-                            Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}
-                        </span>
+                    <div class="border-t pt-4">
+                        <p class="text-xs uppercase font-bold text-slate-400 mb-3">Rincian Pembelian Tiket</p>
+                        <div class="space-y-3 mb-4">
+                            @foreach($transaction->booking->ticket_items as $item)
+                                <div class="flex justify-between items-center text-sm">
+                                    <div>
+                                        <span class="font-semibold text-[#102A43]">{{ $item['ticket_name'] }}</span>
+                                        <span class="text-slate-400 font-normal"> x {{ $item['qty'] }}</span>
+                                        @if($item['price'] > 0)
+                                            <p class="text-xs text-slate-400">@ Rp {{ number_format($item['price'], 0, ',', '.') }}</p>
+                                        @endif
+                                    </div>
+                                    <span class="font-semibold text-[#102A43]">
+                                        @if($item['subtotal'] > 0)
+                                            Rp {{ number_format($item['subtotal'], 0, ',', '.') }}
+                                        @else
+                                            {{ $item['qty'] }} tiket
+                                        @endif
+                                    </span>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="flex justify-between items-center pt-3 border-t">
+                            <span class="text-slate-500 font-semibold">Total Bayar</span>
+                            <span class="font-bold text-[#B88A44] text-xl">
+                                Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}
+                            </span>
+                        </div>
                     </div>
 
                 </div>
@@ -97,28 +121,23 @@
                     </h2>
 
                     <div class="space-y-4">
-
-                        @if($transaction->booking->adult_qty > 0)
-                        <div class="flex justify-between">
-                            <span>Dewasa</span>
-                            <span>{{ $transaction->booking->adult_qty }}</span>
-                        </div>
-                        @endif
-
-                        @if($transaction->booking->student_qty > 0)
-                        <div class="flex justify-between">
-                            <span>Pelajar</span>
-                            <span>{{ $transaction->booking->student_qty }}</span>
-                        </div>
-                        @endif
-
-                        @if($transaction->booking->child_qty > 0)
-                        <div class="flex justify-between">
-                            <span>Anak-anak</span>
-                            <span>{{ $transaction->booking->child_qty }}</span>
-                        </div>
-                        @endif
-
+                        @foreach($transaction->booking->ticket_items as $item)
+                            <div class="flex justify-between items-center py-2 border-b border-slate-100 last:border-b-0">
+                                <div>
+                                    <p class="font-semibold text-[#102A43]">{{ $item['ticket_name'] }}</p>
+                                    @if($item['price'] > 0)
+                                        <p class="text-xs text-slate-400">Rp {{ number_format($item['price'], 0, ',', '.') }} x {{ $item['qty'] }}</p>
+                                    @endif
+                                </div>
+                                <span class="font-bold text-[#B88A44]">
+                                    @if($item['subtotal'] > 0)
+                                        Rp {{ number_format($item['subtotal'], 0, ',', '.') }}
+                                    @else
+                                        {{ $item['qty'] }} Qty
+                                    @endif
+                                </span>
+                            </div>
+                        @endforeach
                     </div>
 
                     <a href="{{ route('user.ticket', $transaction->id) }}"
