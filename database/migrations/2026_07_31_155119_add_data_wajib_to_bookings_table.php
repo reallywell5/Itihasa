@@ -9,18 +9,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('bookings', function (Blueprint $table) {
-            if (! Schema::hasColumn('bookings', 'ticket_summary')) {
-                $table->json('ticket_summary')->nullable()->after('total_price');
-            }
+            $table->string('nama_penanggung_jawab')->after('user_id');
+            $table->unsignedInteger('jumlah_anggota')->after('nama_penanggung_jawab');
+            $table->string('kota_asal')->after('jumlah_anggota');
+            $table->string('no_hp')->after('kota_asal');
         });
     }
 
     public function down(): void
     {
         Schema::table('bookings', function (Blueprint $table) {
-            if (Schema::hasColumn('bookings', 'ticket_summary')) {
-                $table->dropColumn('ticket_summary');
-            }
+            $table->dropColumn(['nama_penanggung_jawab', 'jumlah_anggota', 'kota_asal', 'no_hp']);
         });
     }
 };

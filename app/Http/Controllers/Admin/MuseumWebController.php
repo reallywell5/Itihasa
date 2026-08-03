@@ -9,9 +9,23 @@ use Illuminate\Support\Facades\Storage;
 
 class MuseumWebController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $museums = Museum::latest()->paginate(10);
+        $museums = Museum::query()
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('address', 'like', "%{$search}%");
+                });
+            })
+            ->when($request->filled('category'), function ($query) use ($request) {
+                $query->where('category', $request->category);
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
         return view('admin.museums.index', compact('museums'));
     }
 
@@ -24,6 +38,7 @@ class MuseumWebController extends Controller
     {
         $validated = $request->validate([
             'name'          => 'required|string|max:255',
+            'category'      => 'required|in:museum,seni,budaya,alam,religius',
             'address'       => 'required|string',
             'description'   => 'required|string',
             'image'         => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
@@ -60,6 +75,7 @@ class MuseumWebController extends Controller
     {
         $validated = $request->validate([
             'name'          => 'required|string|max:255',
+            'category'      => 'required|in:museum,seni,budaya,alam,religius',
             'address'       => 'required|string',
             'description'   => 'required|string',
             'image'         => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
@@ -68,7 +84,6 @@ class MuseumWebController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            // Hapus gambar lama jika ada
             if ($museum->image && Storage::disk('public')->exists($museum->image)) {
                 Storage::disk('public')->delete($museum->image);
             }

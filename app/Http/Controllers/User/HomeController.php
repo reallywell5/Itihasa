@@ -10,20 +10,19 @@ class HomeController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Museum::with('wishlists');
-
-        if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('address', 'like', '%' . $request->search . '%');
-            });
-        }
-
-        if ($request->filled('category')) {
-            $query->where('category', $request->category);
-        }
-
-        $museums = $query->orderBy('name')->get();
+        $museums = Museum::with('wishlists')
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('address', 'like', "%{$search}%");
+                });
+            })
+            ->when($request->filled('category'), function ($query) use ($request) {
+                $query->where('category', $request->category);
+            })
+            ->orderBy('name')
+            ->get();
 
         return view('user.home', compact('museums'));
     }

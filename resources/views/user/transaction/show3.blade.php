@@ -8,7 +8,7 @@
 
     <div class="bg-white rounded-[32px] border border-[#EADBC8] shadow-sm p-8">
 
-        <div class="text-center mb-10">
+        <div class="text-center mb-6">
 
             <h1 class="text-4xl font-bold text-[#102A43] mb-4">
                 Selesaikan Pembayaran
@@ -18,6 +18,14 @@
                 Pilih dan selesaikan pembayaran sesuai metode yang dipilih.
             </p>
 
+        </div>
+
+        {{-- MIDTRANS BADGE --}}
+        <div class="flex justify-center mb-6">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#F9F7F2] border border-[#EADBC8]">
+                <span class="text-xs text-slate-400">Transaksi diproses melalui</span>
+                <span class="text-sm font-bold text-[#102A43]">Midtrans</span>
+            </div>
         </div>
 
         {{-- STATUS --}}
@@ -62,9 +70,14 @@
         @if($transaction->payment_method == 'qris')
             <div class="text-center bg-[#F9F7F2] p-8 rounded-3xl border border-[#EADBC8] max-w-xl mx-auto mb-8">
 
-                <h2 class="text-2xl font-bold text-[#102A43] mb-4">
-                    Scan QRIS
-                </h2>
+                <div class="flex items-center justify-center gap-2 mb-4">
+                    <h2 class="text-2xl font-bold text-[#102A43]">
+                        Scan QRIS
+                    </h2>
+                    <span class="text-[10px] uppercase font-bold tracking-wider text-white bg-[#102A43] px-2 py-1 rounded-full">
+                        Midtrans
+                    </span>
+                </div>
 
                 <img src="{{ asset('images/qris-pembayaran.jpeg') }}"
                      alt="QRIS Pembayaran"
@@ -88,13 +101,18 @@
             @endphp
             <div class="text-center bg-[#F9F7F2] p-8 rounded-3xl border border-[#EADBC8] max-w-xl mx-auto mb-8">
 
-                <h2 class="text-2xl font-bold text-[#102A43] mb-4">
-                    Transfer Virtual Account
-                </h2>
+                <div class="flex items-center justify-center gap-2 mb-4">
+                    <h2 class="text-2xl font-bold text-[#102A43]">
+                        Transfer Virtual Account
+                    </h2>
+                    <span class="text-[10px] uppercase font-bold tracking-wider text-white bg-[#102A43] px-2 py-1 rounded-full">
+                        Midtrans
+                    </span>
+                </div>
 
                 <div class="bg-white rounded-2xl p-6 border border-[#EADBC8] shadow-sm mb-6 inline-block w-full">
                     <p class="text-slate-400 text-sm mb-2">
-                        Seabank Virtual Account
+                        Midtrans Virtual Account
                     </p>
 
                     <div class="flex items-center justify-center gap-3">
@@ -134,9 +152,14 @@
             @endphp
             <div class="text-center bg-[#F9F7F2] p-8 rounded-3xl border border-[#EADBC8] max-w-xl mx-auto mb-8">
 
-                <h2 class="text-2xl font-bold text-[#102A43] mb-4">
-                    Transfer E-Wallet
-                </h2>
+                <div class="flex items-center justify-center gap-2 mb-4">
+                    <h2 class="text-2xl font-bold text-[#102A43]">
+                        Transfer E-Wallet
+                    </h2>
+                    <span class="text-[10px] uppercase font-bold tracking-wider text-white bg-[#102A43] px-2 py-1 rounded-full">
+                        Midtrans
+                    </span>
+                </div>
 
                 <div class="bg-white rounded-2xl p-6 border border-[#EADBC8] shadow-sm mb-6 inline-block w-full">
 
@@ -214,21 +237,44 @@
         @if($transaction->payment_status == 'pending')
             <form action="{{ route('user.payment.confirm', $transaction->id) }}"
                   method="POST"
-                  class="max-w-xl mx-auto">
+                  class="max-w-xl mx-auto"
+                  onsubmit="document.getElementById('btn-confirm-payment').disabled = true; document.getElementById('btn-confirm-payment').innerText = 'Memproses...';">
                 @csrf
 
                 <button
-                    class="w-full py-4 rounded-2xl bg-[#102A43] text-white font-bold text-lg hover:bg-[#0c2238] transition shadow-lg">
+                    id="btn-confirm-payment"
+                    class="w-full py-4 rounded-2xl bg-[#102A43] text-white font-bold text-lg hover:bg-[#0c2238] transition shadow-lg disabled:opacity-60 disabled:cursor-not-allowed">
 
                     Saya Sudah Bayar
 
                 </button>
             </form>
-        @else
+
+            <p class="text-center text-[11px] text-slate-400 mt-4">
+                🔒 Transaksi diamankan oleh Midtrans Payment Gateway
+            </p>
+        @elseif($transaction->payment_status == 'paid')
             <div class="max-w-xl mx-auto">
                 <a href="{{ route('user.ticket', $transaction->id) }}"
                    class="w-full flex justify-center py-4 rounded-2xl bg-[#102A43] text-white font-bold text-lg hover:bg-[#0c2238] transition shadow-lg">
                     Lihat Tiket QR
+                </a>
+            </div>
+        @else
+            {{-- payment_status == 'failed' (kadaluwarsa/gagal) --}}
+            <div class="max-w-xl mx-auto text-center space-y-4">
+                <div class="p-4 rounded-2xl bg-red-50 border border-red-100 text-red-600 text-sm font-semibold">
+                    Pembayaran gagal atau sudah kedaluwarsa. Tiket tidak dapat digunakan.
+                </div>
+
+                <a href="{{ route('user.booking', $transaction->booking->museum->id) }}"
+                   class="w-full flex justify-center py-4 rounded-2xl bg-[#102A43] text-white font-bold text-lg hover:bg-[#0c2238] transition shadow-lg">
+                    Pesan Ulang Tiket
+                </a>
+
+                <a href="{{ route('user.home') }}"
+                   class="w-full flex justify-center py-3 rounded-2xl border border-[#EADBC8] text-[#102A43] font-semibold hover:bg-[#F6F1E8] transition">
+                    Kembali ke Beranda
                 </a>
             </div>
         @endif

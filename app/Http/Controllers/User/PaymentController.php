@@ -43,7 +43,10 @@ class PaymentController extends Controller
             'payment_status' => 'pending',
         ]);
 
-        return redirect()->route('user.payment.show3', $transaction->id);
+        return redirect()
+            ->route('user.payment.show3', $transaction->id)
+            ->with('success', 'Booking berhasil dibuat. Silakan selesaikan pembayaran melalui Midtrans sebelum waktu habis.')
+            ->with('swal_success', 'Booking berhasil dibuat. Silakan selesaikan pembayaran melalui Midtrans sebelum waktu habis.');
     }
 
     public function show3($transactionId)
@@ -67,7 +70,8 @@ class PaymentController extends Controller
 
             return redirect()
                 ->route('user.home')
-                ->with('error', 'Waktu pembayaran telah habis. Silakan lakukan pemesanan kembali.');
+                ->with('error', 'Waktu pembayaran telah habis. Silakan lakukan pemesanan kembali.')
+                ->with('swal_error', 'Waktu pembayaran telah habis. Silakan lakukan pemesanan kembali.');
         }
 
         return view('user.transaction.show3', compact('transaction'));
@@ -79,15 +83,16 @@ class PaymentController extends Controller
 
         // Jika sudah paid, langsung redirect ke halaman transaksi
         if ($transaction->payment_status == 'paid') {
-            return redirect()->route('user.transaction.show', $transaction->id);
+            return redirect()
+                ->route('user.transaction.show', $transaction->id)
+                ->with('swal_info', 'Transaksi ini sudah dikonfirmasi sebelumnya.');
         }
 
         // Jika sudah failed, tolak
         if ($transaction->payment_status == 'failed') {
-            return back()->with(
-                'error',
-                'Transaksi sudah kedaluwarsa.'
-            );
+            return back()
+                ->with('error', 'Transaksi sudah kedaluwarsa.')
+                ->with('swal_error', 'Transaksi sudah kedaluwarsa.');
         }
 
         // Jika masih pending tapi sudah lewat expired_at, update ke failed
@@ -98,10 +103,9 @@ class PaymentController extends Controller
 
             $this->syncPaymentStatus($transaction, 'failed');
 
-            return back()->with(
-                'error',
-                'Waktu pembayaran telah habis. Silakan lakukan pemesanan kembali.'
-            );
+            return back()
+                ->with('error', 'Waktu pembayaran telah habis. Silakan lakukan pemesanan kembali.')
+                ->with('swal_error', 'Waktu pembayaran telah habis. Silakan lakukan pemesanan kembali.');
         }
 
         // Konfirmasi berhasil — ubah status ke paid
@@ -111,7 +115,10 @@ class PaymentController extends Controller
 
         $this->syncPaymentStatus($transaction, 'paid', now());
 
-        return redirect()->route('user.transaction.show', $transaction->id);
+        return redirect()
+            ->route('user.transaction.show', $transaction->id)
+            ->with('success', 'Pembayaran berhasil dikonfirmasi melalui Midtrans. Tiket QR kamu sudah aktif.')
+            ->with('swal_success', 'Pembayaran berhasil dikonfirmasi melalui Midtrans. Tiket QR kamu sudah aktif.');
     }
 
     /**

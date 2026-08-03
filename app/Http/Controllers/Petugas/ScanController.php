@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Petugas;
 
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
+use App\Models\QrScanLog;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ScanController extends Controller
 {
@@ -20,104 +22,127 @@ class ScanController extends Controller
             'qr_code' => 'required'
         ]);
 
-        $transaction = Transaction::with([
-            'booking.user',
-            'booking.museum'
-        ])->where('invoice_code', trim($request->qr_code))->first();
+        $qrInput = trim($request->qr_code);
 
-        if (!$transaction) {
-            return back()->with('error', 'QR Code tidak valid.');
-        }
+        return DB::transaction(function () use ($qrInput) {
 
-        if ($transaction->payment_status !== 'paid') {
-            return back()->with('error', 'Pembayaran belum selesai.');
-        }
+            // lockForUpdate() -> mencegah 2 request scan bersamaan lolos validasi bersamaan
+            $transaction = Transaction::with(['booking.user', 'booking.museum'])
+                ->where('invoice_code', $qrInput)
+                ->lockForUpdate()
+                ->first();
 
-        if ($transaction->used_at) {
-            return back()->with('error', 'Ticket sudah digunakan.');
-        }
-
-        $visitDate = $transaction->booking->visit_date ?? null;
-
-        if ($visitDate) {
-            $visitDateString = $visitDate instanceof Carbon
-                ? $visitDate->toDateString()
-                : Carbon::parse($visitDate)->toDateString();
-
-            $today = now()->toDateString();
-
-            // Tiket dipakai LEBIH AWAL dari tanggal kunjungan
-            if ($visitDateString > $today) {
-                return back()->with(
-                    'error',
-                    'Tiket ini berlaku untuk tanggal ' .
-                    Carbon::parse($visitDateString)->translatedFormat('d F Y') .
-                    ', belum bisa digunakan hari ini.'
-                );
+            if (!$transaction) {
+                $this->logScan(null, $qrInput, 'failed', 'QR Code tidak valid.');
+                return $this->fail('QR Code tidak valid.');
             }
 
-            // Tiket dipakai SETELAH tanggal kunjungan lewat
-            if ($visitDateString < $today) {
-                return back()->with('error', 'Tiket sudah kadaluwarsa.');
+            if ($transaction->payment_status !== 'paid') {
+                $this->logScan($transaction->id, $qrInput, 'failed', 'Pembayaran belum selesai.');
+                return $this->fail('Pembayaran belum selesai.');
             }
-        }
 
-        // Cek jam operasional museum (hanya berlaku kalau hari ini = visit_date)
-        $museum = $transaction->booking->museum ?? null;
-
-        if ($museum && $museum->opening_time && $museum->closing_time) {
-            $now = now();
-
-            // Carbon::parse pada string jam saja (mis. "08:00:00") otomatis
-            // memakai tanggal hari ini, jadi aman langsung dibandingkan dengan now()
-            $openingTime = Carbon::parse($museum->opening_time);
-            $closingTime = Carbon::parse($museum->closing_time);
-
-            if ($now->lt($openingTime) || $now->gt($closingTime)) {
-                return back()->with(
-                    'error',
-                    'Museum hanya buka pukul ' .
-                    $openingTime->format('H:i') .
-                    ' - ' .
-                    $closingTime->format('H:i') .
-                    '. Tiket tidak bisa discan di luar jam operasional.'
-                );
+            if ($transaction->used_at) {
+                $this->logScan($transaction->id, $qrInput, 'failed', 'Tiket sudah digunakan.');
+                return $this->fail('Tiket sudah digunakan.');
             }
-        }
 
-        $transaction->update([
-            'used_at' => now()
-        ]);
+            $visitDate = $transaction->booking->visit_date ?? null;
 
-        return back()->with(
-            'success',
-            'Tiket valid untuk ' .
-            ($transaction->booking->user->name ?? '-') .
-            ' di ' .
-            ($transaction->booking->museum->name ?? '-')
-        );
+            if ($visitDate) {
+                $visitDateString = $visitDate instanceof Carbon
+                    ? $visitDate->toDateString()
+                    : Carbon::parse($visitDate)->toDateString();
+
+                $today = now()->toDateString();
+
+                if ($visitDateString > $today) {
+                    $msg = 'Tiket berlaku untuk tanggal ' .
+                        Carbon::parse($visitDateString)->translatedFormat('d F Y') .
+                        ', belum bisa digunakan hari ini.';
+                    $this->logScan($transaction->id, $qrInput, 'failed', $msg);
+                    return $this->fail($msg);
+                }
+
+                if ($visitDateString < $today) {
+                    $this->logScan($transaction->id, $qrInput, 'failed', 'Tiket sudah kadaluwarsa.');
+                    return $this->fail('Tiket sudah kadaluwarsa.');
+                }
+            }
+
+            $museum = $transaction->booking->museum ?? null;
+
+            if ($museum && $museum->opening_time && $museum->closing_time) {
+                $now = now();
+                $openingTime = Carbon::parse($museum->opening_time);
+                $closingTime = Carbon::parse($museum->closing_time);
+
+                if ($now->lt($openingTime) || $now->gt($closingTime)) {
+                    $msg = 'Museum hanya buka pukul ' .
+                        $openingTime->format('H:i') . ' - ' . $closingTime->format('H:i') .
+                        '. Tiket tidak bisa discan di luar jam operasional.';
+                    $this->logScan($transaction->id, $qrInput, 'failed', $msg);
+                    return $this->fail($msg);
+                }
+            }
+
+            // Semua validasi lolos -> tandai sebagai used
+            $transaction->update(['used_at' => now()]);
+
+            $successMsg = 'Tiket valid untuk ' .
+                ($transaction->booking->user->name ?? '-') . ' di ' .
+                ($transaction->booking->museum->name ?? '-');
+
+            $this->logScan($transaction->id, $qrInput, 'success', $successMsg);
+
+            return $this->success($successMsg);
+        });
     }
 
-    public function riwayat()
+    private function fail(string $message)
     {
-        // Hanya tiket yang sudah discan, diurutkan dari yang paling baru discan
-        $scans = Transaction::with([
-            'booking.user',
-            'booking.museum'
-        ])
-            ->whereNotNull('used_at')
-            ->orderByDesc('used_at')
-            ->get();
+        return back()
+            ->with('error', $message)
+            ->with('swal_error', $message);
+    }
 
-        $totalScan = $scans->count();
-        $todayScan = $scans->filter(
-            fn ($t) => $t->used_at->isToday()
-        )->count();
+    private function success(string $message)
+    {
+        return back()
+            ->with('success', $message)
+            ->with('swal_success', $message);
+    }
+
+    private function logScan(?int $transactionId, string $qrInput, string $status, string $message): void
+    {
+        QrScanLog::create([
+            'transaction_id' => $transactionId,
+            'scanned_by'     => auth()->id(),
+            'qr_code_input'  => $qrInput,
+            'status'         => $status,
+            'message'        => $message,
+            'scanned_at'     => now(),
+        ]);
+    }
+
+    public function riwayat(Request $request)
+    {
+        $query = QrScanLog::with(['transaction.booking.user', 'transaction.booking.museum', 'petugas'])
+            ->orderByDesc('scanned_at');
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $scans = $query->paginate(20)->withQueryString();
+
+        $totalScan   = QrScanLog::count();
+        $successScan = QrScanLog::where('status', 'success')->count();
+        $failedScan  = QrScanLog::where('status', 'failed')->count();
+        $todayScan   = QrScanLog::whereDate('scanned_at', now()->toDateString())->count();
 
         return view('petugas.riwayat', compact(
-            'scans',
-            'totalScan',
-            'todayScan'
+            'scans', 'totalScan', 'successScan', 'failedScan', 'todayScan'
         ));
     }
 }

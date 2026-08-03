@@ -42,6 +42,7 @@ Route::middleware(['auth'])->group(function () {
     // BOOKING
     Route::get('/booking/{museum}', [BookingController::class, 'create'])->name('user.booking');
     Route::post('/booking/{museum}', [BookingController::class, 'store'])->name('user.booking.store');
+    Route::get('/booking/{museum}/quota', [BookingController::class, 'checkQuota'])->name('user.booking.quota');
 
     // PAYMENT
     Route::get('/payment/{booking}', [PaymentController::class, 'index'])->name('user.payment');

@@ -88,19 +88,17 @@
                             </td>
 
                             <td class="px-6 py-4">
-                                @if($payment->payment_status == 'paid')
-                                    <span class="px-3 py-1 rounded-xl bg-green-50 text-green-600 text-xs font-semibold">
-                                        Paid
-                                    </span>
-                                @elseif($payment->payment_status == 'pending')
-                                    <span class="px-3 py-1 rounded-xl bg-yellow-50 text-yellow-600 text-xs font-semibold">
-                                        Pending
-                                    </span>
-                                @else
-                                    <span class="px-3 py-1 rounded-xl bg-red-50 text-red-600 text-xs font-semibold">
-                                        Failed
-                                    </span>
-                                @endif
+                                @php
+                                    $statusClasses = match($payment->payment_status) {
+                                        'paid' => 'bg-green-50 text-green-600',
+                                        'pending' => 'bg-yellow-50 text-yellow-600',
+                                        'failed' => 'bg-red-50 text-red-600',
+                                    };
+                                @endphp
+
+                                <span class="px-3 py-1 rounded-xl text-xs font-semibold {{ $statusClasses }}">
+                                    {{ ucfirst($payment->payment_status) }}
+                                </span>
                             </td>
 
                             <td class="px-6 py-4 text-slate-500">

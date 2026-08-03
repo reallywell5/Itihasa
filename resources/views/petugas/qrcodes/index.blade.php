@@ -84,10 +84,16 @@
                             {{ $transaction->used_at?->format('d M Y, H:i') ?? '-' }}
                         </td>
                         <td class="px-6 py-4">
-                            <a href="{{ route('petugas.qrcodes.show', $transaction->id) }}"
-                               class="text-blue-600 font-semibold hover:underline">
-                                Lihat QR
-                            </a>
+                            @if($transaction->payment_status === 'paid')
+                                <a href="{{ route('petugas.qrcodes.show', $transaction->id) }}"
+                                   class="text-blue-600 font-semibold hover:underline">
+                                    Lihat QR
+                                </a>
+                            @else
+                                <span class="text-slate-300 font-semibold" title="QR baru tersedia setelah pembayaran berhasil">
+                                    -
+                                </span>
+                            @endif
                         </td>
                     </tr>
                     @empty

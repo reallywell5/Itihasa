@@ -13,10 +13,10 @@ class Museum extends Model
 
     protected $fillable = [
         'name',
+        'category',
         'address',
         'description',
         'image',
-        'rating',
         'opening_time',
         'closing_time',
     ];

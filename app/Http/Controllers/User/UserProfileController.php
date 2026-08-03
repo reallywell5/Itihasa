@@ -15,22 +15,59 @@ class UserProfileController extends Controller
     {
         $user = Auth::user();
 
+        // 1. Ambil transaksi paid yang booking-nya masih berstatus 'active'
+        $activeTransactions = Transaction::with(['booking.museum'])
+            ->whereHas('booking', function ($query) use ($user) {
+                $query->where('user_id', $user->id)->where('status', 'active');
+            })
+            ->where('payment_status', 'paid')
+            ->get();
+
+        // 2. Loop untuk mengecek apakah sudah melewati closing_time museum
+        foreach ($activeTransactions as $transaction) {
+            $booking = $transaction->booking;
+
+            if ($booking && $booking->museum) {
+                $closingDateTime = \Carbon\Carbon::parse($booking->visit_date . ' ' . $booking->museum->closing_time);
+
+                if (now()->greaterThan($closingDateTime)) {
+                    $booking->update(['status' => 'expired']);
+                }
+            }
+        }
+
+        // 3. Auto-gagalkan transaksi PENDING yang sudah lewat batas waktu bayar (expired_at),
+        // supaya tidak nyangkut selamanya di daftar "Menunggu Pembayaran" kalau user
+        // menutup aplikasi sebelum bayar dan tidak pernah buka lagi halaman show3.
+        Transaction::whereHas('booking', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->where('payment_status', 'pending')
+            ->whereNotNull('expired_at')
+            ->where('expired_at', '<', now())
+            ->update(['payment_status' => 'failed']);
+
+        // 4. Transaksi yang SUDAH DIBAYAR (riwayat kunjungan seperti sebelumnya)
         $transactions = Transaction::with([
             'booking.museum',
             'booking'
         ])
-
         ->whereHas('booking', function ($query) use ($user) {
-
-            $query->where('user_id',$user->id);
-
+            $query->where('user_id', $user->id);
         })
-
-        ->where('payment_status','paid')
-
+        ->where('payment_status', 'paid')
         ->latest()
-
         ->get();
+
+        // 5. Transaksi yang MASIH PENDING (belum dibayar, masih dalam batas waktu),
+        // supaya user yang ke-close aplikasinya bisa balik lagi lanjutkan pembayaran.
+        $pendingTransactions = Transaction::with(['booking.museum'])
+            ->whereHas('booking', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            })
+            ->where('payment_status', 'pending')
+            ->latest()
+            ->get();
 
         $wishlists = Wishlist::with('museum')
             ->where('user_id', $user->id)
@@ -40,8 +77,7 @@ class UserProfileController extends Controller
         $totalTransactions = $transactions->count();
 
         $totalVisitors = $transactions->sum(function ($transaction) {
-            return
-                ($transaction->booking->adult_qty ?? 0) +
+            return ($transaction->booking->adult_qty ?? 0) +
                 ($transaction->booking->student_qty ?? 0) +
                 ($transaction->booking->child_qty ?? 0);
         });
@@ -49,6 +85,7 @@ class UserProfileController extends Controller
         return view('user.profile', compact(
             'user',
             'transactions',
+            'pendingTransactions',
             'wishlists',
             'totalTransactions',
             'totalVisitors'
@@ -76,7 +113,6 @@ class UserProfileController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
 
-        // kalau password diisi, update password
         if ($request->filled('password')) {
             $user->password = bcrypt($request->password);
         }
@@ -85,6 +121,7 @@ class UserProfileController extends Controller
 
         return redirect()
             ->route('user.profile')
-            ->with('success', 'Profil berhasil diperbarui.');
+            ->with('success', 'Profil berhasil diperbarui.')
+            ->with('swal_success', 'Profil berhasil diperbarui.');
     }
 }

@@ -204,11 +204,6 @@ class="block px-4 py-3 rounded-xl hover:bg-[#F6F1E8]">
                                         Wishlist
                                     </a>
 
-                                    <a href="{{ route('user.profile') }}"
-                                        class="py-2 rounded-lg {{ request()->routeIs('user.profile') ? 'bg-[#102A43] text-white' : 'bg-[#F8F4EC]' }}">
-                                        Profile
-                                    </a>
-
                                 </div>
 
                             </div>
@@ -225,11 +220,6 @@ class="block px-4 py-3 rounded-xl hover:bg-[#F6F1E8]">
                             Wishlist
                         </a>
 
-                        <a href="{{ auth()->check() ? route('user.profile') : route('login') }}"
-                        class="{{ request()->routeIs('user.profile') ? 'nav-active' : '' }}">
-                            Profile
-                        </a>
-
                     </div>
 
                 </div>
@@ -237,10 +227,13 @@ class="block px-4 py-3 rounded-xl hover:bg-[#F6F1E8]">
                 {{-- RIGHT --}}
                 <div class="flex items-center gap-4">
 
-                    {{-- PROFILE AVATAR --}}
-                    <div class="w-10 h-10 md:w-11 md:h-11 rounded-full bg-[#102A43] text-white flex items-center justify-center font-bold shadow-md">
-                        {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
-                    </div>
+                    {{-- PROFILE AVATAR (klik untuk ke halaman profil) --}}
+                    <a href="{{ auth()->check() ? route('user.profile') : route('login') }}"
+                        title="Profil Saya"
+                        class="w-10 h-10 md:w-11 md:h-11 rounded-full bg-[#102A43] text-white flex items-center justify-center font-bold shadow-md hover:bg-[#0c2238] transition
+                        {{ request()->routeIs('user.profile') ? 'ring-2 ring-[#B88A44] ring-offset-2' : '' }}">
+                            {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
+                    </a>
 
                 </div>
 
@@ -306,10 +299,6 @@ class="block px-4 py-3 rounded-xl hover:bg-[#F6F1E8]">
 
                         <a href="{{ route('user.wishlist') }}" class="block hover:text-[#B88A44] transition">
                             Wishlist
-                        </a>
-
-                        <a href="{{ route('user.profile') }}" class="block hover:text-[#B88A44] transition">
-                            Profile
                         </a>
 
                     </div>
@@ -392,3 +381,9 @@ class="block px-4 py-3 rounded-xl hover:bg-[#F6F1E8]">
         </div>
 
     </footer>
+
+@stack('scripts')
+
+@include('partials.sweetalert')
+</body>
+</html>
