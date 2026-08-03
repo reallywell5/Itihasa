@@ -41,6 +41,17 @@
             {{-- LEFT --}}
             <div class="lg:col-span-2 bg-white border border-zinc-200 rounded-2xl shadow-sm p-8 space-y-6">
 
+                {{-- ERROR --}}
+                @if ($errors->any())
+                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+                        <ul class="list-disc list-inside text-sm">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 {{-- NAME --}}
                 <div>
                     <label class="block text-sm font-semibold text-zinc-700 mb-2">
@@ -50,6 +61,27 @@
                            name="name"
                            value="{{ old('name', $museum->name) }}"
                            class="w-full rounded-xl border border-zinc-200 px-4 py-3 text-sm">
+                </div>
+
+                {{-- KATEGORI --}}
+                <div>
+                    <label class="block text-sm font-semibold text-zinc-700 mb-2">
+                        Kategori Museum
+                    </label>
+
+                    @php $selectedCategory = old('category', $museum->category); @endphp
+
+                    <select name="category"
+                            class="w-full rounded-xl border border-zinc-200 px-4 py-3 text-sm">
+                        <option value="" disabled {{ $selectedCategory ? '' : 'selected' }}>
+                            Pilih kategori...
+                        </option>
+                        <option value="museum" {{ $selectedCategory === 'museum' ? 'selected' : '' }}>Museum</option>
+                        <option value="seni" {{ $selectedCategory === 'seni' ? 'selected' : '' }}>Seni</option>
+                        <option value="budaya" {{ $selectedCategory === 'budaya' ? 'selected' : '' }}>Budaya</option>
+                        <option value="alam" {{ $selectedCategory === 'alam' ? 'selected' : '' }}>Alam</option>
+                        <option value="religius" {{ $selectedCategory === 'religius' ? 'selected' : '' }}>Religius</option>
+                    </select>
                 </div>
 
                 {{-- ADDRESS --}}
