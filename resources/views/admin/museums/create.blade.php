@@ -64,6 +64,25 @@
                            class="w-full rounded-xl border border-zinc-200 px-4 py-3 text-sm">
                 </div>
 
+                {{-- KATEGORI --}}
+                <div>
+                    <label class="block text-sm font-semibold text-zinc-700 mb-2">
+                        Kategori Museum
+                    </label>
+
+                    <select name="category"
+                            class="w-full rounded-xl border border-zinc-200 px-4 py-3 text-sm">
+                        <option value="" disabled {{ old('category') ? '' : 'selected' }}>
+                            Pilih kategori...
+                        </option>
+                        <option value="museum" {{ old('category') === 'museum' ? 'selected' : '' }}>Museum</option>
+                        <option value="seni" {{ old('category') === 'seni' ? 'selected' : '' }}>Seni</option>
+                        <option value="budaya" {{ old('category') === 'budaya' ? 'selected' : '' }}>Budaya</option>
+                        <option value="alam" {{ old('category') === 'alam' ? 'selected' : '' }}>Alam</option>
+                        <option value="religius" {{ old('category') === 'religius' ? 'selected' : '' }}>Religius</option>
+                    </select>
+                </div>
+
                 {{-- ALAMAT --}}
                 <div>
                     <label class="block text-sm font-semibold text-zinc-700 mb-2">

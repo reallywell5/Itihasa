@@ -7,12 +7,18 @@ use App\Models\Booking;
 use App\Models\Payment;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PaymentController extends Controller
 {
     public function index($bookingId)
     {
         $booking = Booking::with('museum')->findOrFail($bookingId);
+
+        // Hanya pemilik booking yang boleh akses halaman pembayaran ini
+        if ($booking->user_id !== Auth::id()) {
+            abort(403);
+        }
 
         return view('user.transaction.index', compact('booking'));
     }
@@ -24,6 +30,11 @@ class PaymentController extends Controller
         ]);
 
         $booking = Booking::findOrFail($bookingId);
+
+        // Hanya pemilik booking yang boleh membuat transaksi dari booking ini
+        if ($booking->user_id !== Auth::id()) {
+            abort(403);
+        }
 
         $transaction = Transaction::create([
             'booking_id'     => $booking->id,
@@ -56,6 +67,11 @@ class PaymentController extends Controller
             'booking.user'
         ])->findOrFail($transactionId);
 
+        // Hanya pemilik transaksi yang boleh melihat halaman pembayaran ini
+        if ($transaction->booking->user_id !== Auth::id()) {
+            abort(403);
+        }
+
         // Cek apakah transaksi sudah lewat 15 menit
         if (
             $transaction->payment_status == 'pending' &&
@@ -79,7 +95,11 @@ class PaymentController extends Controller
 
     public function confirm($transactionId)
     {
-        $transaction = Transaction::findOrFail($transactionId);
+        $transaction = Transaction::with('booking')->findOrFail($transactionId);
+
+        if ($transaction->booking->user_id !== Auth::id()) {
+            abort(403);
+        }
 
         // Jika sudah paid, langsung redirect ke halaman transaksi
         if ($transaction->payment_status == 'paid') {
@@ -108,7 +128,6 @@ class PaymentController extends Controller
                 ->with('swal_error', 'Waktu pembayaran telah habis. Silakan lakukan pemesanan kembali.');
         }
 
-        // Konfirmasi berhasil — ubah status ke paid
         $transaction->update([
             'payment_status' => 'paid',
         ]);
@@ -121,37 +140,6 @@ class PaymentController extends Controller
             ->with('swal_success', 'Pembayaran berhasil dikonfirmasi melalui Midtrans. Tiket QR kamu sudah aktif.');
     }
 
-    /**
-     * Samakan status di tabel payments dengan status transaksi terkait.
-     * Kalau belum ada record Payment untuk transaksi ini (data lama sebelum
-     * fitur ini disambungkan), buat baru sebagai fallback.
-     */
-    private function syncPaymentStatus(Transaction $transaction, string $status, $paidAt = null): void
-    {
-        $payment = Payment::where('transaction_id', $transaction->id)->latest()->first();
-
-        if ($payment) {
-            $payment->update([
-                'payment_status' => $status,
-                'paid_at'        => $paidAt,
-            ]);
-            return;
-        }
-
-        Payment::create([
-            'transaction_id' => $transaction->id,
-            'payment_method' => $transaction->payment_method,
-            'amount'         => $transaction->total_amount,
-            'payment_status' => $status,
-            'paid_at'        => $paidAt,
-        ]);
-    }
-
-    /**
-     * Samakan status di tabel payments dengan status transaksi terkait.
-     * Kalau belum ada record Payment untuk transaksi ini (data lama sebelum
-     * fitur ini disambungkan), buat baru sebagai fallback.
-     */
     private function syncPaymentStatus(Transaction $transaction, string $status, $paidAt = null): void
     {
         $payment = Payment::where('transaction_id', $transaction->id)->latest()->first();
