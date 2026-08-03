@@ -146,4 +146,30 @@ class PaymentController extends Controller
             'paid_at'        => $paidAt,
         ]);
     }
+
+    /**
+     * Samakan status di tabel payments dengan status transaksi terkait.
+     * Kalau belum ada record Payment untuk transaksi ini (data lama sebelum
+     * fitur ini disambungkan), buat baru sebagai fallback.
+     */
+    private function syncPaymentStatus(Transaction $transaction, string $status, $paidAt = null): void
+    {
+        $payment = Payment::where('transaction_id', $transaction->id)->latest()->first();
+
+        if ($payment) {
+            $payment->update([
+                'payment_status' => $status,
+                'paid_at'        => $paidAt,
+            ]);
+            return;
+        }
+
+        Payment::create([
+            'transaction_id' => $transaction->id,
+            'payment_method' => $transaction->payment_method,
+            'amount'         => $transaction->total_amount,
+            'payment_status' => $status,
+            'paid_at'        => $paidAt,
+        ]);
+    }
 }
