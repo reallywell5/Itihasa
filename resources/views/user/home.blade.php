@@ -23,7 +23,7 @@
                 yang mendalam dalam satu platform digital modern.
             </p>
 
-            {{-- SEARCH --}}
+            {{-- SEARCH & FILTER --}}
             <form method="GET" action="{{ route('user.home') }}" class="mt-8 space-y-4">
                 <div class="flex flex-col md:flex-row gap-4">
 
@@ -37,9 +37,11 @@
                         class="px-5 py-4 rounded-2xl border border-[#EADBC8]">
 
                         <option value="">Semua Kategori</option>
-                        <option value="history">Sejarah</option>
-                        <option value="art">Seni</option>
-                        <option value="science">Sains</option>
+                        <option value="museum" {{ request('category') == 'museum' ? 'selected' : '' }}>Museum</option>
+                        <option value="seni" {{ request('category') == 'seni' ? 'selected' : '' }}>Seni</option>
+                        <option value="budaya" {{ request('category') == 'budaya' ? 'selected' : '' }}>Budaya</option>
+                        <option value="alam" {{ request('category') == 'alam' ? 'selected' : '' }}>Alam</option>
+                        <option value="religius" {{ request('category') == 'religius' ? 'selected' : '' }}>Religius</option>
 
                     </select>
 
@@ -49,7 +51,9 @@
 
                 </div>
             </form>
+
         </div>
+
 
         {{-- HERO IMAGE --}}
         <div class="relative h-[540px] w-full overflow-hidden rounded-[32px] border border-[#EADBC8] shadow-2xl">
@@ -150,7 +154,7 @@
                 {{-- TAG --}}
                 <div class="flex gap-2 mt-4 mb-6">
                     <span class="px-3 py-1 rounded-full bg-[#F6F1E8] text-[#B88A44] text-xs font-semibold">
-                        Museum
+                        {{ $museum->category }}
                     </span>
 
                     @php

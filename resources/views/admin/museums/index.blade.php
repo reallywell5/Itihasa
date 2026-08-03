@@ -34,6 +34,49 @@
         </div>
     @endif
 
+    {{-- SEARCH & FILTER — taruh di atas tabel/daftar museum --}}
+    <div class="bg-white rounded-2xl border border-zinc-200 p-4 mb-6">
+        <form method="GET" action="{{ route('museums.index') }}" class="flex flex-col sm:flex-row gap-3">
+
+            <input
+                type="text"
+                name="search"
+                value="{{ request('search') }}"
+                placeholder="Cari nama atau alamat museum..."
+                class="flex-1 px-4 py-2.5 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+            >
+
+            <select name="category" class="px-4 py-2.5 border border-zinc-200 rounded-xl text-sm">
+                <option value="">Semua Kategori</option>
+                <option value="museum" {{ request('category') == 'museum' ? 'selected' : '' }}>Museum</option>
+                <option value="seni" {{ request('category') == 'seni' ? 'selected' : '' }}>Seni</option>
+                <option value="budaya" {{ request('category') == 'budaya' ? 'selected' : '' }}>Budaya</option>
+                <option value="alam" {{ request('category') == 'alam' ? 'selected' : '' }}>Alam</option>
+                <option value="religius" {{ request('category') == 'religius' ? 'selected' : '' }}>Religius</option>
+            </select>
+
+            <button type="submit"
+                    class="px-5 py-2.5 rounded-xl bg-zinc-900 text-white text-sm font-semibold hover:bg-zinc-800 transition">
+                Cari
+            </button>
+
+            @if(request('search') || request('category'))
+                <a href="{{ route('museums.index') }}"
+                class="px-5 py-2.5 rounded-xl border border-zinc-200 text-zinc-700 text-sm font-semibold hover:bg-zinc-100 transition text-center">
+                    Reset
+                </a>
+            @endif
+
+        </form>
+    </div>
+
+    {{-- ... DAFTAR/TABEL MUSEUM YANG SUDAH ADA ... --}}
+
+    {{-- PAGINATION — taruh di bawah daftar --}}
+    <div class="mt-6">
+        {{ $museums->links() }}
+    </div>
+
     {{-- SUMMARY --}}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 

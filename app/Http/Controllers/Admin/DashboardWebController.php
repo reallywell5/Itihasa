@@ -7,21 +7,30 @@ use App\Models\Museum;
 use App\Models\Ticket;
 use App\Models\Payment;
 use App\Models\Transaction;
+use App\Models\User;
 use Carbon\Carbon;
 
 class DashboardWebController extends Controller
 {
     public function index()
     {
+        // ==== STATISTIK UTAMA (sesuai permintaan dosen) ====
         $totalMuseums = Museum::count();
+
+        // Hanya hitung user dengan role "visitor" (pengunjung), bukan admin/staff
+        $totalUsers = User::where('role', 'visitor')->count();
+
+        $totalTransactions = Transaction::count();
+
+        $totalRevenue = Transaction::where('payment_status', 'paid')
+            ->sum('total_amount');
+
+        // ==== STATISTIK TAMBAHAN (pendukung, sudah ada sebelumnya) ====
         $totalTickets = Ticket::count();
         $totalPayments = Payment::count();
 
         // Menggantikan QrCode::count() — dihitung dari transaksi yang sudah discan
         $totalQrCodes = Transaction::whereNotNull('used_at')->count();
-
-        $totalRevenue = Transaction::where('payment_status', 'paid')
-            ->sum('total_amount');
 
         $recentTransactions = Transaction::with([
             'booking.user'
@@ -30,25 +39,16 @@ class DashboardWebController extends Controller
         ->take(5)
         ->get();
 
-        $labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-
-        $data = [];
-
-        for ($i = 1; $i <= 12; $i++) {
-            $data[] = Transaction::query()
-                ->whereYear('created_at', now()->year)
-                ->whereMonth('created_at', $i)
-                ->count();
-        }
-
         $monthlyTransactions = $this->getMonthlyTransactions();
 
         return view('admin.dashboard', compact(
             'totalMuseums',
+            'totalUsers',
+            'totalTransactions',
+            'totalRevenue',
             'totalTickets',
             'totalPayments',
             'totalQrCodes',
-            'totalRevenue',
             'recentTransactions',
             'monthlyTransactions'
         ));
@@ -63,11 +63,10 @@ class DashboardWebController extends Controller
         $labels = [];
         $data = [];
 
-        // Mulai dari 5 bulan lalu sampai bulan ini (total 6 titik data)
         for ($i = 5; $i >= 0; $i--) {
             $month = Carbon::now()->subMonths($i);
 
-            $labels[] = $month->translatedFormat('M Y'); // contoh: "Jun 2026"
+            $labels[] = $month->translatedFormat('M Y');
 
             $data[] = Transaction::whereYear('created_at', $month->year)
                 ->whereMonth('created_at', $month->month)

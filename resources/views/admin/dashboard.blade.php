@@ -48,15 +48,41 @@
 
     </div>
 
-    {{-- STATISTICS --}}
-    <div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+    {{-- STATISTIK UTAMA (Museum, Pengguna, Transaksi, Pendapatan) --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
 
         <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
-            <p class="text-sm text-slate-400 font-semibold">Museums</p>
+            <p class="text-sm text-slate-400 font-semibold">Total Museum</p>
             <h3 class="text-2xl font-bold text-slate-800 mt-2">
                 {{ $totalMuseums }}
             </h3>
         </div>
+
+        <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
+            <p class="text-sm text-slate-400 font-semibold">Total Pengguna</p>
+            <h3 class="text-2xl font-bold text-slate-800 mt-2">
+                {{ $totalUsers }}
+            </h3>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
+            <p class="text-sm text-slate-400 font-semibold">Total Transaksi</p>
+            <h3 class="text-2xl font-bold text-slate-800 mt-2">
+                {{ $totalTransactions }}
+            </h3>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
+            <p class="text-sm text-slate-400 font-semibold">Total Pendapatan</p>
+            <h3 class="text-2xl font-bold text-slate-800 mt-2">
+                Rp {{ number_format($totalRevenue, 0, ',', '.') }}
+            </h3>
+        </div>
+
+    </div>
+
+    {{-- STATISTIK TAMBAHAN (pendukung) --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
 
         <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
             <p class="text-sm text-slate-400 font-semibold">Tickets</p>
@@ -73,7 +99,7 @@
         </div>
 
         <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
-            <p class="text-sm text-slate-400 font-semibold">QR Codes</p>
+            <p class="text-sm text-slate-400 font-semibold">Tiket Sudah Discan</p>
             <h3 class="text-2xl font-bold text-slate-800 mt-2">
                 {{ $totalQrCodes }}
             </h3>

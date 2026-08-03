@@ -25,7 +25,7 @@
         </div>
 
         {{-- STEP --}}
-        <div class="flex justify-center mb-14">
+        <div class="flex justify-center mb-10">
             <div class="flex items-center gap-8">
 
                 <div class="flex flex-col items-center">
@@ -62,6 +62,14 @@
             </div>
         </div>
 
+        {{-- MIDTRANS BADGE --}}
+        <div class="flex justify-center mb-8">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#EADBC8] shadow-sm">
+                <span class="text-xs text-slate-400">Pembayaran diproses aman melalui</span>
+                <span class="text-sm font-bold text-[#102A43]">Midtrans</span>
+            </div>
+        </div>
+
         <div class="grid lg:grid-cols-[1fr_420px] gap-10">
 
             {{-- LEFT --}}
@@ -69,9 +77,14 @@
 
                 <div class="bg-white rounded-[28px] border border-[#EADBC8] p-8 shadow-sm">
 
-                    <h2 class="text-2xl font-bold text-[#102A43] mb-6">
-                        Pilih Metode Pembayaran
-                    </h2>
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-[#102A43]">
+                            Pilih Metode Pembayaran
+                        </h2>
+                        <span class="text-xs font-semibold text-slate-400">
+                            Powered by Midtrans
+                        </span>
+                    </div>
 
                     <div class="space-y-4">
 
@@ -86,9 +99,9 @@
                         <label class="flex items-center justify-between p-5 rounded-2xl border border-[#EADBC8] cursor-pointer">
                             <div class="flex items-center gap-4">
                                 <input type="radio" name="payment_method" value="bank_transfer">
-                                <span class="font-semibold text-[#102A43]">Transfer Bank</span>
+                                <span class="font-semibold text-[#102A43]">Transfer Bank (Virtual Account)</span>
                             </div>
-                            <span class="text-slate-400">Seabank</span>
+                            <span class="text-slate-400">Midtrans VA</span>
                         </label>
 
                         <label class="flex items-center justify-between p-5 rounded-2xl border border-[#EADBC8] cursor-pointer">
@@ -96,7 +109,7 @@
                                 <input type="radio" name="payment_method" value="e_wallet">
                                 <span class="font-semibold text-[#102A43]">E-Wallet</span>
                             </div>
-                            <span class="text-slate-400">DANA / GoPay</span>
+                            <span class="text-slate-400">GoPay / DANA via Midtrans</span>
                         </label>
 
                     </div>
@@ -115,7 +128,6 @@
                         return $item['qty'] * $item['price'];
                     });
 
-                    // fallback kalau ticket_summary kosong
                     if ($subtotal == 0) {
                         $subtotal = $booking->total_price;
                     }
@@ -188,6 +200,10 @@
                         class="mt-8 w-full py-5 rounded-2xl bg-[#102A43] text-white font-semibold text-lg hover:bg-[#0d2238] transition">
                         BAYAR SEKARANG
                     </button>
+
+                    <p class="text-center text-[11px] text-slate-400 mt-4">
+                        🔒 Transaksi diamankan oleh Midtrans Payment Gateway
+                    </p>
 
                 </div>
 

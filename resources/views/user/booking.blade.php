@@ -77,6 +77,12 @@
                 </div>
             @endif
 
+            @if (session('error'))
+                <div class="p-4 bg-red-100 text-red-600 rounded-2xl">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             {{-- DATE --}}
             <div class="bg-white rounded-[32px] border border-[#EADBC8] p-8 shadow-sm">
 
@@ -91,6 +97,90 @@
                        min="{{ date('Y-m-d') }}"
                        class="w-full px-6 py-5 rounded-2xl border border-[#D9CBB8] text-lg">
 
+                <p id="quota-loading" class="text-sm text-slate-400 mt-3 hidden">
+                    Mengecek sisa kuota...
+                </p>
+
+            </div>
+
+            {{-- DATA WAJIB PENGUNJUNG --}}
+            <div class="bg-white rounded-[32px] border border-[#EADBC8] p-8 shadow-sm space-y-6">
+
+                <h2 class="text-3xl font-bold text-[#102A43]">
+                    Data Kunjungan
+                </h2>
+
+                <div>
+                    <label class="block font-semibold text-[#102A43] mb-2">
+                        Nama Lengkap
+                    </label>
+                    <input type="text"
+                           name="nama_penanggung_jawab"
+                           value="{{ old('nama_penanggung_jawab') }}"
+                           required
+                           placeholder="Contoh: Asep Supriatna"
+                           class="w-full px-6 py-4 rounded-2xl border border-[#D9CBB8] text-lg">
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-[#102A43] mb-2">
+                        Jumlah Anggota
+                    </label>
+                    <input type="number"
+                           name="jumlah_anggota"
+                           id="jumlah_anggota"
+                           value="{{ old('jumlah_anggota') }}"
+                           min="1"
+                           required
+                           placeholder="Total orang dalam rombongan"
+                           class="w-full px-6 py-4 rounded-2xl border border-[#D9CBB8] text-lg">
+                    <p class="text-sm text-slate-400 mt-2">
+                        Wajib sama dengan total tiket yang dipilih di bawah.
+                    </p>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-[#102A43] mb-2">
+                        Kota Asal
+                    </label>
+                    <input type="text"
+                           name="kota_asal"
+                           value="{{ old('kota_asal') }}"
+                           required
+                           placeholder="Contoh: Bandung"
+                           class="w-full px-6 py-4 rounded-2xl border border-[#D9CBB8] text-lg">
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-[#102A43] mb-2">
+                        Nomor HP
+                    </label>
+                    <input type="tel"
+                           name="no_hp"
+                           value="{{ old('no_hp') }}"
+                           required
+                           placeholder="08xxxxxxxxxx"
+                           pattern="[0-9+]{9,15}"
+                           class="w-full px-6 py-4 rounded-2xl border border-[#D9CBB8] text-lg">
+                </div>
+
+            </div>
+
+            {{-- EMAIL (READ-ONLY, info saja) --}}
+            <div class="bg-white rounded-[32px] border border-[#EADBC8] p-8 shadow-sm">
+
+                <h2 class="text-2xl font-bold text-[#102A43] mb-2">
+                    Email Notifikasi
+                </h2>
+
+                <p class="text-slate-400 text-sm mb-5">
+                    E-tiket dan notifikasi status pemesanan akan dikirim ke email akun kamu.
+                </p>
+
+                <div class="w-full px-6 py-5 rounded-2xl border border-[#D9CBB8] text-lg bg-[#F9F7F2] text-slate-600">
+                    {{ auth()->user()->email }}
+                </div>
+
             </div>
 
             {{-- TICKET --}}
@@ -100,21 +190,30 @@
                     Pilih Tiket
                 </h2>
 
+                <p class="text-slate-400 text-sm -mt-4 mb-6">
+                    Pilih tanggal kunjungan terlebih dahulu untuk melihat sisa kuota tiap kategori.
+                </p>
+
                 @foreach($museum->tickets as $ticket)
 
-                <div class="flex justify-between items-center py-6 border-b">
+                <div class="flex justify-between items-center py-6 border-b" id="ticket-row-{{ $ticket->id }}">
 
                     <div>
                         <h3 class="font-bold text-xl">{{ $ticket->ticket_name }}</h3>
                         <p class="text-slate-500">
                             Rp {{ number_format($ticket->price, 0, ',', '.') }}
                         </p>
+                        <p class="text-sm font-semibold text-[#B88A44] mt-1"
+                           id="ticket-{{ $ticket->id }}-quota">
+                            Kuota: {{ $ticket->slot }} pax/hari
+                        </p>
                     </div>
 
                     <input type="hidden"
                         name="ticket_{{ $ticket->id }}"
                         id="ticket-{{ $ticket->id }}-input"
-                        value="0">
+                        value="0"
+                        data-slot="{{ $ticket->slot }}">
 
                     <div class="flex items-center gap-4">
                         <button type="button"
@@ -129,6 +228,7 @@
                         </span>
 
                         <button type="button"
+                            id="ticket-{{ $ticket->id }}-plus"
                             onclick="changeQty({{ $ticket->id }}, 1)"
                             class="w-12 h-12 rounded-xl bg-[#F9F7F2] text-xl">
                             +
@@ -194,6 +294,9 @@
 </form>
 
 <script>
+const quotaUrl = "{{ route('user.booking.quota', $museum->id) }}";
+let remainingQuota = {}; // { ticketId: sisaKuota }
+
 function changeQty(ticketId, change) {
     let input = document.getElementById('ticket-' + ticketId + '-input');
     let qtyText = document.getElementById('ticket-' + ticketId + '-qty');
@@ -202,6 +305,12 @@ function changeQty(ticketId, change) {
     let updated = current + change;
 
     if (updated < 0) updated = 0;
+
+    // Cegah menambah qty melebihi sisa kuota (kalau kuota sudah diketahui)
+    if (change > 0 && remainingQuota[ticketId] !== undefined && updated > remainingQuota[ticketId]) {
+        alert('Sisa kuota tiket ini cuma ' + remainingQuota[ticketId] + ' untuk tanggal yang dipilih.');
+        return;
+    }
 
     input.value = updated;
     qtyText.innerText = updated;
@@ -255,9 +364,68 @@ function updateTotal() {
         'Rp ' + total.toLocaleString('id-ID');
 }
 
+async function fetchQuota(visitDate) {
+    const loadingEl = document.getElementById('quota-loading');
+    loadingEl.classList.remove('hidden');
+
+    try {
+        const res = await fetch(quotaUrl + '?visit_date=' + visitDate, {
+            headers: { 'Accept': 'application/json' }
+        });
+
+        if (!res.ok) throw new Error('Gagal mengambil data kuota');
+
+        const data = await res.json();
+
+        Object.keys(data).forEach(function (ticketId) {
+            const info = data[ticketId];
+            remainingQuota[ticketId] = info.sisa;
+
+            const quotaLabel = document.getElementById('ticket-' + ticketId + '-quota');
+            const plusBtn = document.getElementById('ticket-' + ticketId + '-plus');
+            const qtyInput = document.getElementById('ticket-' + ticketId + '-input');
+            const qtyText = document.getElementById('ticket-' + ticketId + '-qty');
+
+            if (info.sisa <= 0) {
+                quotaLabel.innerText = 'Kuota habis untuk tanggal ini';
+                quotaLabel.classList.add('text-red-500');
+                quotaLabel.classList.remove('text-[#B88A44]');
+                plusBtn.disabled = true;
+                plusBtn.classList.add('opacity-40', 'cursor-not-allowed');
+
+                // Reset qty kalau ternyata sudah dipilih tapi kuota habis
+                qtyInput.value = 0;
+                qtyText.innerText = 0;
+            } else {
+                quotaLabel.innerText = 'Sisa kuota: ' + info.sisa + ' / ' + info.slot + ' pax';
+                quotaLabel.classList.remove('text-red-500');
+                quotaLabel.classList.add('text-[#B88A44]');
+                plusBtn.disabled = false;
+                plusBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+
+                // Kalau qty yang sudah dipilih ternyata melebihi sisa kuota terbaru, sesuaikan
+                if (parseInt(qtyInput.value) > info.sisa) {
+                    qtyInput.value = info.sisa;
+                    qtyText.innerText = info.sisa;
+                }
+            }
+        });
+
+        updateTotal();
+    } catch (err) {
+        console.error(err);
+    } finally {
+        loadingEl.classList.add('hidden');
+    }
+}
+
 document.getElementById('visit-date').addEventListener('change', function () {
     document.getElementById('summary-date').innerText =
         'Tanggal: ' + this.value;
+
+    if (this.value) {
+        fetchQuota(this.value);
+    }
 });
 
 updateTotal();
