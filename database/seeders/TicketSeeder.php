@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Ticket;
+use Illuminate\Database\Seeder;
 
 class TicketSeeder extends Seeder
 {
@@ -18,7 +18,7 @@ class TicketSeeder extends Seeder
                 'price' => 20000,
                 'slot' => 100,
                 'created_at' => now(),
-                'updated_at' => now()
+                'updated_at' => now(),
             ],
             [
                 'museum_id' => 1,
@@ -26,7 +26,7 @@ class TicketSeeder extends Seeder
                 'price' => 10000,
                 'slot' => 100,
                 'created_at' => now(),
-                'updated_at' => now()
+                'updated_at' => now(),
             ],
 
             // Museum Geologi
@@ -36,7 +36,7 @@ class TicketSeeder extends Seeder
                 'price' => 25000,
                 'slot' => 100,
                 'created_at' => now(),
-                'updated_at' => now()
+                'updated_at' => now(),
             ],
             [
                 'museum_id' => 2,
@@ -44,7 +44,7 @@ class TicketSeeder extends Seeder
                 'price' => 15000,
                 'slot' => 100,
                 'created_at' => now(),
-                'updated_at' => now()
+                'updated_at' => now(),
             ],
 
             // Museum KAA
@@ -54,7 +54,7 @@ class TicketSeeder extends Seeder
                 'price' => 15000,
                 'slot' => 100,
                 'created_at' => now(),
-                'updated_at' => now()
+                'updated_at' => now(),
             ],
         ]);
     }

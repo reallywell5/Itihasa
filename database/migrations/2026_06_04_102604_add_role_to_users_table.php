@@ -12,13 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         // Hanya tambahkan kolom 'role' jika kolom tersebut BELUM ada di database
-        if (!Schema::hasColumn('users', 'role')) {
+        if (! Schema::hasColumn('users', 'role')) {
             Schema::table('users', function (Blueprint $table) {
                 $table->string('role')->default('user');
             });
         }
     }
-
 
     /**
      * Reverse the migrations.

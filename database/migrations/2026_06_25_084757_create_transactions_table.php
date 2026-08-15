@@ -3,14 +3,12 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        // Disable foreign key checks sementara
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        Schema::disableForeignKeyConstraints();
 
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
@@ -26,10 +24,10 @@ return new class extends Migration
             $table->enum('payment_status', [
                 'pending',
                 'paid',
-                'failed'
+                'failed',
             ])->default('pending');
 
-             // Batas waktu pembayaran
+            // Batas waktu pembayaran
             $table->timestamp('expired_at')->nullable();
 
             // Waktu tiket digunakan
@@ -38,16 +36,15 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // Enable lagi
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        Schema::enableForeignKeyConstraints();
     }
 
     public function down(): void
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        Schema::disableForeignKeyConstraints();
 
         Schema::dropIfExists('transactions');
 
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        Schema::enableForeignKeyConstraints();
     }
 };

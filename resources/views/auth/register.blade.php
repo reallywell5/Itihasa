@@ -1,195 +1,159 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Register - Itihasa</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Akun Baru - Itihasa Heritage</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cinzel:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-cinzel { font-family: 'Cinzel', serif; }
+    </style>
 </head>
 
-<body class="min-h-screen bg-[#f4efe7]">
+<body class="min-h-screen bg-[#F4EFE7] flex items-center justify-center p-3 sm:p-6 lg:p-10">
 
-<div class="min-h-screen flex items-center justify-center px-6 py-10">
+    <div class="w-full max-w-4xl bg-[#FFFAF3] rounded-3xl sm:rounded-[32px] shadow-2xl border border-[#E6D8C3] overflow-hidden grid grid-cols-1 lg:grid-cols-2">
 
-    <div class="w-full max-w-5xl bg-[#fffaf3] rounded-[32px] shadow-2xl border border-[#e6d8c3] overflow-hidden grid grid-cols-1 lg:grid-cols-2">
+        {{-- LEFT BRANDING PANEL --}}
+        <div class="relative bg-[#102A43] text-white p-6 sm:p-8 lg:p-10 overflow-hidden flex flex-col justify-between">
+            <div class="absolute -top-20 -left-20 w-60 h-60 rounded-full border-[30px] border-[#D4AF37]/15"></div>
+            <div class="absolute -bottom-16 -right-16 w-52 h-52 rounded-full border-[26px] border-[#D4AF37]/15"></div>
 
-        {{-- LEFT --}}
-        <div class="relative bg-[#102a43] text-white p-10 lg:p-12 overflow-hidden">
-
-            <div class="absolute -top-24 -left-24 w-72 h-72 rounded-full border-[38px] border-[#d4af37]/20"></div>
-            <div class="absolute -bottom-20 -right-20 w-64 h-64 rounded-full border-[34px] border-[#d4af37]/20"></div>
-            <div class="absolute top-1/2 left-1/2 w-80 h-80 rounded-full border border-white/10 -translate-x-1/2 -translate-y-1/2"></div>
-
-            <div class="relative z-10 h-full flex flex-col justify-between min-h-[520px]">
-
-                <div>
-
-                    {{-- BRAND --}}
-                    <div class="flex items-center gap-5 mb-12">
-                        <div class="w-24 h-24 rounded-3xl bg-[#fffaf3] flex items-center justify-center shadow-xl">
-                            <img src="{{ asset('images/logo-itihasa.png') }}"
-                                 alt="Itihasa Logo"
-                                 class="w-20 h-20 object-contain">
-                        </div>
-
-                        <div>
-                            <h1 class="text-4xl font-serif tracking-[0.22em] text-white">
-                                ITIHASA
-                            </h1>
-
-                            <p class="mt-2 text-[#d4af37] text-xs font-bold tracking-[0.25em] uppercase">
-                                Cultural Heritage
-                            </p>
-                        </div>
+            <div class="relative z-10 space-y-6">
+                {{-- BRAND --}}
+                <div class="flex items-center gap-3.5">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-[#FFFAF3] p-1.5 flex items-center justify-center shadow-lg shrink-0">
+                        <img src="{{ asset('images/logo-itihasa.png') }}"
+                             alt="Itihasa Logo"
+                             class="w-full h-full object-contain">
                     </div>
 
-                    {{-- TEXT --}}
-                    <div class="space-y-5 max-w-md">
-                        <h2 class="text-4xl font-serif leading-tight text-white">
-                            Mulailah perjalanan budaya dan sejarah bersama Itihasa.
-                        </h2>
-
-                        <p class="text-slate-300 leading-relaxed text-base">
-                            Buat akun untuk mengakses layanan museum digital, pemesanan tiket, QR Code, dan pengalaman wisata budaya yang lebih modern.
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-cinzel font-bold tracking-[0.2em] text-white">
+                            ITIHASA
+                        </h1>
+                        <p class="text-[#D4AF37] text-[10px] font-bold tracking-[0.2em] uppercase">
+                            Cultural Heritage
                         </p>
                     </div>
-
                 </div>
 
-                <div class="border-t border-white/15 pt-6">
-                    <p class="text-sm text-slate-300 italic leading-relaxed">
-                        “Setiap artefak memiliki cerita, dan setiap cerita layak untuk dikenang.”
+                {{-- TAGLINE --}}
+                <div class="space-y-2 hidden sm:block">
+                    <h2 class="text-xl sm:text-2xl font-bold font-cinzel text-white leading-snug">
+                        Mulailah Petualangan Budaya Bersama Itihasa
+                    </h2>
+                    <p class="text-slate-300 text-xs leading-relaxed">
+                        Buat akun untuk memesan tiket secara instan, simpan museum favorit, dan nikmati kemudahan akses digital.
                     </p>
                 </div>
+            </div>
 
+            <div class="relative z-10 pt-4 border-t border-white/10 mt-6 hidden sm:block">
+                <p class="text-[11px] text-slate-300 italic">
+                    “Setiap artefak memiliki cerita, dan setiap cerita layak untuk dikenang.”
+                </p>
             </div>
         </div>
 
-        {{-- RIGHT --}}
-        <div class="p-8 lg:p-12 flex items-center bg-[#fffaf3]">
+        {{-- RIGHT FORM PANEL --}}
+        <div class="p-6 sm:p-8 lg:p-10 flex items-center bg-[#FFFAF3]">
+            <div class="w-full max-w-sm mx-auto">
 
-            <div class="w-full max-w-md mx-auto">
-
-                <div class="mb-8">
-                    <p class="text-sm font-bold text-[#b88a2a] uppercase tracking-widest mb-3">
-                        Create Account
-                    </p>
-
-                    <h2 class="text-4xl font-black text-[#102a43]">
+                <div class="mb-5">
+                    <span class="text-[10px] font-bold text-[#B88A2A] uppercase tracking-widest block mb-1">
+                        Pendaftaran Baru
+                    </span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-[#102A43]">
                         Daftar Akun
                     </h2>
-
-                    <p class="text-slate-500 mt-3">
-                        Buat akun baru untuk mulai menggunakan sistem Itihasa.
+                    <p class="text-slate-500 text-xs mt-1">
+                        Lengkapi data diri untuk memulai penjelajahan museum.
                     </p>
                 </div>
 
-                <div class="mb-6">
-
-                    <a href="{{ route('user.home') }}"
-                    class="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium transition">
-
-                        <svg class="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            viewBox="0 0 24 24">
-
-                            <path stroke-linecap="round"
-                                stroke-linejoin="round"
-                                d="M15 19l-7-7 7-7"/>
-
-                        </svg>
-
-                        Kembali ke Beranda
-
-                    </a>
-
-                </div>
-
-                <form method="POST" action="{{ route('register.process') }}" class="space-y-5">
+                <form method="POST" action="{{ route('register.process') }}" class="space-y-3">
                     @csrf
 
                     <div>
-                        <label class="block text-sm font-bold text-[#102a43] mb-2">
+                        <label class="block text-xs font-bold text-[#102A43] mb-1">
                             Nama Lengkap
                         </label>
-
                         <input type="text"
                                name="name"
                                value="{{ old('name') }}"
-                               placeholder="Masukkan nama lengkap"
+                               placeholder="Nama lengkap Anda"
                                required
-                               class="w-full px-5 py-4 rounded-2xl bg-white border border-[#e2d2b8] focus:outline-none focus:ring-2 focus:ring-[#d4af37] text-[#102a43]">
-
+                               class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#E2D2B8] text-xs text-[#102A43] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]">
                         @error('name')
-                            <p class="text-sm text-[#b88a2a] mt-2">{{ $message }}</p>
+                            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-[#102a43] mb-2">
-                            Email
+                        <label class="block text-xs font-bold text-[#102A43] mb-1">
+                            Alamat Email
                         </label>
-
                         <input type="email"
                                name="email"
                                value="{{ old('email') }}"
                                placeholder="nama@email.com"
                                required
-                               class="w-full px-5 py-4 rounded-2xl bg-white border border-[#e2d2b8] focus:outline-none focus:ring-2 focus:ring-[#d4af37] text-[#102a43]">
-
+                               class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#E2D2B8] text-xs text-[#102A43] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]">
                         @error('email')
-                            <p class="text-sm text-[#b88a2a] mt-2">{{ $message }}</p>
+                            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-[#102a43] mb-2">
-                            Password
+                        <label class="block text-xs font-bold text-[#102A43] mb-1">
+                            Kata Sandi
                         </label>
-
                         <input type="password"
                                name="password"
                                placeholder="Minimal 8 karakter"
                                required
-                               class="w-full px-5 py-4 rounded-2xl bg-white border border-[#e2d2b8] focus:outline-none focus:ring-2 focus:ring-[#d4af37] text-[#102a43]">
-
+                               class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#E2D2B8] text-xs text-[#102A43] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]">
                         @error('password')
-                            <p class="text-sm text-[#b88a2a] mt-2">{{ $message }}</p>
+                            <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
                         @enderror
                     </div>
 
                     <div>
-                        <label class="block text-sm font-bold text-[#102a43] mb-2">
-                            Konfirmasi Password
+                        <label class="block text-xs font-bold text-[#102A43] mb-1">
+                            Konfirmasi Sandi
                         </label>
-
                         <input type="password"
                                name="password_confirmation"
-                               placeholder="Ulangi password"
+                               placeholder="Ulangi kata sandi"
                                required
-                               class="w-full px-5 py-4 rounded-2xl bg-white border border-[#e2d2b8] focus:outline-none focus:ring-2 focus:ring-[#d4af37] text-[#102a43]">
+                               class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-[#E2D2B8] text-xs text-[#102A43] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]">
                     </div>
 
                     <button type="submit"
-                            class="w-full py-4 rounded-2xl bg-[#102a43] text-white font-bold hover:bg-[#0b1f33] transition shadow-lg">
+                            class="w-full py-3 rounded-xl bg-[#102A43] text-white font-bold text-xs hover:bg-[#0B1F33] transition shadow-md mt-2">
                         Daftar Sekarang
                     </button>
                 </form>
 
-                <p class="text-center text-sm text-slate-500 mt-7">
-                    Sudah punya akun?
-                    <a href="{{ route('login') }}" class="text-[#b88a2a] font-black">
-                        Login
+                <div class="mt-5 pt-4 border-t border-[#E6D8C3]/60 flex items-center justify-between text-xs">
+                    <a href="{{ route('user.home') }}" class="text-slate-500 hover:text-[#102A43] font-medium flex items-center gap-1">
+                        ← Beranda
                     </a>
-                </p>
+                    <p class="text-slate-500">
+                        Sudah punya akun?
+                        <a href="{{ route('login') }}" class="text-[#B88A2A] font-bold hover:underline">
+                            Login
+                        </a>
+                    </p>
+                </div>
 
             </div>
         </div>
 
     </div>
-
-</div>
 
 </body>
 </html>

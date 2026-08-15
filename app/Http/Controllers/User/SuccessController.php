@@ -16,13 +16,13 @@ class SuccessController extends Controller
         if ($transactionId) {
             $transaction = Transaction::with([
                 'booking.museum',
-                'booking.user'
+                'booking.user',
             ])->where('id', $transactionId)
-              ->where('payment_status', 'paid')
-              ->first();
+                ->where('payment_status', 'paid')
+                ->first();
         }
 
-        if (!$transaction) {
+        if (! $transaction) {
             return redirect()->route('user.home')->with('error', 'Transaksi tidak ditemukan.');
         }
 

@@ -4,106 +4,104 @@
 
 @section('content')
 
-<section class="max-w-3xl mx-auto px-6 lg:px-8 py-14">
+<section class="max-w-xl mx-auto py-6 sm:py-10">
 
     {{-- HEADER --}}
-    <div class="text-center mb-10">
-
-        <div class="w-24 h-24 mx-auto rounded-full bg-[#102A43] text-white flex items-center justify-center text-3xl font-bold shadow-lg mb-5">
+    <div class="text-center mb-6">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-[#102A43] text-white flex items-center justify-center text-2xl font-bold shadow mb-3">
             {{ strtoupper(substr($user->name, 0, 1)) }}
         </div>
 
-        <h1 class="text-4xl font-bold text-[#102A43]">
-            Edit Profil
+        <h1 class="text-xl sm:text-2xl font-bold text-[#102A43]">
+            Perbarui Profil Akun
         </h1>
 
-        <p class="text-slate-500 mt-3">
-            Perbarui informasi akun kamu di bawah ini.
+        <p class="text-slate-500 text-xs mt-1">
+            Ubah nama lengkap, email, atau perbarui kata sandi akun kamu.
         </p>
-
     </div>
 
     {{-- FORM --}}
-    <div class="bg-white rounded-[32px] border border-[#EADBC8] shadow-sm p-8">
+    <div class="bg-white rounded-2xl border border-[#EADBC8] shadow-sm p-4 sm:p-6">
 
-        <form method="POST" action="{{ route('user.profile.update') }}" class="space-y-6">
-
+        <form method="POST" action="{{ route('user.profile.update') }}" class="space-y-4">
             @csrf
             @method('PUT')
 
-            {{-- Nama --}}
+            {{-- NAMA --}}
             <div>
-                <label class="block text-sm font-semibold text-[#102A43] mb-2">
-                    Nama Lengkap
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">
+                    Nama Lengkap <span class="text-red-500">*</span>
                 </label>
-
                 <input type="text"
                     name="name"
                     value="{{ old('name', $user->name) }}"
-                    class="w-full px-5 py-4 rounded-2xl border border-[#EADBC8] focus:outline-none focus:ring-2 focus:ring-[#B88A44]">
-
+                    required
+                    class="w-full px-3.5 py-2.5 rounded-xl border border-[#EADBC8] text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#B88A44]">
                 @error('name')
-                    <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
             </div>
 
-            {{-- Email --}}
+            {{-- EMAIL --}}
             <div>
-                <label class="block text-sm font-semibold text-[#102A43] mb-2">
-                    Email
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">
+                    Alamat Email <span class="text-red-500">*</span>
                 </label>
-
                 <input type="email"
                     name="email"
                     value="{{ old('email', $user->email) }}"
-                    class="w-full px-5 py-4 rounded-2xl border border-[#EADBC8] focus:outline-none focus:ring-2 focus:ring-[#B88A44]">
-
+                    required
+                    class="w-full px-3.5 py-2.5 rounded-xl border border-[#EADBC8] text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#B88A44]">
                 @error('email')
-                    <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror
             </div>
 
-            {{-- PASSWORD BARU --}}
-            <div>
-                <label class="block text-sm font-semibold text-[#102A43] mb-2">
-                    Password Baru (Opsional)
-                </label>
-
-                <input type="password"
-                    name="password"
-                    placeholder="Kosongkan jika tidak ingin mengubah password"
-                    class="w-full px-5 py-4 rounded-2xl border border-[#EADBC8] focus:outline-none focus:ring-2 focus:ring-[#B88A44]">
-
-                @error('password')
-                    <p class="text-red-500 text-sm mt-2">{{ $message }}</p>
-                @enderror
+            {{-- PASSWORD NOTICE --}}
+            <div class="p-3 bg-amber-50/60 border border-amber-100 rounded-xl">
+                <p class="text-[11px] text-amber-800">
+                    💡 <em>Kosongkan kolom kata sandi di bawah jika tidak ingin mengubah password akun.</em>
+                </p>
             </div>
 
-            {{-- KONFIRMASI PASSWORD --}}
-            <div>
-                <label class="block text-sm font-semibold text-[#102A43] mb-2">
-                    Konfirmasi Password Baru
-                </label>
+            {{-- PASSWORD GRID --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">
+                        Password Baru
+                    </label>
+                    <input type="password"
+                        name="password"
+                        placeholder="Minimal 8 karakter"
+                        class="w-full px-3.5 py-2.5 rounded-xl border border-[#EADBC8] text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#B88A44]">
+                    @error('password')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
 
-                <input type="password"
-                    name="password_confirmation"
-                    placeholder="Ulangi password baru"
-                    class="w-full px-5 py-4 rounded-2xl border border-[#EADBC8] focus:outline-none focus:ring-2 focus:ring-[#B88A44]">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">
+                        Konfirmasi Password
+                    </label>
+                    <input type="password"
+                        name="password_confirmation"
+                        placeholder="Ulangi password baru"
+                        class="w-full px-3.5 py-2.5 rounded-xl border border-[#EADBC8] text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#B88A44]">
+                </div>
             </div>
 
             {{-- BUTTONS --}}
-            <div class="grid grid-cols-2 gap-4 pt-4">
-
+            <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-100">
                 <a href="{{ route('user.profile') }}"
-                   class="py-4 rounded-2xl border border-[#B88A44] text-[#B88A44] text-center font-semibold hover:bg-[#F6F1E8] transition">
+                   class="px-4 py-2 rounded-xl border border-[#EADBC8] text-slate-600 text-xs font-semibold hover:bg-slate-50 transition">
                     Batal
                 </a>
 
                 <button type="submit"
-                    class="py-4 rounded-2xl bg-[#102A43] text-white font-semibold hover:bg-[#0c2238] transition">
+                    class="px-5 py-2 rounded-xl bg-[#102A43] text-white font-bold text-xs hover:bg-[#0c2238] transition shadow">
                     Simpan Perubahan
                 </button>
-
             </div>
 
         </form>

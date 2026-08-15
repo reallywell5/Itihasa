@@ -3,90 +3,97 @@
 @section('title', 'Detail Pembayaran')
 
 @section('content')
-<div class="max-w-5xl mx-auto space-y-6">
+<div class="max-w-4xl mx-auto space-y-5">
 
+    {{-- HEADER --}}
     <div class="flex items-center justify-between">
         <div>
-            <h1 class="text-2xl font-bold text-slate-800">
-                Detail Pembayaran
+            <a href="{{ route('payments.index') }}" class="text-xs text-blue-600 hover:underline font-semibold flex items-center gap-1 mb-1">
+                ← Kembali ke Daftar Pembayaran
+            </a>
+            <h1 class="text-xl font-bold text-slate-800">
+                Detail Pembayaran #{{ $payment->id }}
             </h1>
-            <p class="text-sm text-slate-500 mt-1">
-                Informasi lengkap pembayaran.
+            <p class="text-xs text-slate-400">
+                Invoice: <span class="font-bold text-slate-700">{{ $payment->transaction?->invoice_code ?? '-' }}</span>
             </p>
         </div>
 
         <a href="{{ route('payments.index') }}"
-           class="px-4 py-2 rounded-xl border border-zinc-200 text-sm font-semibold text-zinc-700 hover:bg-zinc-100">
+           class="px-3.5 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">
             Kembali
         </a>
     </div>
 
-    <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-8">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 text-xs">
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-
-            <div>
-                <p class="text-xs uppercase font-bold text-zinc-400">Transaction ID</p>
-                <h2 class="mt-2 text-lg font-bold text-zinc-900">
-                    #{{ $payment->transaction?->id ?? '-' }}
-                </h2>
-            </div>
-
-            <div>
-                <p class="text-xs uppercase font-bold text-zinc-400">Invoice Code</p>
-                <h2 class="mt-2 text-lg font-semibold text-zinc-900">
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+                <span class="text-[10px] uppercase font-bold text-slate-400">Kode Invoice</span>
+                <p class="mt-1 text-sm font-bold text-slate-800">
                     {{ $payment->transaction?->invoice_code ?? '-' }}
-                </h2>
-            </div>
-
-            <div>
-                <p class="text-xs uppercase font-bold text-zinc-400">Payment Method</p>
-                <h2 class="mt-2 text-lg font-semibold text-zinc-900">
-                    {{ $payment->payment_method ?? '-' }}
-                </h2>
-            </div>
-
-            <div>
-                <p class="text-xs uppercase font-bold text-zinc-400">Amount</p>
-                <h2 class="mt-2 text-lg font-bold text-green-600">
-                    Rp {{ number_format($payment->amount ?? 0, 0, ',', '.') }}
-                </h2>
-            </div>
-
-            <div>
-                <p class="text-xs uppercase font-bold text-zinc-400">Status</p>
-
-                @if($payment->payment_status == 'paid')
-                    <span class="px-3 py-1 rounded-xl bg-green-50 text-green-600 text-xs font-semibold">
-                        Paid
-                    </span>
-                @elseif($payment->payment_status == 'pending')
-                    <span class="px-3 py-1 rounded-xl bg-yellow-50 text-yellow-600 text-xs font-semibold">
-                        Pending
-                    </span>
-                @else
-                    <span class="px-3 py-1 rounded-xl bg-red-50 text-red-600 text-xs font-semibold">
-                        Failed
-                    </span>
-                @endif
-            </div>
-
-            <div>
-                <p class="text-xs uppercase font-bold text-zinc-400">Paid At</p>
-                <p class="mt-2 text-sm text-zinc-700">
-                    {{ $payment->paid_at ? $payment->paid_at->format('d M Y H:i') : '-' }}
                 </p>
             </div>
 
-            <div>
-                <p class="text-xs uppercase font-bold text-zinc-400">Created At</p>
-                <p class="mt-2 text-sm text-zinc-700">
-                    {{ $payment->created_at?->format('d M Y H:i') ?? '-' }}
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+                <span class="text-[10px] uppercase font-bold text-slate-400">Total Nominal</span>
+                <p class="mt-1 text-base font-extrabold text-slate-800">
+                    Rp {{ number_format($payment->amount ?? 0, 0, ',', '.') }}
+                </p>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+                <span class="text-[10px] uppercase font-bold text-slate-400">Museum Terkait</span>
+                <p class="mt-1 text-xs font-bold text-slate-800">
+                    🏛 {{ $payment->transaction?->booking?->museum?->name ?? '-' }}
+                </p>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+                <span class="text-[10px] uppercase font-bold text-slate-400">Nama Pengunjung</span>
+                <p class="mt-1 text-xs font-bold text-slate-800">
+                    👤 {{ $payment->transaction?->booking?->user?->name ?? 'Tamu' }}
+                </p>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+                <span class="text-[10px] uppercase font-bold text-slate-400">Metode Pembayaran</span>
+                <p class="mt-1 text-xs font-bold text-slate-800">
+                    {{ $payment->payment_method ?: 'QRIS' }}
+                </p>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+                <span class="text-[10px] uppercase font-bold text-slate-400">Status Pembayaran</span>
+                <div class="mt-1">
+                    @php
+                        $badge = match($payment->payment_status) {
+                            'paid' => 'bg-emerald-50 text-emerald-700',
+                            'pending' => 'bg-amber-50 text-amber-700',
+                            default => 'bg-red-50 text-red-700',
+                        };
+                    @endphp
+                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase {{ $badge }}">
+                        {{ $payment->payment_status }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+                <span class="text-[10px] uppercase font-bold text-slate-400">Waktu Pembayaran Berhasil</span>
+                <p class="mt-1 text-xs font-semibold text-slate-700">
+                    {{ $payment->paid_at ? $payment->paid_at->translatedFormat('d M Y, H:i:s') : '-' }}
+                </p>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+                <span class="text-[10px] uppercase font-bold text-slate-400">Waktu Dibuat</span>
+                <p class="mt-1 text-xs font-semibold text-slate-700">
+                    {{ $payment->created_at?->translatedFormat('d M Y, H:i:s') ?? '-' }}
                 </p>
             </div>
 
         </div>
-
     </div>
 
 </div>

@@ -105,7 +105,7 @@
                 </div>
 
                 {{-- TIME --}}
-                <div class="grid md:grid-cols-2 gap-6">
+                @include('admin.museums._schedule-fields', ['schedule' => old('operational_hours', $museum->operational_hours ?? [])])
 
                     <div>
                         <label class="block text-sm font-semibold text-zinc-700 mb-2">
@@ -129,6 +129,35 @@
                                class="w-full rounded-xl border border-zinc-200 px-4 py-3 text-sm">
                     </div>
 
+                </div>
+
+                {{-- FASILITAS --}}
+                <div>
+                    <label class="block text-sm font-semibold text-zinc-700 mb-2">
+                        Fasilitas Museum
+                    </label>
+
+                    <div id="facility-list" class="space-y-2 mb-3">
+                        @php $facilityList = old('facilities', $museum->facilities ?? ['']); @endphp
+                        @foreach (empty($facilityList) ? [''] : $facilityList as $facility)
+                            <div class="flex gap-2 facility-row">
+                                <input type="text"
+                                    name="facilities[]"
+                                    value="{{ $facility }}"
+                                    placeholder="Contoh: Area Parkir"
+                                    class="flex-1 rounded-xl border border-zinc-200 px-4 py-2.5 text-sm">
+                                <button type="button" onclick="removeFacilityRow(this)"
+                                        class="px-3 rounded-xl border border-red-200 text-red-500 text-sm font-semibold hover:bg-red-50 transition">
+                                    ✕
+                                </button>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    <button type="button" onclick="addFacilityRow()"
+                            class="text-sm font-semibold text-blue-600 hover:text-blue-700">
+                        + Tambah Fasilitas
+                    </button>
                 </div>
 
             </div>
@@ -238,5 +267,29 @@ function updateOperationalPreview() {
 
 document.getElementById('opening_time').addEventListener('change', updateOperationalPreview);
 document.getElementById('closing_time').addEventListener('change', updateOperationalPreview);
+
+function addFacilityRow() {
+    const list = document.getElementById('facility-list');
+    const row = document.createElement('div');
+    row.className = 'flex gap-2 facility-row';
+    row.innerHTML = `
+        <input type="text" name="facilities[]" placeholder="Contoh: Kafe"
+               class="flex-1 rounded-xl border border-zinc-200 px-4 py-2.5 text-sm">
+        <button type="button" onclick="removeFacilityRow(this)"
+                class="px-3 rounded-xl border border-red-200 text-red-500 text-sm font-semibold hover:bg-red-50 transition">
+            ✕
+        </button>
+    `;
+    list.appendChild(row);
+}
+
+function removeFacilityRow(button) {
+    const rows = document.querySelectorAll('.facility-row');
+    if (rows.length <= 1) {
+        button.closest('.facility-row').querySelector('input').value = '';
+        return;
+    }
+    button.closest('.facility-row').remove();
+}
 </script>
 @endsection

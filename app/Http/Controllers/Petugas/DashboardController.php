@@ -10,15 +10,21 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $todayVisitors = Transaction::whereDate('used_at', Carbon::today())->count();
+        $staffMuseumId = auth()->user()->museum_id;
 
-        $validQr = Transaction::whereNotNull('used_at')->count();
+        $baseQuery = Transaction::when($staffMuseumId, function ($query) use ($staffMuseumId) {
+            $query->whereHas('booking', function ($bq) use ($staffMuseumId) {
+                $bq->where('museum_id', $staffMuseumId);
+            });
+        });
 
-        $pendingTickets = Transaction::where('payment_status', 'paid')
+        $todayVisitors = (clone $baseQuery)->whereDate('used_at', Carbon::today())->count();
+        $validQr = (clone $baseQuery)->whereNotNull('used_at')->count();
+        $pendingTickets = (clone $baseQuery)->where('payment_status', 'paid')
             ->whereNull('used_at')
             ->count();
 
-        $recentTransactions = Transaction::with([
+        $recentTransactions = (clone $baseQuery)->with([
             'booking.user',
             'booking.museum',
         ])

@@ -9,14 +9,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('museums', function (Blueprint $table) {
-            $table->dropColumn('rating');
+            $table->json('facilities')->nullable()->after('closing_time');
         });
     }
 
     public function down(): void
     {
         Schema::table('museums', function (Blueprint $table) {
-            $table->decimal('rating', 2, 1)->default(0);
+            $table->dropColumn('facilities');
         });
     }
 };

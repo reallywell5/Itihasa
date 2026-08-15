@@ -11,13 +11,13 @@ class PetugasMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return redirect()->route('login');
         }
 
         $user = Auth::user();
 
-        if (!$user || $user->role !== 'staff') {
+        if (! $user || $user->role !== 'staff') {
             abort(403, 'UNAUTHORIZED ACCESS.');
         }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Petugas;
 
 use App\Http\Controllers\Controller;
 use App\Models\Transaction;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,7 +16,7 @@ class ProfileController extends Controller
 
         $transactions = Transaction::with([
             'booking.user',
-            'booking.museum'
+            'booking.museum',
         ])->latest()->get();
 
         $totalScan = $transactions->whereNotNull('used_at')->count();
@@ -58,11 +59,11 @@ class ProfileController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . Auth::id(),
+            'email' => 'required|email|unique:users,email,'.Auth::id(),
             'password' => 'nullable|min:6|confirmed',
         ]);
 
-        /** @var \App\Models\User $user */
+        /** @var User $user */
         $user = Auth::user();
         $user->name = $request->name;
         $user->email = $request->email;

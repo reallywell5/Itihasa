@@ -26,38 +26,66 @@ class BookingController extends Controller
         // Bangun rules validasi dinamis untuk tiap kategori tiket museum ini
         $ticketRules = [];
         foreach ($museum->tickets as $ticket) {
-            $ticketRules['ticket_' . $ticket->id] = 'nullable|integer|min:0';
+            $ticketRules['ticket_'.$ticket->id] = 'nullable|integer|min:0';
         }
 
         $request->validate(array_merge([
-            'visit_date'             => 'required|date|after_or_equal:today',
-            'nama_penanggung_jawab'  => 'required|string|max:255',
-            'jumlah_anggota'         => 'required|integer|min:1',
-            'kota_asal'              => 'required|string|max:255',
-            'no_hp'                  => ['required', 'string', 'regex:/^[0-9+]{9,15}$/'],
+            'visit_date' => 'required|date|after_or_equal:today',
+            'nama_penanggung_jawab' => 'required|string|max:255',
+            'jumlah_anggota' => 'required|integer|min:1',
+            'kota_asal' => 'required|string|max:255',
+            'no_hp' => ['required', 'string', 'regex:/^[0-9+]{9,15}$/'],
         ], $ticketRules), [
-            'visit_date.required'            => 'Tanggal kunjungan wajib diisi.',
-            'visit_date.after_or_equal'      => 'Tanggal kunjungan tidak boleh sebelum hari ini.',
+            'visit_date.required' => 'Tanggal kunjungan wajib diisi.',
+            'visit_date.after_or_equal' => 'Tanggal kunjungan tidak boleh sebelum hari ini.',
             'nama_penanggung_jawab.required' => 'Nama penanggung jawab wajib diisi.',
-            'jumlah_anggota.required'        => 'Jumlah anggota wajib diisi.',
-            'jumlah_anggota.min'             => 'Jumlah anggota minimal 1 orang.',
-            'kota_asal.required'             => 'Kota/Negara asal wajib diisi.',
-            'no_hp.required'                 => 'Nomor HP wajib diisi.',
-            'no_hp.regex'                    => 'Nomor HP hanya boleh berisi angka (9-15 digit).',
+            'jumlah_anggota.required' => 'Jumlah anggota wajib diisi.',
+            'jumlah_anggota.min' => 'Jumlah anggota minimal 1 orang.',
+            'kota_asal.required' => 'Kota/Negara asal wajib diisi.',
+            'no_hp.required' => 'Nomor HP wajib diisi.',
+            'no_hp.regex' => 'Nomor HP hanya boleh berisi angka (9-15 digit).',
         ]);
 
+        // === VALIDASI MANIFES ROMBONGAN (>= 10 orang wajib isi nama anggota) ===
+        $isRombongan = (int) $request->jumlah_anggota >= 10;
 
-        if ($request->visit_date === now()->toDateString()
-            && $museum->opening_time
-            && $museum->closing_time
-        ) {
-            $openingTime = Carbon::parse($museum->opening_time);
-            $closingTime = Carbon::parse($museum->closing_time);
+        if ($isRombongan) {
+            $request->validate([
+                'manifest' => 'required|array|min:10',
+                'manifest.*' => 'required|string|max:255',
+            ], [
+                'manifest.required' => 'Booking untuk 10 orang atau lebih wajib mengisi manifes nama anggota.',
+                'manifest.min' => 'Jumlah nama di manifes minimal 10 orang.',
+                'manifest.*.required' => 'Semua nama anggota rombongan wajib diisi.',
+            ]);
 
-            if (now()->lt($openingTime) || now()->gt($closingTime)) {
+            if (count($request->manifest) !== (int) $request->jumlah_anggota) {
+                $manifestCount = is_array($request->manifest) ? count($request->manifest) : 0;
+                $msg = "Jumlah nama di manifes ({$manifestCount} nama) harus sama dengan jumlah anggota ({$request->jumlah_anggota} orang).";
+
+                return back()
+                    ->withInput()
+                    ->with('error', $msg)
+                    ->with('swal_error', $msg);
+            }
+        }
+
+        if ($museum->isClosedOnDate($request->visit_date)) {
+            $msg = "Museum \"{$museum->name}\" tutup pada tanggal yang dipilih. Silakan pilih tanggal kunjungan lain.";
+
+            return back()
+                ->withInput()
+                ->with('error', $msg)
+                ->with('swal_error', $msg);
+        }
+
+        if ($request->visit_date === now()->toDateString()) {
+            $bounds = $museum->operatingBoundsForDate($request->visit_date);
+
+            if ($bounds && (now()->format('H:i') < $bounds['open'] || now()->format('H:i') > $bounds['close'])) {
                 $msg = "Museum \"{$museum->name}\" sudah tutup untuk hari ini (jam operasional "
-                    . $openingTime->format('H:i') . ' - ' . $closingTime->format('H:i')
-                    . '). Silakan pilih tanggal kunjungan lain.';
+                    .$bounds['open'].' - '.$bounds['close']
+                    .'). Silakan pilih tanggal kunjungan lain.';
 
                 return back()
                     ->withInput()
@@ -72,8 +100,7 @@ class BookingController extends Controller
         $studentQty = 0;
         $childQty = 0;
 
-
-        return DB::transaction(function () use ($request, $museum, $total, $ticketData, $adultQty, $studentQty, $childQty) {
+        return DB::transaction(function () use ($request, $museum, $total, $ticketData, $adultQty, $studentQty, $childQty, $isRombongan) {
 
             Booking::where('visit_date', $request->visit_date)
                 ->whereNotIn('status', ['cancelled', 'failed'])
@@ -81,7 +108,7 @@ class BookingController extends Controller
                 ->get();
 
             foreach ($museum->tickets as $ticket) {
-                $qty = (int) $request->input('ticket_' . $ticket->id, 0);
+                $qty = (int) $request->input('ticket_'.$ticket->id, 0);
 
                 if ($qty <= 0) {
                     continue;
@@ -102,10 +129,10 @@ class BookingController extends Controller
                 $total += $qty * $ticket->price;
 
                 $ticketData[] = [
-                    'ticket_id'   => $ticket->id,
+                    'ticket_id' => $ticket->id,
                     'ticket_name' => $ticket->ticket_name,
-                    'qty'         => $qty,
-                    'price'       => (int) $ticket->price,
+                    'qty' => $qty,
+                    'price' => (int) $ticket->price,
                 ];
 
                 $nameLower = strtolower($ticket->ticket_name);
@@ -135,19 +162,21 @@ class BookingController extends Controller
             }
 
             $booking = Booking::create([
-                'user_id'               => Auth::id(),
+                'user_id' => Auth::id(),
                 'nama_penanggung_jawab' => $request->nama_penanggung_jawab,
-                'jumlah_anggota'        => $request->jumlah_anggota,
-                'kota_asal'             => $request->kota_asal,
-                'no_hp'                 => $request->no_hp,
-                'museum_id'      => $museum->id,
-                'visit_date'     => $request->visit_date,
-                'adult_qty'      => $adultQty,
-                'student_qty'    => $studentQty,
-                'child_qty'      => $childQty,
-                'total_price'    => $total,
+                'jumlah_anggota' => $request->jumlah_anggota,
+                'kota_asal' => $request->kota_asal,
+                'no_hp' => $request->no_hp,
+                'museum_id' => $museum->id,
+                'visit_date' => $request->visit_date,
+                'adult_qty' => $adultQty,
+                'student_qty' => $studentQty,
+                'child_qty' => $childQty,
+                'total_price' => $total,
                 'ticket_summary' => json_encode($ticketData),
-                'status'         => 'pending',
+                'status' => 'pending',
+                'is_rombongan' => $isRombongan,
+                'manifest' => $isRombongan ? array_values($request->manifest) : null,
             ]);
 
             return redirect()
@@ -156,7 +185,6 @@ class BookingController extends Controller
                 ->with('swal_success', 'Data booking berhasil disimpan. Silakan lanjutkan ke pembayaran.');
         });
     }
-
 
     public function checkQuota(Request $request, Museum $museum)
     {
@@ -172,9 +200,9 @@ class BookingController extends Controller
             $terjual = $this->getSoldQty($ticket->id, $request->visit_date);
 
             $result[$ticket->id] = [
-                'slot'   => $ticket->slot,
+                'slot' => $ticket->slot,
                 'terjual' => $terjual,
-                'sisa'   => max(0, $ticket->slot - $terjual),
+                'sisa' => max(0, $ticket->slot - $terjual),
             ];
         }
 
@@ -197,5 +225,62 @@ class BookingController extends Controller
 
                 return 0;
             });
+    }
+
+    public function cancel(Request $request, Booking $booking)
+    {
+        if ($booking->user_id !== auth()->id()) {
+            abort(403, 'Booking ini bukan milik kamu.');
+        }
+
+        if (in_array($booking->status, ['cancelled', 'expired'])) {
+            $msg = 'Booking ini sudah tidak bisa dibatalkan.';
+
+            return back()->with('error', $msg)->with('swal_error', $msg);
+        }
+
+        $sudahDipakai = $booking->transactions()->whereNotNull('used_at')->exists();
+        if ($sudahDipakai) {
+            $msg = 'Tiket sudah digunakan, tidak bisa dibatalkan.';
+
+            return back()->with('error', $msg)->with('swal_error', $msg);
+        }
+
+        $sudahBayar = $booking->transactions()->where('payment_status', 'paid')->exists();
+
+        if ($sudahBayar) {
+            $museum = $booking->museum;
+            $visitStart = Carbon::parse($booking->visit_date.' '.($museum->opening_time ?? '00:00:00'));
+            $cutoff = $visitStart->copy()->subHours(12);
+
+            if (now()->greaterThan($cutoff)) {
+                $msg = 'Pembatalan untuk tiket yang sudah dibayar hanya bisa dilakukan maksimal 12 jam sebelum kunjungan.';
+
+                return back()->with('error', $msg)->with('swal_error', $msg);
+            }
+        }
+
+        $validated = $request->validate([
+            'cancellation_reason' => 'required|string|max:500',
+        ], [
+            'cancellation_reason.required' => 'Alasan pembatalan wajib diisi.',
+        ]);
+
+        DB::transaction(function () use ($booking, $validated) {
+            $booking->update([
+                'status' => 'cancelled',
+                'cancellation_reason' => $validated['cancellation_reason'],
+                'cancelled_at' => now(),
+            ]);
+
+            $booking->transactions()
+                ->whereIn('payment_status', ['pending', 'paid'])
+                ->update(['payment_status' => 'cancelled']);
+        });
+
+        return redirect()
+            ->route('user.profile')
+            ->with('success', 'Booking berhasil dibatalkan.')
+            ->with('swal_success', 'Booking berhasil dibatalkan.');
     }
 }

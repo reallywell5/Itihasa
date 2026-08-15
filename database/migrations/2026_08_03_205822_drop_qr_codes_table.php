@@ -24,7 +24,7 @@ return new class extends Migration
 
             $table->enum('scan_status', [
                 'pending',
-                'used'
+                'used',
             ])->default('pending');
 
             $table->timestamp('scanned_at')->nullable();

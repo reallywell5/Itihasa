@@ -26,7 +26,7 @@ class PaymentController extends Controller
     public function process(Request $request, $bookingId)
     {
         $request->validate([
-            'payment_method' => 'required'
+            'payment_method' => 'required',
         ]);
 
         $booking = Booking::findOrFail($bookingId);
@@ -37,20 +37,20 @@ class PaymentController extends Controller
         }
 
         $transaction = Transaction::create([
-            'booking_id'     => $booking->id,
-            'invoice_code'   => 'ITH-' . strtoupper(uniqid()),
+            'booking_id' => $booking->id,
+            'invoice_code' => 'ITH-'.strtoupper(uniqid()),
             'payment_method' => $request->payment_method,
-            'subtotal'       => $booking->total_price,
-            'total_amount'   => $booking->total_price,
+            'subtotal' => $booking->total_price,
+            'total_amount' => $booking->total_price,
             'payment_status' => 'pending',
-            'expired_at'     => now()->addMinutes(15),
+            'expired_at' => now()->addMinutes(15),
         ]);
 
         // Buat record Payment mengikuti transaksi yang baru dibuat
         Payment::create([
             'transaction_id' => $transaction->id,
             'payment_method' => $transaction->payment_method,
-            'amount'         => $transaction->total_amount,
+            'amount' => $transaction->total_amount,
             'payment_status' => 'pending',
         ]);
 
@@ -64,7 +64,7 @@ class PaymentController extends Controller
     {
         $transaction = Transaction::with([
             'booking.museum',
-            'booking.user'
+            'booking.user',
         ])->findOrFail($transactionId);
 
         // Hanya pemilik transaksi yang boleh melihat halaman pembayaran ini
@@ -147,17 +147,18 @@ class PaymentController extends Controller
         if ($payment) {
             $payment->update([
                 'payment_status' => $status,
-                'paid_at'        => $paidAt,
+                'paid_at' => $paidAt,
             ]);
+
             return;
         }
 
         Payment::create([
             'transaction_id' => $transaction->id,
             'payment_method' => $transaction->payment_method,
-            'amount'         => $transaction->total_amount,
+            'amount' => $transaction->total_amount,
             'payment_status' => $status,
-            'paid_at'        => $paidAt,
+            'paid_at' => $paidAt,
         ]);
     }
 }

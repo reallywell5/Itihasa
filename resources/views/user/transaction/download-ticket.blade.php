@@ -94,6 +94,39 @@
             color:#4E342E;
         }
 
+        .manifest-box{
+            margin-top:25px;
+            padding:20px;
+            background:#FFF7ED;
+            border:1px solid #EADBC8;
+            border-radius:16px;
+        }
+
+        .manifest-title{
+            font-size:15px;
+            font-weight:bold;
+            color:#4E342E;
+            margin-bottom:12px;
+            text-transform:uppercase;
+            letter-spacing:1px;
+        }
+
+        .manifest-grid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:6px 24px;
+        }
+
+        .manifest-item{
+            font-size:14px;
+            color:#444;
+        }
+
+        .manifest-item b{
+            color:#C08A3E;
+            margin-right:6px;
+        }
+
         .footer{
             text-align:center;
             color:#666;
@@ -155,6 +188,13 @@
                 <td>{{ $transaction->invoice_code }}</td>
             </tr>
 
+            @if ($transaction->booking->is_rombongan)
+                <tr>
+                    <td>Tipe Booking</td>
+                    <td>Rombongan ({{ $transaction->booking->jumlah_anggota }} orang)</td>
+                </tr>
+            @endif
+
             <tr>
                 <td style="vertical-align: top;">Rincian Tiket</td>
                 <td style="text-align: right; line-height: 1.6;">
@@ -180,6 +220,21 @@
             </tr>
 
         </table>
+
+        @if ($transaction->booking->is_rombongan && !empty($transaction->booking->manifest))
+            <div class="manifest-box">
+                <div class="manifest-title">
+                    Manifes Rombongan ({{ count($transaction->booking->manifest) }} orang)
+                </div>
+                <div class="manifest-grid">
+                    @foreach ($transaction->booking->manifest as $index => $nama)
+                        <div class="manifest-item">
+                            <b>{{ $index + 1 }}.</b>{{ $nama }}
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
 
         <div class="footer">
 

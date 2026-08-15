@@ -3,247 +3,165 @@
 @section('title', 'Profil Petugas')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-4 sm:space-y-5">
 
     {{-- HERO PROFILE --}}
-    <div class="bg-white rounded-3xl border border-blue-100 shadow-sm overflow-hidden">
-
-        <div class="relative h-52 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-400">
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div class="relative h-36 sm:h-44 bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-500">
             <div class="absolute inset-0 opacity-20">
-                <div class="absolute top-8 left-10 w-32 h-32 rounded-full bg-white blur-2xl"></div>
-                <div class="absolute bottom-6 right-16 w-40 h-40 rounded-full bg-white blur-3xl"></div>
+                <div class="absolute top-6 left-10 w-28 h-28 rounded-full bg-white blur-2xl"></div>
+                <div class="absolute bottom-4 right-12 w-32 h-32 rounded-full bg-white blur-3xl"></div>
             </div>
         </div>
 
-        <div class="px-6 pb-6">
-            <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 -mt-16 relative z-10">
-
-                <div class="flex flex-col sm:flex-row sm:items-end gap-5">
-                    <div class="w-32 h-32 rounded-3xl bg-white p-2 shadow-lg">
-                        <div class="w-full h-full rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-5xl font-extrabold">
+        <div class="px-4 sm:px-6 pb-5">
+            <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 -mt-12 sm:-mt-14 relative z-10">
+                <div class="flex flex-col sm:flex-row sm:items-end gap-3 sm:gap-4">
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white p-1.5 shadow-md shrink-0">
+                        <div class="w-full h-full rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-3xl font-extrabold">
                             {{ strtoupper(substr($petugas->name, 0, 1)) }}
                         </div>
                     </div>
 
-                    <div class="pb-2">
-                        <div class="flex items-center gap-2 mb-2">
-                            <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold border border-blue-100">
-                                Online
+                    <div>
+                        <div class="flex items-center gap-1.5 mb-1">
+                            <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-100">
+                                ● Online
                             </span>
-
-                            <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold border border-blue-100">
-                                Petugas Aktif
+                            <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-100">
+                                🛡 Petugas Aktif
                             </span>
                         </div>
 
-                        <h1 class="text-3xl font-bold text-slate-800">
+                        <h1 class="text-xl sm:text-2xl font-bold text-slate-800">
                             {{ $petugas->name }}
                         </h1>
 
-                        <p class="text-sm text-slate-500 mt-1">
-                            Staff validasi tiket dan QR Code
+                        <p class="text-xs text-slate-400">
+                            {{ $petugas->museum?->name ?? 'Staff Lapangan Museum' }}
                         </p>
                     </div>
                 </div>
 
-                <div class="flex flex-col sm:flex-row gap-3">
-
-                    <a href="/petugas/profil/edit"
-   onclick="return true;"
-   class="px-5 py-3 rounded-2xl bg-blue-600 text-white">
-    Edit Profil
-</a>
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('petugas.profil.edit') }}"
+                       class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold shadow hover:bg-emerald-700 transition">
+                        Edit Profil
+                    </a>
 
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
                         <button type="submit"
-                            class="px-5 py-3 rounded-2xl bg-white border border-blue-100 text-blue-600 text-sm font-semibold hover:bg-blue-50 transition">
+                                class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition">
                             Logout
                         </button>
                     </form>
-
                 </div>
-
             </div>
         </div>
-
     </div>
 
-    {{-- STATISTIC --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-
-        <div class="bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
-            <p class="text-sm text-slate-400 font-semibold">Total Scan QR</p>
-            <h2 class="text-3xl font-bold text-slate-800 mt-2">
+    {{-- STATISTIC CARDS --}}
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div class="bg-white rounded-xl border border-slate-100 p-4 shadow-sm">
+            <p class="text-[11px] font-semibold text-slate-400 uppercase">Total Scan QR</p>
+            <h2 class="text-2xl font-extrabold text-slate-800 mt-1">
                 {{ $totalScan }}
             </h2>
-            <p class="text-sm text-blue-600 font-semibold mt-2">
-                Semua aktivitas
-            </p>
+            <p class="text-[10px] text-slate-400 mt-0.5">Semua aktivitas</p>
         </div>
 
-        <div class="bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
-            <p class="text-sm text-slate-400 font-semibold">Tiket Valid</p>
-            <h2 class="text-3xl font-bold text-slate-800 mt-2">
+        <div class="bg-white rounded-xl border border-emerald-100 p-4 shadow-sm">
+            <p class="text-[11px] font-semibold text-emerald-600 uppercase">Tiket Valid</p>
+            <h2 class="text-2xl font-extrabold text-emerald-700 mt-1">
                 {{ $validTickets }}
             </h2>
-            <p class="text-sm text-blue-600 font-semibold mt-2">
-                Berhasil diverifikasi
-            </p>
+            <p class="text-[10px] text-emerald-500 mt-0.5">Berhasil diverifikasi</p>
         </div>
 
-        <div class="bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
-            <p class="text-sm text-slate-400 font-semibold">Tiket Ditolak</p>
-            <h2 class="text-3xl font-bold text-slate-800 mt-2">
+        <div class="bg-white rounded-xl border border-slate-100 p-4 shadow-sm">
+            <p class="text-[11px] font-semibold text-red-600 uppercase">Tiket Ditolak</p>
+            <h2 class="text-2xl font-extrabold text-red-700 mt-1">
                 {{ $rejectedTickets }}
             </h2>
-            <p class="text-sm text-blue-600 font-semibold mt-2">
-                QR sudah digunakan
-            </p>
+            <p class="text-[10px] text-slate-400 mt-0.5">QR sudah dipakai / expired</p>
         </div>
 
-        <div class="bg-blue-600 rounded-3xl p-6 text-white shadow-sm">
-            <p class="text-sm text-blue-100">Pengunjung Dilayani</p>
-            <h2 class="text-3xl font-bold mt-2">
-                {{ $totalVisitors }}
-            </h2>
-            <p class="text-sm text-blue-100 mt-2">
-                Total visitor
-            </p>
+        <div class="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-xl p-4 text-white shadow-sm flex flex-col justify-between">
+            <p class="text-[11px] font-bold text-emerald-100 uppercase">Tamu Dilayani</p>
+            <div>
+                <h2 class="text-2xl font-extrabold mt-1">
+                    {{ $totalVisitors }}
+                </h2>
+                <p class="text-[10px] text-emerald-100 mt-0.5">Total pengunjung</p>
+            </div>
         </div>
-
     </div>
 
-    {{-- PROFILE DETAIL --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        <div class="lg:col-span-2 bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
-
-            <div class="flex items-center justify-between mb-6">
+    {{-- PROFILE DETAIL & SHIFT --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-100 p-4 sm:p-5 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h2 class="text-lg font-bold text-slate-800">
-                        Informasi Profil
+                    <h2 class="text-sm font-bold text-slate-800">
+                        Informasi Akun Petugas
                     </h2>
-
-                    <p class="text-sm text-slate-400">
-                        Data pribadi dan informasi akun petugas.
+                    <p class="text-xs text-slate-400 mt-0.5">
+                        Data pribadi dan detail penugasan loket.
                     </p>
                 </div>
 
-                <span class="px-3 py-1.5 rounded-xl bg-blue-50 text-blue-600 text-xs font-semibold border border-blue-100">
-                    Verified
+                <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                    Terverifikasi
                 </span>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-                <div class="p-4 rounded-2xl bg-blue-50/60 border border-blue-100">
-                    <p class="text-xs text-slate-400 font-semibold mb-1">Nama Lengkap</p>
-                    <h3 class="font-bold text-slate-800">{{ $petugas->name }}</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Nama Lengkap</p>
+                    <h3 class="font-bold text-slate-800 mt-0.5">{{ $petugas->name }}</h3>
                 </div>
 
-                <div class="p-4 rounded-2xl bg-blue-50/60 border border-blue-100">
-                    <p class="text-xs text-slate-400 font-semibold mb-1">Email</p>
-                    <h3 class="font-bold text-slate-800">{{ $petugas->email }}</h3>
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Email Akun</p>
+                    <h3 class="font-bold text-slate-800 mt-0.5">{{ $petugas->email }}</h3>
                 </div>
 
-                <div class="p-4 rounded-2xl bg-blue-50/60 border border-blue-100">
-                    <p class="text-xs text-slate-400 font-semibold mb-1">ID Petugas</p>
-                    <h3 class="font-bold text-slate-800">
-                        PTG-{{ str_pad($petugas->id, 5, '0', STR_PAD_LEFT) }}
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">ID Petugas</p>
+                    <h3 class="font-bold font-mono text-slate-800 mt-0.5">
+                        PTG-{{ str_pad($petugas->id, 4, '0', STR_PAD_LEFT) }}
                     </h3>
                 </div>
 
-                <div class="p-4 rounded-2xl bg-blue-50/60 border border-blue-100">
-                    <p class="text-xs text-slate-400 font-semibold mb-1">Bergabung Sejak</p>
-                    <h3 class="font-bold text-slate-800">
-                        {{ $petugas->created_at->format('d F Y') }}
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Bergabung Sejak</p>
+                    <h3 class="font-bold text-slate-800 mt-0.5">
+                        {{ $petugas->created_at?->translatedFormat('d F Y') ?? '-' }}
                     </h3>
                 </div>
-
             </div>
         </div>
 
-        {{-- SHIFT --}}
-        <div class="bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
-
-            <h2 class="text-lg font-bold text-slate-800 mb-1">
-                Shift Hari Ini
+        {{-- SHIFT INFO --}}
+        <div class="bg-white rounded-2xl border border-slate-100 p-4 sm:p-5 shadow-sm">
+            <h2 class="text-sm font-bold text-slate-800 mb-0.5">
+                Shift Operasional
             </h2>
-
-            <p class="text-sm text-slate-400 mb-6">
-                Jadwal tugas operasional.
+            <p class="text-xs text-slate-400 mb-3">
+                Jadwal jaga gate masuk.
             </p>
 
-            <div class="bg-blue-600 rounded-3xl p-5 text-white mb-5">
-                <p class="text-sm text-blue-100">Shift Pagi</p>
-
-                <h3 class="text-2xl font-bold mt-2">
-                    08.00 - 16.00
+            <div class="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-xl p-4 text-white shadow-sm">
+                <p class="text-[11px] font-semibold text-emerald-100">Shift Gate Masuk</p>
+                <h3 class="text-xl font-extrabold mt-1">
+                    08.00 - 16.00 WIB
                 </h3>
-
-                <p class="text-sm text-blue-100 mt-2">
-                    Museum Nasional
+                <p class="text-xs text-emerald-100 mt-1">
+                    🏛 {{ $petugas->museum?->name ?? 'Museum Itihasa' }}
                 </p>
             </div>
-
         </div>
-
-    </div>
-
-    {{-- RECENT ACTIVITY --}}
-    <div class="bg-white rounded-3xl border border-blue-100 shadow-sm overflow-hidden">
-
-        <div class="px-6 py-5 border-b border-blue-50">
-            <h2 class="text-lg font-bold text-slate-800">
-                Aktivitas Terakhir
-            </h2>
-
-            <p class="text-sm text-slate-400">
-                Aktivitas validasi tiket terbaru.
-            </p>
-        </div>
-
-        <div class="p-6 space-y-5">
-
-            @forelse($recentActivities as $activity)
-
-            <div class="flex items-start gap-4">
-
-                <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-                    ✓
-                </div>
-
-                <div class="flex-1">
-
-                    <div class="flex justify-between gap-4">
-                        <h3 class="text-sm font-bold text-slate-800">
-                            QR Code {{ $activity->invoice_code }} berhasil divalidasi
-                        </h3>
-
-                        <span class="text-xs text-slate-400">
-                            {{ $activity->used_at ? $activity->used_at->format('H:i') : '-' }} WIB
-                        </span>
-                    </div>
-
-                    <p class="text-sm text-slate-400 mt-1">
-                        Tiket milik {{ $activity->booking->user->name }} berhasil digunakan.
-                    </p>
-
-                </div>
-
-            </div>
-
-            @empty
-
-            <p class="text-slate-400 text-sm">
-                Belum ada aktivitas.
-            </p>
-
-            @endforelse
-
-        </div>
-
     </div>
 
 </div>

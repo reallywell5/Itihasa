@@ -4,7 +4,6 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Wishlist;
-use App\Models\Museum;
 use Illuminate\Support\Facades\Auth;
 
 class WishlistController extends Controller
@@ -33,7 +32,7 @@ class WishlistController extends Controller
 
         Wishlist::create([
             'user_id' => Auth::id(),
-            'museum_id' => $museumId
+            'museum_id' => $museumId,
         ]);
 
         return back()->with('success', 'Museum added to wishlist.');

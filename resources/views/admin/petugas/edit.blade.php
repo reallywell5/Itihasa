@@ -1,46 +1,41 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Petugas')
+@section('title', 'Edit Petugas Loket')
 
 @section('content')
-<div class="max-w-5xl mx-auto space-y-6">
+<div class="max-w-3xl mx-auto space-y-5">
 
     {{-- HEADER --}}
     <div class="flex items-center justify-between">
-
         <div>
-            <p class="text-sm font-semibold text-blue-600 mb-2">
-                Staff Management
-            </p>
-
-            <h1 class="text-2xl font-bold text-slate-800">
-                Edit Petugas
+            <a href="{{ route('admin.petugas.index') }}" class="text-xs text-blue-600 hover:underline font-semibold flex items-center gap-1 mb-1">
+                ← Kembali ke Daftar Petugas
+            </a>
+            <h1 class="text-xl font-bold text-slate-800">
+                Edit Akun Petugas
             </h1>
-
-            <p class="text-sm text-slate-500 mt-1">
-                Perbarui data akun petugas yang telah terdaftar.
+            <p class="text-xs text-slate-400">
+                Perbarui nama, email, atau atur ulang kata sandi petugas gate.
             </p>
         </div>
 
-        <div class="px-4 py-2 rounded-xl bg-blue-50 text-blue-600 text-sm font-semibold border border-blue-100">
-            Staff ID #{{ $petugas->id }}
-        </div>
-
+        <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold border border-blue-100">
+            Admin • {{ Auth::user()?->museum?->name ?? 'Museum' }}
+        </span>
     </div>
 
-    <form action="{{ route('admin.petugas.update', $petugas->id) }}" method="POST">
-        @csrf
-        @method('PUT')
+    {{-- FORM --}}
+    <div class="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden">
+        <form action="{{ route('admin.petugas.update', $petugas->id) }}" method="POST">
+            @csrf
+            @method('PUT')
 
-        <div class="grid lg:grid-cols-3 gap-8">
+            <div class="p-6 space-y-4">
 
-            {{-- LEFT --}}
-            <div class="lg:col-span-2 bg-white border border-zinc-200 rounded-3xl shadow-sm p-8 space-y-6">
-
-                {{-- ERROR --}}
+                {{-- ERROR GLOBAL --}}
                 @if ($errors->any())
-                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
-                        <ul class="list-disc list-inside text-sm">
+                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-xs font-medium">
+                        <ul class="list-disc list-inside space-y-1">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
@@ -48,140 +43,102 @@
                     </div>
                 @endif
 
+                {{-- INFORMASI PENUGASAN --}}
+                <div class="p-3.5 rounded-xl bg-blue-50/60 border border-blue-100 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">🏛</span>
+                        <span class="text-xs font-bold text-blue-900">
+                            Penugasan: {{ $petugas->museum?->name ?? (Auth::user()?->museum?->name ?? 'Museum Anda') }}
+                        </span>
+                    </div>
+                    <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                        Staff ID: STF-{{ str_pad($petugas->id, 4, '0', STR_PAD_LEFT) }}
+                    </span>
+                </div>
+
                 {{-- NAME --}}
                 <div>
-                    <label class="block text-sm font-semibold text-zinc-700 mb-2">
-                        Nama Petugas
+                    <label for="name" class="block text-xs font-bold text-slate-600 mb-1.5">
+                        Nama Lengkap Petugas <span class="text-red-500">*</span>
                     </label>
-
-                    <input type="text"
-                           name="name"
-                           value="{{ old('name', $petugas->name) }}"
-                           required
-                           class="w-full rounded-xl border border-zinc-200 px-4 py-3 text-sm">
+                    <input
+                        id="name"
+                        type="text"
+                        name="name"
+                        value="{{ old('name', $petugas->name) }}"
+                        required
+                        class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-600 font-medium"
+                    >
                 </div>
 
                 {{-- EMAIL --}}
                 <div>
-                    <label class="block text-sm font-semibold text-zinc-700 mb-2">
-                        Email
+                    <label for="email" class="block text-xs font-bold text-slate-600 mb-1.5">
+                        Alamat Email Login <span class="text-red-500">*</span>
                     </label>
+                    <input
+                        id="email"
+                        type="email"
+                        name="email"
+                        value="{{ old('email', $petugas->email) }}"
+                        required
+                        class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-600 font-mono"
+                    >
+                </div>
 
-                    <input type="email"
-                           name="email"
-                           value="{{ old('email', $petugas->email) }}"
-                           required
-                           class="w-full rounded-xl border border-zinc-200 px-4 py-3 text-sm">
+                {{-- PASSWORD INFO --}}
+                <div class="p-3 bg-amber-50/60 border border-amber-200 rounded-xl">
+                    <p class="text-[11px] text-amber-900">
+                        💡 <em>Kosongkan kolom kata sandi di bawah jika Anda tidak ingin mengubah kata sandi lama akun petugas ini.</em>
+                    </p>
                 </div>
 
                 {{-- PASSWORD --}}
-                <div>
-                    <label class="block text-sm font-semibold text-zinc-700 mb-2">
-                        Password Baru
-                    </label>
-
-                    <div class="relative">
-                        <input type="password"
-                               id="password"
-                               name="password"
-                               placeholder="Kosongkan jika tidak ingin mengubah"
-                               class="w-full rounded-xl border border-zinc-200 px-4 py-3 text-sm">
-
-                        <button type="button"
-                                onclick="togglePassword('password')"
-                                class="absolute right-4 top-3 text-zinc-400 text-sm">
-                            Show
-                        </button>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="password" class="block text-xs font-bold text-slate-600 mb-1.5">
+                            Kata Sandi Baru (opsional)
+                        </label>
+                        <input
+                            id="password"
+                            type="password"
+                            name="password"
+                            placeholder="Kosongkan jika tidak diganti"
+                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-600"
+                        >
                     </div>
-                </div>
 
-                {{-- PASSWORD CONFIRM --}}
-                <div>
-                    <label class="block text-sm font-semibold text-zinc-700 mb-2">
-                        Konfirmasi Password Baru
-                    </label>
-
-                    <div class="relative">
-                        <input type="password"
-                               id="password_confirmation"
-                               name="password_confirmation"
-                               placeholder="Ulangi password baru"
-                               class="w-full rounded-xl border border-zinc-200 px-4 py-3 text-sm">
-
-                        <button type="button"
-                                onclick="togglePassword('password_confirmation')"
-                                class="absolute right-4 top-3 text-zinc-400 text-sm">
-                            Show
-                        </button>
+                    <div>
+                        <label for="password_confirmation" class="block text-xs font-bold text-slate-600 mb-1.5">
+                            Konfirmasi Kata Sandi Baru
+                        </label>
+                        <input
+                            id="password_confirmation"
+                            type="password"
+                            name="password_confirmation"
+                            placeholder="Ulangi kata sandi baru"
+                            class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-blue-600"
+                        >
                     </div>
                 </div>
 
             </div>
 
-            {{-- RIGHT --}}
-            <div class="space-y-6">
+            {{-- ACTION --}}
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2.5">
+                <a href="{{ route('admin.petugas.index') }}"
+                   class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-100 transition">
+                    Batal
+                </a>
 
-                {{-- PROFILE SUMMARY --}}
-                <div class="bg-white border border-zinc-200 rounded-3xl shadow-sm p-6 space-y-4">
-
-                    <h3 class="font-bold text-zinc-900">
-                        Informasi Akun
-                    </h3>
-
-                    <div class="flex justify-between">
-                        <span class="text-sm text-zinc-500">Role</span>
-                        <span class="text-sm font-semibold text-zinc-900">
-                            Staff
-                        </span>
-                    </div>
-
-                    <div class="flex justify-between">
-                        <span class="text-sm text-zinc-500">Status</span>
-                        <span class="px-3 py-1 rounded-full bg-green-50 text-green-600 text-xs font-semibold">
-                            Active
-                        </span>
-                    </div>
-
-                    <div class="flex justify-between">
-                        <span class="text-sm text-zinc-500">Terdaftar</span>
-                        <span class="text-sm font-semibold text-zinc-900">
-                            {{ $petugas->created_at->format('d M Y') }}
-                        </span>
-                    </div>
-
-                </div>
-
-                {{-- ACTION --}}
-                <div class="bg-white border border-zinc-200 rounded-3xl shadow-sm p-6 space-y-3">
-
-                    <button type="submit"
-                            class="w-full py-3 rounded-xl bg-zinc-900 text-white font-semibold hover:bg-zinc-800 transition">
-                        Update Petugas
-                    </button>
-
-                    <a href="{{ route('admin.petugas.index') }}"
-                       class="w-full flex justify-center py-3 rounded-xl border border-zinc-200 text-zinc-700 font-semibold hover:bg-zinc-50 transition">
-                        Batal
-                    </a>
-
-                </div>
-
+                <button type="submit"
+                        class="px-5 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold shadow hover:bg-blue-700 transition">
+                    Simpan Perubahan
+                </button>
             </div>
 
-        </div>
-    </form>
+        </form>
+    </div>
 
 </div>
-
-<script>
-function togglePassword(id) {
-    const input = document.getElementById(id);
-
-    if (input.type === "password") {
-        input.type = "text";
-    } else {
-        input.type = "password";
-    }
-}
-</script>
 @endsection

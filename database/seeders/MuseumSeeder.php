@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Museum;
+use Illuminate\Database\Seeder;
 
 class MuseumSeeder extends Seeder
 {
@@ -18,7 +18,7 @@ class MuseumSeeder extends Seeder
                 'opening_time' => '08:00:00',
                 'closing_time' => '17:00:00',
                 'created_at' => now(),
-                'updated_at' => now()
+                'updated_at' => now(),
             ],
             [
                 'name' => 'Museum Geologi',
@@ -28,7 +28,7 @@ class MuseumSeeder extends Seeder
                 'opening_time' => '08:00:00',
                 'closing_time' => '16:00:00',
                 'created_at' => now(),
-                'updated_at' => now()
+                'updated_at' => now(),
             ],
             [
                 'name' => 'Museum Konferensi Asia Afrika',
@@ -38,8 +38,8 @@ class MuseumSeeder extends Seeder
                 'opening_time' => '09:00:00',
                 'closing_time' => '17:00:00',
                 'created_at' => now(),
-                'updated_at' => now()
-            ]
+                'updated_at' => now(),
+            ],
         ]);
     }
 }
