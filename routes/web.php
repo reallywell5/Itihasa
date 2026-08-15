@@ -1,29 +1,32 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
-
-use App\Http\Controllers\Admin\MuseumWebController;
-use App\Http\Controllers\Admin\TicketWebController;
-use App\Http\Controllers\Admin\TransactionWebController;
 use App\Http\Controllers\Admin\DashboardWebController;
-use App\Http\Controllers\Admin\UserWebController;
+use App\Http\Controllers\Admin\GalleryWebController;
+use App\Http\Controllers\Admin\MuseumWebController;
 use App\Http\Controllers\Admin\PaymentWebController;
 use App\Http\Controllers\Admin\PetugasController;
+use App\Http\Controllers\Admin\ReviewWebController;
+use App\Http\Controllers\Admin\TicketWebController;
+use App\Http\Controllers\Admin\TransactionWebController;
+use App\Http\Controllers\Admin\UserWebController;
+use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Petugas\DashboardController;
-use App\Http\Controllers\Petugas\QRCodeController;
-use App\Http\Controllers\Petugas\ValidasiController;
-use App\Http\Controllers\Petugas\ScanController;
 use App\Http\Controllers\Petugas\PengunjungController;
 use App\Http\Controllers\Petugas\ProfileController as PetugasProfileController;
-use App\Http\Controllers\Auth\AuthController;
-use App\Http\Controllers\User\HomeController;
-use App\Http\Controllers\User\WishlistController;
-use App\Http\Controllers\User\UserProfileController;
+use App\Http\Controllers\Petugas\QRCodeController;
+use App\Http\Controllers\Petugas\ScanController;
+use App\Http\Controllers\Petugas\ValidasiController;
+use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ReviewReportController;
 use App\Http\Controllers\User\BookingController;
+use App\Http\Controllers\User\HomeController;
+use App\Http\Controllers\User\MuseumController;
 use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\TransactionController;
-use App\Http\Controllers\User\MuseumController;
+use App\Http\Controllers\User\UserProfileController;
+use App\Http\Controllers\User\WishlistController;
+use Illuminate\Support\Facades\Route;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 Route::get('/', [HomeController::class, 'index'])->name('landing');
 Route::get('/user/home', [HomeController::class, 'index'])->name('user.home');
@@ -57,6 +60,22 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/ticket/{transaction}', [TransactionController::class, 'ticket'])->name('user.ticket');
     Route::get('/transaction/{id}/download-ticket', [TransactionController::class, 'downloadTicket'])
         ->name('user.ticket.download');
+
+    Route::post('/bookings/{booking}/review', [ReviewController::class, 'store'])
+        ->name('reviews.store')
+        ->middleware('auth');
+
+    Route::put('/reviews/{review}', [ReviewController::class, 'update'])
+        ->name('reviews.update')
+        ->middleware('auth');
+
+    Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])
+        ->name('bookings.cancel')
+        ->middleware('auth');
+
+    Route::post('/reviews/{review}/report', [ReviewReportController::class, 'store'])
+        ->name('reviews.report')
+        ->middleware('auth');
 });
 
 // Rute Uji Coba QR
@@ -72,21 +91,26 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/dashboard', [DashboardWebController::class, 'index'])->name('admin.dashboard');
 
     Route::resource('petugas', PetugasController::class)->names([
-        'index'   => 'admin.petugas.index',
-        'create'  => 'admin.petugas.create',
-        'store'   => 'admin.petugas.store',
-        'edit'    => 'admin.petugas.edit',
-        'update'  => 'admin.petugas.update',
+        'index' => 'admin.petugas.index',
+        'create' => 'admin.petugas.create',
+        'store' => 'admin.petugas.store',
+        'edit' => 'admin.petugas.edit',
+        'update' => 'admin.petugas.update',
         'destroy' => 'admin.petugas.destroy',
     ]);
 
     Route::resource('museums', MuseumWebController::class);
     Route::resource('tickets', TicketWebController::class);
-    Route::resource('users', UserWebController::class);
-    Route::resource('payments', PaymentWebController::class);
+    Route::resource('users', UserWebController::class)->middleware('super_admin');
+    Route::resource('payments', PaymentWebController::class)->only(['index', 'show']);
+    Route::resource('transactions', TransactionWebController::class)->only(['index', 'show']);
 
-    Route::get('/transactions', [TransactionWebController::class, 'index'])->name('transactions.index');
-    Route::get('/transactions/{id}', [TransactionWebController::class, 'show'])->name('transactions.show');
+    Route::resource('galleries', GalleryWebController::class)
+        ->only(['index', 'create', 'store', 'destroy']);
+
+    Route::resource('reviews', ReviewWebController::class)
+        ->names('admin.reviews')
+        ->only(['index', 'destroy']);
 });
 
 // =============================
@@ -118,3 +142,7 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.process');
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.process');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::view('/faq', 'user.faq')->name('faq');
+Route::view('/privacy-policy', 'user.privacy-policy')->name('privacy-policy');
+Route::view('/terms-conditions', 'user.terms-conditions')->name('terms-conditions');

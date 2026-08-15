@@ -3,161 +3,133 @@
 @section('title', 'Pengunjung Hari Ini')
 
 @section('content')
-
-<div class="space-y-6">
+<div class="space-y-4 sm:space-y-5">
 
     {{-- HEADER --}}
-    <div class="bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
-
-        <p class="text-sm font-semibold text-blue-600 mb-2">
-            Visitor Monitoring
-        </p>
-
-        <h1 class="text-2xl font-bold text-slate-800">
-            Pengunjung Hari Ini
+    <div class="bg-white rounded-2xl border border-slate-100 p-4 sm:p-5 shadow-sm">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold mb-1.5">
+            👥 Monitoring Tamu • Data Gate Hari Ini
+        </span>
+        <h1 class="text-lg sm:text-xl font-bold text-slate-800">
+            Daftar Pengunjung Hari Ini
         </h1>
-
-        <p class="text-slate-500 mt-2">
-            Monitoring data pengunjung yang telah melakukan scan tiket.
+        <p class="text-xs text-slate-400 mt-0.5">
+            Pantau seluruh data pengunjung yang telah berhasil memindai tiket dan masuk ke area museum.
         </p>
-
     </div>
 
-    {{-- SUMMARY --}}
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-
-        <div class="bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
-            <p class="text-sm text-slate-400">Total Pengunjung</p>
-            <h2 class="text-3xl font-bold text-slate-800 mt-2">
+    {{-- SUMMARY CARDS --}}
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div class="bg-white rounded-xl border border-slate-100 p-4 shadow-sm">
+            <p class="text-[11px] font-semibold text-slate-400 uppercase">Total Tamu</p>
+            <h2 class="text-2xl font-extrabold text-slate-800 mt-1">
                 {{ $totalVisitors }}
             </h2>
+            <p class="text-[10px] text-emerald-600 font-semibold mt-0.5">Semua kategori</p>
         </div>
 
-        <div class="bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
-            <p class="text-sm text-slate-400">Dewasa</p>
-            <h2 class="text-3xl font-bold text-slate-800 mt-2">
+        <div class="bg-white rounded-xl border border-slate-100 p-4 shadow-sm">
+            <p class="text-[11px] font-semibold text-blue-600 uppercase">Dewasa</p>
+            <h2 class="text-2xl font-extrabold text-blue-700 mt-1">
                 {{ $adultCount }}
             </h2>
+            <p class="text-[10px] text-slate-400 mt-0.5">Tiket reguler</p>
         </div>
 
-        <div class="bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
-            <p class="text-sm text-slate-400">Pelajar</p>
-            <h2 class="text-3xl font-bold text-slate-800 mt-2">
+        <div class="bg-white rounded-xl border border-slate-100 p-4 shadow-sm">
+            <p class="text-[11px] font-semibold text-emerald-600 uppercase">Pelajar / Mahasiswa</p>
+            <h2 class="text-2xl font-extrabold text-emerald-700 mt-1">
                 {{ $studentCount }}
             </h2>
+            <p class="text-[10px] text-slate-400 mt-0.5">Tiket edukasi</p>
         </div>
 
-        <div class="bg-white rounded-3xl border border-blue-100 p-6 shadow-sm">
-            <p class="text-sm text-slate-400">Anak-anak</p>
-            <h2 class="text-3xl font-bold text-slate-800 mt-2">
+        <div class="bg-white rounded-xl border border-slate-100 p-4 shadow-sm">
+            <p class="text-[11px] font-semibold text-purple-600 uppercase">Anak-anak</p>
+            <h2 class="text-2xl font-extrabold text-purple-700 mt-1">
                 {{ $childCount }}
             </h2>
+            <p class="text-[10px] text-slate-400 mt-0.5">Tiket anak</p>
         </div>
-
     </div>
 
     {{-- TABLE --}}
-    <div x-data="{ search: '' }" class="bg-white rounded-3xl border border-blue-100 overflow-hidden shadow-sm">
-
-        <div class="px-6 py-5 border-b border-blue-50 flex flex-col md:flex-row md:items-center justify-between gap-4">
-
+    <div x-data="{ search: '' }" class="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+        <div class="p-3.5 sm:p-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-                <h2 class="text-lg font-bold text-slate-800">
-                    Daftar Pengunjung
+                <h2 class="text-sm font-bold text-slate-800">
+                    Tamu yang Telah Masuk
                 </h2>
-
-                <p class="text-sm text-slate-400">
-                    Pengunjung yang telah memindai tiket dan masuk area museum.
+                <p class="text-xs text-slate-400 mt-0.5">
+                    Data tervalidasi real-time dari gate scanner.
                 </p>
             </div>
 
             {{-- SEARCH BAR --}}
-            <div class="relative w-full md:w-72">
+            <div class="relative w-full sm:w-64">
                 <input type="text"
                        x-model="search"
-                       placeholder="Cari nama atau invoice..."
-                       class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-blue-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                       placeholder="Cari nama / kode invoice..."
+                       class="w-full pl-8 pr-3 py-1.5 rounded-lg border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-600">
+                <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 18a7 7 0 100-14 7 7 0 000 14z"/>
                 </svg>
             </div>
-
         </div>
 
         <div class="overflow-x-auto">
-
-            <table class="min-w-[900px] w-full">
-
-                <thead class="bg-blue-50 text-blue-600 uppercase text-xs font-bold">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 text-slate-500 font-bold uppercase border-b border-slate-100">
                     <tr>
-                        <th class="px-6 py-4 text-left">Nama Pengunjung</th>
-                        <th class="px-6 py-4 text-left">Kode Tiket</th>
-                        <th class="px-6 py-4 text-left">Museum</th>
-                        <th class="px-6 py-4 text-left">Rincian Tiket</th>
-                        <th class="px-6 py-4 text-left">Jam Masuk</th>
-                        <th class="px-6 py-4 text-left">Status</th>
+                        <th class="px-4 py-3">Pengunjung</th>
+                        <th class="px-4 py-3">Kode Invoice</th>
+                        <th class="px-4 py-3">Rincian Tiket</th>
+                        <th class="px-4 py-3">Jam Masuk</th>
+                        <th class="px-4 py-3 text-right">Status</th>
                     </tr>
                 </thead>
-
-                <tbody class="divide-y divide-blue-50">
-
+                <tbody class="divide-y divide-slate-100 text-slate-700">
                     @forelse($transactions as $transaction)
-
-                    <tr x-show="!search || '{{ strtolower($transaction->booking->user->name ?? '') }}'.includes(search.toLowerCase()) || '{{ strtolower($transaction->invoice_code) }}'.includes(search.toLowerCase())"
-                        class="hover:bg-blue-50/40">
-
-                        <td class="px-6 py-4 font-semibold text-slate-800">
-                            {{ $transaction->booking->user->name }}
-                        </td>
-
-                        <td class="px-6 py-4 text-slate-500 font-mono text-sm">
-                            {{ $transaction->invoice_code }}
-                        </td>
-
-                        <td class="px-6 py-4 text-slate-500">
-                            {{ $transaction->booking->museum->name }}
-                        </td>
-
-                        <td class="px-6 py-4 text-slate-700 text-sm">
-                            <div class="space-y-1">
-                                @foreach($transaction->booking->ticket_items as $item)
-                                    <div>
-                                        <span class="font-medium text-slate-800">{{ $item['ticket_name'] }}</span>: {{ $item['qty'] }}x
-                                    </div>
-                                @endforeach
-                            </div>
-                        </td>
-
-                        <td class="px-6 py-4 text-slate-500">
-                            {{ $transaction->used_at->format('H:i') }} WIB
-                        </td>
-
-                        <td class="px-6 py-4">
-                            <span class="px-3 py-1.5 rounded-xl bg-green-50 text-green-600 text-xs font-semibold border border-green-100">
-                                Sudah Masuk
-                            </span>
-                        </td>
-
-                    </tr>
-
+                        <tr x-show="!search || '{{ strtolower($transaction->booking->user->name ?? '') }}'.includes(search.toLowerCase()) || '{{ strtolower($transaction->invoice_code) }}'.includes(search.toLowerCase())"
+                            class="hover:bg-slate-50/70 transition align-middle">
+                            <td class="px-4 py-3 font-bold text-slate-800">
+                                {{ $transaction->booking->user->name ?? 'Pengunjung' }}
+                                <span class="block text-[10px] text-slate-400 font-normal">
+                                    {{ $transaction->booking->museum->name ?? '' }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 font-mono text-[11px] text-slate-600">
+                                {{ $transaction->invoice_code }}
+                            </td>
+                            <td class="px-4 py-3">
+                                <div class="space-y-0.5">
+                                    @foreach($transaction->booking->ticket_items ?? [] as $item)
+                                        <span class="inline-block px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-[10px] font-semibold mr-1">
+                                            {{ $item['ticket_name'] ?? 'Tiket' }} (x{{ $item['qty'] ?? 1 }})
+                                        </span>
+                                    @endforeach
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 text-slate-500 whitespace-nowrap">
+                                {{ $transaction->used_at ? $transaction->used_at->format('H:i') . ' WIB' : '-' }}
+                            </td>
+                            <td class="px-4 py-3 text-right whitespace-nowrap">
+                                <span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                                    ✓ Sudah Masuk
+                                </span>
+                            </td>
+                        </tr>
                     @empty
-
-                    <tr>
-                        <td colspan="6" class="px-6 py-6 text-center text-slate-400">
-                            Belum ada pengunjung yang masuk.
-                        </td>
-                    </tr>
-
+                        <tr>
+                            <td colspan="5" class="px-4 py-10 text-center text-xs text-slate-400">
+                                Belum ada data pengunjung yang masuk hari ini.
+                            </td>
+                        </tr>
                     @endforelse
-
                 </tbody>
-
             </table>
-
         </div>
-
     </div>
 
 </div>
-
 @endsection

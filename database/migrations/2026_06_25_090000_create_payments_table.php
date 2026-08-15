@@ -25,7 +25,7 @@ return new class extends Migration
             $table->enum('payment_status', [
                 'pending',
                 'paid',
-                'failed'
+                'failed',
             ])->default('pending');
 
             $table->dateTime('paid_at')->nullable();

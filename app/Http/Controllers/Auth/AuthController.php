@@ -31,18 +31,18 @@ class AuthController extends Controller
                 'required',
                 'string',
                 'max:100',
-                'regex:/^[a-zA-Z\s]+$/'
+                'regex:/^[a-zA-Z\s]+$/',
             ],
             'email' => [
                 'required',
                 'email',
                 'max:255',
-                'unique:users,email'
+                'unique:users,email',
             ],
             'password' => [
                 'required',
                 'confirmed',
-                Password::min(8)->letters()->numbers()
+                Password::min(8)->letters()->numbers(),
             ],
         ], [
             'name.regex' => 'Nama hanya boleh berisi huruf dan spasi.',
@@ -57,7 +57,7 @@ class AuthController extends Controller
         ]);
 
         return redirect()->route('login')
-        ->with('success', 'Registration successful. Please login to continue.');
+            ->with('success', 'Registration successful. Please login to continue.');
     }
 
     public function login(Request $request)
@@ -89,7 +89,7 @@ class AuthController extends Controller
         $user = Auth::user();
 
         // Redirect berdasarkan role
-        if ($user->role === 'admin') {
+        if (in_array($user->role, ['super_admin', 'admin'])) {
             return redirect()->intended(route('admin.dashboard'));
         }
 

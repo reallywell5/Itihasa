@@ -17,14 +17,16 @@
             </h1>
 
             <p class="text-sm text-slate-500 max-w-xl">
-                Kelola data museum, alamat, foto, dan jam operasional museum.
+                {{ auth()->user()->isSuperAdmin() ? 'Kelola seluruh data museum, alamat, foto, dan jam operasional di sistem Itihasa.' : 'Kelola informasi, alamat, foto, dan jam operasional untuk museum Anda.' }}
             </p>
         </div>
 
-        <a href="{{ route('museums.create') }}"
-           class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition">
-            + Tambah Museum
-        </a>
+        @if(auth()->user()->isSuperAdmin())
+            <a href="{{ route('museums.create') }}"
+               class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-purple-600 text-white text-sm font-semibold hover:bg-purple-700 transition shadow-md">
+                + Tambah Museum Baru
+            </a>
+        @endif
     </div>
 
     {{-- ALERT --}}
@@ -183,17 +185,19 @@
                                     Edit
                                 </a>
 
-                                <form action="{{ route('museums.destroy', $museum->id) }}"
-                                      method="POST"
-                                      onsubmit="return confirm('Yakin hapus museum ini?')">
-                                    @csrf
-                                    @method('DELETE')
+                                @if(auth()->user()->isSuperAdmin())
+                                    <form action="{{ route('museums.destroy', $museum->id) }}"
+                                          method="POST"
+                                          onsubmit="return confirm('Yakin hapus museum ini?')">
+                                        @csrf
+                                        @method('DELETE')
 
-                                    <button type="submit"
-                                            class="px-3 py-2 rounded-xl bg-red-50 text-red-600 text-sm font-semibold hover:bg-red-600 hover:text-white transition">
-                                        Hapus
-                                    </button>
-                                </form>
+                                        <button type="submit"
+                                                class="px-3 py-2 rounded-xl bg-red-50 text-red-600 text-sm font-semibold hover:bg-red-600 hover:text-white transition">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                @endif
 
                             </div>
                         </td>

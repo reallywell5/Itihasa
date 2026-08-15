@@ -11,61 +11,86 @@ class PetugasController extends Controller
 {
     public function index(Request $request)
     {
-        $petugas = User::where('role', 'staff')
-            ->when($request->filled('search'), function ($query) use ($request) {
-                $search = $request->search;
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%");
-                });
-            })
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
+        $adminMuseumId = auth()->user()->museum_id;
 
-        return view('admin.petugas.index', compact('petugas'));
+        $query = User::where('role', 'staff')
+            ->when($adminMuseumId, function ($q) use ($adminMuseumId) {
+                $q->where('museum_id', $adminMuseumId);
+            });
+
+        if ($request->filled('search')) {
+            $search = trim($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        $totalPetugas = (clone $query)->count();
+        $petugas = $query->with('museum')->latest()->paginate(10)->withQueryString();
+
+        return view('admin.petugas.index', compact('petugas', 'totalPetugas'));
     }
 
     public function create()
     {
-        return view('admin.petugas.create');
-    }
+        $museum = auth()->user()->museum;
 
-    public function edit($id)
-    {
-        $petugas = User::where('role', 'staff')->findOrFail($id);
-
-        return view('admin.petugas.edit', compact('petugas'));
+        return view('admin.petugas.create', compact('museum'));
     }
 
     public function store(Request $request)
     {
+        $adminMuseumId = auth()->user()->museum_id;
+
         $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email',
-            'password' => 'required|min:8|confirmed',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
         ]);
 
         User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
+            'name' => $request->name,
+            'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role'     => 'staff',
+            'role' => 'staff',
+            'museum_id' => $adminMuseumId,
         ]);
 
         return redirect()
             ->route('admin.petugas.index')
-            ->with('success', 'Petugas berhasil ditambahkan');
+            ->with('success', 'Akun petugas lapangan berhasil ditambahkan dan otomatis terikat ke museum Anda.');
+    }
+
+    public function edit($id)
+    {
+        $adminMuseumId = auth()->user()->museum_id;
+
+        $petugas = User::where('role', 'staff')
+            ->when($adminMuseumId, function ($q) use ($adminMuseumId) {
+                $q->where('museum_id', $adminMuseumId);
+            })
+            ->findOrFail($id);
+
+        $museum = auth()->user()->museum;
+
+        return view('admin.petugas.edit', compact('petugas', 'museum'));
     }
 
     public function update(Request $request, $id)
     {
-        $petugas = User::where('role', 'staff')->findOrFail($id);
+        $adminMuseumId = auth()->user()->museum_id;
+
+        $petugas = User::where('role', 'staff')
+            ->when($adminMuseumId, function ($q) use ($adminMuseumId) {
+                $q->where('museum_id', $adminMuseumId);
+            })
+            ->findOrFail($id);
 
         $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|string|email|max:255|unique:users,email,' . $petugas->id,
-            'password' => 'nullable|min:8|confirmed',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,'.$petugas->id,
+            'password' => 'nullable|string|min:8|confirmed',
         ]);
 
         $petugas->name = $request->name;
@@ -84,14 +109,18 @@ class PetugasController extends Controller
 
     public function destroy($id)
     {
-        // Pastikan hanya bisa hapus user dengan role 'staff' lewat controller ini,
-        // supaya tidak bisa dipakai untuk menghapus admin/visitor secara tidak sengaja
-        $petugas = User::where('role', 'staff')->findOrFail($id);
+        $adminMuseumId = auth()->user()->museum_id;
+
+        $petugas = User::where('role', 'staff')
+            ->when($adminMuseumId, function ($q) use ($adminMuseumId) {
+                $q->where('museum_id', $adminMuseumId);
+            })
+            ->findOrFail($id);
 
         $petugas->delete();
 
         return redirect()
             ->route('admin.petugas.index')
-            ->with('success', 'Akun petugas berhasil dihapus');
+            ->with('success', 'Akun petugas berhasil dihapus.');
     }
 }

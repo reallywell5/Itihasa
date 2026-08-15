@@ -32,7 +32,7 @@ class UpdateUserRequest extends FormRequest
                 'string',
                 'email',
                 'max:255',
-                Rule::unique('users', 'email')->ignore($userId)
+                Rule::unique('users', 'email')->ignore($userId),
             ],
 
             // Password bersifat opsional saat edit (nullable). Jika diisi, minimal 8 karakter dan wajib cocok.

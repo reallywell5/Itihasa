@@ -11,14 +11,15 @@ class ValidasiController extends Controller
     public function index(Request $request)
     {
         $transaction = null;
+        $staffMuseumId = auth()->user()->museum_id;
 
         if ($request->invoice_code) {
             $transaction = Transaction::with([
                 'booking.user',
-                'booking.museum'
-            ])->where('invoice_code', $request->invoice_code)->first();
+                'booking.museum',
+            ])->where('invoice_code', trim($request->invoice_code))->first();
         }
 
-        return view('petugas.validasi', compact('transaction'));
+        return view('petugas.validasi', compact('transaction', 'staffMuseumId'));
     }
 }

@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\Wishlist;
 
 class User extends Authenticatable
 {
@@ -15,6 +14,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'museum_id',
     ];
 
     protected $hidden = [
@@ -43,7 +43,7 @@ class User extends Authenticatable
 
     public function tickets()
     {
-    return $this->hasMany(Ticket::class);
+        return $this->hasMany(Ticket::class);
     }
 
     public function transactions()
@@ -54,5 +54,25 @@ class User extends Authenticatable
     public function wishlists()
     {
         return $this->hasMany(Wishlist::class, 'user_id');
+    }
+
+    public function museum()
+    {
+        return $this->belongsTo(Museum::class);
+    }
+
+    public function isSuperAdmin()
+    {
+        return $this->role === 'super_admin';
+    }
+
+    public function hasAdminAccess(): bool
+    {
+        return in_array($this->role, ['admin', 'super_admin']);
+    }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
     }
 }

@@ -7,184 +7,146 @@
 @section('title', 'Detail Transaksi')
 
 @section('content')
-<div class="max-w-5xl mx-auto space-y-6">
+<div class="max-w-4xl mx-auto space-y-5">
 
     {{-- HEADER --}}
     <div class="flex items-center justify-between">
-
         <div>
-            <p class="text-sm font-semibold text-blue-600 mb-2">
-                Transaction Detail
-            </p>
-
-            <h1 class="text-2xl font-bold text-slate-800">
-                Detail Transaksi
+            <a href="{{ route('transactions.index') }}" class="text-xs text-blue-600 hover:underline font-semibold flex items-center gap-1 mb-1">
+                ← Kembali ke Riwayat Transaksi
+            </a>
+            <h1 class="text-xl font-bold text-slate-800">
+                Detail Transaksi #{{ $transaction->id }}
             </h1>
-
-            <p class="text-sm text-slate-500 mt-1">
-                Informasi lengkap transaksi tiket museum.
+            <p class="text-xs text-slate-400">
+                Invoice: <span class="font-bold text-slate-700">{{ $transaction->invoice_code ?? '-' }}</span>
             </p>
         </div>
 
         <a href="{{ route('transactions.index') }}"
-           class="px-4 py-2 rounded-xl border border-zinc-200 text-sm font-semibold text-zinc-700 hover:bg-zinc-100 transition">
+           class="px-3.5 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">
             Kembali
         </a>
-
     </div>
 
-    {{-- HERO --}}
-    <div class="bg-white rounded-3xl border border-blue-100 shadow-sm p-6 flex items-center justify-between">
-
+    {{-- SUMMARY BANNER --}}
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <p class="text-sm text-slate-400 mb-2">
-                Invoice Code
-            </p>
-
-            <h2 class="text-2xl font-bold text-slate-800">
-                {{ $transaction->invoice_code ?? 'TRX-'.$transaction->id }}
+            <span class="text-[10px] uppercase font-bold text-slate-400">Total Pembayaran</span>
+            <h2 class="text-2xl font-extrabold text-slate-800 mt-0.5">
+                Rp {{ number_format($transaction->total_amount ?? 0, 0, ',', '.') }}
             </h2>
+            <p class="text-xs text-slate-400 mt-0.5">
+                Museum: <strong class="text-slate-700">{{ $transaction->booking->museum->name ?? '-' }}</strong>
+            </p>
         </div>
 
         <div>
-            @if($transaction->payment_status == 'paid')
-                <span class="px-4 py-2 rounded-full bg-green-50 text-green-600 text-sm font-semibold">
-                    Paid
-                </span>
-
-            @elseif($transaction->payment_status == 'pending')
-                <span class="px-4 py-2 rounded-full bg-yellow-50 text-yellow-600 text-sm font-semibold">
-                    Pending
-                </span>
-
-            @else
-                <span class="px-4 py-2 rounded-full bg-red-50 text-red-600 text-sm font-semibold">
-                    Failed
-                </span>
-            @endif
+            @php
+                $badge = match($transaction->payment_status) {
+                    'paid' => 'bg-emerald-50 text-emerald-700',
+                    'pending' => 'bg-amber-50 text-amber-700',
+                    default => 'bg-red-50 text-red-700',
+                };
+            @endphp
+            <span class="px-3 py-1 rounded-full text-xs font-bold uppercase {{ $badge }}">
+                Status: {{ $transaction->payment_status }}
+            </span>
         </div>
-
     </div>
 
-    {{-- DETAIL --}}
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    {{-- DETAIL INFO & QR --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-        {{-- LEFT --}}
-        <div class="bg-white rounded-3xl border border-zinc-200 shadow-sm p-8">
-
-            <h3 class="text-lg font-bold text-slate-800 mb-6">
-                Informasi Pembeli
+        {{-- LEFT: DETAIL PEMBELI & ITEM --}}
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 space-y-4">
+            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                Informasi Pemesan
             </h3>
 
-            <div class="space-y-5">
-
-                <div>
-                    <p class="text-xs uppercase font-bold text-zinc-400">
-                        Nama Pengunjung
-                    </p>
-                    <p class="mt-2 text-lg font-bold text-zinc-900">
-                        {{ $transaction->booking->user->name ?? 'Guest' }}
+            <div class="space-y-3 text-xs">
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <span class="text-[10px] uppercase font-bold text-slate-400">Nama Pengunjung</span>
+                    <p class="mt-0.5 font-bold text-slate-800 text-sm">
+                        {{ $transaction->booking->user->name ?? 'Tamu' }}
                     </p>
                 </div>
 
-                <div>
-                    <p class="text-xs uppercase font-bold text-zinc-400">
-                        Email
-                    </p>
-                    <p class="mt-2 text-sm text-zinc-700">
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <span class="text-[10px] uppercase font-bold text-slate-400">Email Akun</span>
+                    <p class="mt-0.5 font-semibold text-slate-700">
                         {{ $transaction->booking->user->email ?? '-' }}
                     </p>
                 </div>
 
-                <div>
-                    <p class="text-xs uppercase font-bold text-zinc-400">
-                        Waktu Transaksi
-                    </p>
-                    <p class="mt-2 text-sm text-zinc-700">
-                        {{ $transaction->created_at?->format('d M Y • H:i') }}
+                <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <span class="text-[10px] uppercase font-bold text-slate-400">Waktu Transaksi</span>
+                    <p class="mt-0.5 font-semibold text-slate-700">
+                        {{ $transaction->created_at?->translatedFormat('d M Y • H:i:s') ?? '-' }}
                     </p>
                 </div>
 
-                <div class="border-t border-zinc-100 pt-4">
-                    <p class="text-xs uppercase font-bold text-zinc-400 mb-3">
-                        Rincian Tiket Dibeli
-                    </p>
-                    <div class="space-y-2 mb-4 bg-zinc-50 p-4 rounded-2xl border border-zinc-200/60">
-                        @foreach($transaction->booking->ticket_items as $item)
-                            <div class="flex justify-between items-center text-sm">
+                {{-- RINCIAN TIKET --}}
+                <div class="pt-2">
+                    <span class="text-[10px] uppercase font-bold text-slate-400 block mb-2">Rincian Tiket</span>
+                    <div class="space-y-2 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                        @foreach($transaction->booking->ticket_items ?? [] as $item)
+                            <div class="flex justify-between items-center text-xs">
                                 <div>
-                                    <span class="font-semibold text-zinc-800">{{ $item['ticket_name'] }}</span>
-                                    <span class="text-zinc-500 font-normal"> x {{ $item['qty'] }}</span>
-                                    @if($item['price'] > 0)
-                                        <span class="text-xs text-zinc-400">(@ Rp {{ number_format($item['price'], 0, ',', '.') }})</span>
-                                    @endif
+                                    <span class="font-bold text-slate-800">{{ $item['ticket_name'] ?? 'Tiket' }}</span>
+                                    <span class="text-slate-400 font-normal"> × {{ $item['qty'] ?? 1 }}</span>
                                 </div>
-                                <span class="font-semibold text-zinc-900">
-                                    @if($item['subtotal'] > 0)
-                                        Rp {{ number_format($item['subtotal'], 0, ',', '.') }}
-                                    @else
-                                        {{ $item['qty'] }} tiket
-                                    @endif
+                                <span class="font-bold text-slate-800">
+                                    Rp {{ number_format($item['subtotal'] ?? 0, 0, ',', '.') }}
                                 </span>
                             </div>
                         @endforeach
                     </div>
                 </div>
-
-                <div>
-                    <p class="text-xs uppercase font-bold text-zinc-400">
-                        Total Pembayaran
-                    </p>
-                    <p class="mt-2 text-2xl font-bold text-blue-600">
-                        Rp {{ number_format($transaction->total_amount ?? 0, 0, ',', '.') }}
-                    </p>
-                </div>
-
             </div>
-
         </div>
 
-        {{-- RIGHT --}}
-        <div class="bg-white rounded-3xl border border-zinc-200 shadow-sm p-8">
-
-            <h3 class="text-lg font-bold text-slate-800 mb-6">
-                QR Code Tiket
+        {{-- RIGHT: QR CODE TIKET --}}
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col justify-between">
+            <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3">
+                QR Code Masuk
             </h3>
 
-            @if($transaction->payment_status == 'paid')
-
-                <div class="flex flex-col items-center">
-
-                    <div class="bg-white p-4 rounded-2xl border border-zinc-200 shadow-sm mb-4">
-                        {!! QrCode::size(220)->generate($transaction->invoice_code) !!}
+            @if($transaction->payment_status === 'paid')
+                <div class="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-xl border border-slate-100 my-auto">
+                    <div class="p-3 bg-white rounded-xl shadow-sm border border-slate-200">
+                        {!! QrCode::size(180)->generate($transaction->invoice_code) !!}
                     </div>
-
-                    <p class="text-xs font-mono text-zinc-500">
+                    <p class="text-[11px] font-mono text-slate-500 font-bold mt-3">
                         {{ $transaction->invoice_code }}
                     </p>
-
-                </div>
-
-            @else
-
-                <div class="h-full flex flex-col items-center justify-center text-center py-12">
-
-                    <div class="w-20 h-20 rounded-3xl bg-yellow-50 text-yellow-600 flex items-center justify-center text-3xl mb-4">
-                        🎫
+                    <div class="mt-2 text-center">
+                        @if($transaction->used_at)
+                            <span class="inline-block px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-bold">
+                                ✓ Sudah discan pada {{ $transaction->used_at->translatedFormat('d M Y, H:i') }}
+                            </span>
+                        @else
+                            <span class="inline-block px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold">
+                                Belum Digunakan
+                            </span>
+                        @endif
                     </div>
-
-                    <p class="text-sm font-semibold text-slate-700">
-                        QR Code Belum Aktif
-                    </p>
-
-                    <p class="text-xs text-slate-400 mt-2 max-w-xs">
-                        QR Code akan tersedia setelah pembayaran berhasil.
-                    </p>
-
                 </div>
-
+            @else
+                <div class="flex flex-col items-center justify-center text-center p-8 bg-amber-50/50 rounded-xl border border-amber-100 my-auto">
+                    <span class="text-3xl mb-2">⏳</span>
+                    <p class="text-xs font-bold text-slate-700">QR Code Belum Aktif</p>
+                    <p class="text-[10px] text-slate-400 mt-1 max-w-xs">
+                        QR Code scan tiket akan otomatis aktif setelah pembayaran berstatus paid.
+                    </p>
+                </div>
             @endif
 
+            <div class="text-center pt-2">
+                <span class="text-[10px] text-slate-400">
+                    Tiket terdaftar resmi di sistem Itihasa
+                </span>
+            </div>
         </div>
 
     </div>

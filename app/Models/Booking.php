@@ -21,7 +21,21 @@ class Booking extends Model
         'total_price',
         'status',
         'ticket_summary',
+        'is_rombongan',
+        'manifest',
+        'cancellation_reason',
+        'cancelled_at',
     ];
+
+    protected $casts = [
+        'manifest' => 'array',
+        'cancelled_at' => 'datetime',
+    ];
+
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
 
     public function user()
     {
@@ -36,6 +50,11 @@ class Booking extends Model
     public function ticket()
     {
         return $this->belongsTo(Ticket::class);
+    }
+
+    public function review()
+    {
+        return $this->hasOne(Review::class);
     }
 
     public function getTicketItemsAttribute(): array

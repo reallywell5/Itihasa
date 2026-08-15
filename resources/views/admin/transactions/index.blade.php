@@ -1,196 +1,147 @@
 @extends('layouts.app')
 
-@section('title', 'Transactions')
+@section('title', auth()->user()->isSuperAdmin() ? 'Pemantauan Transaksi' : 'Riwayat Transaksi')
 
 @section('content')
-<div class="space-y-6">
+<div class="max-w-7xl mx-auto space-y-5">
 
     {{-- HEADER --}}
-    <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-
+    <div class="bg-white rounded-2xl border {{ auth()->user()->isSuperAdmin() ? 'border-purple-100' : 'border-blue-100' }} p-5 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <p class="text-sm font-semibold text-blue-600 mb-2">
-                Transaction Management
-            </p>
-
-            <h1 class="text-2xl font-bold text-slate-800 mb-2">
-                Riwayat Transaksi
+            @if(auth()->user()->isSuperAdmin())
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700 text-[11px] font-bold mb-2">
+                    👑 Super Admin • Pemantauan Transaksi Seluruh Museum
+                </span>
+            @else
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[11px] font-bold mb-2">
+                    🏛 Admin • {{ auth()->user()->museum?->name ?? 'Museum' }}
+                </span>
+            @endif
+            <h1 class="text-xl font-bold text-slate-800">
+                Riwayat Transaksi Pemesanan
             </h1>
-
-            <p class="text-sm text-slate-500 max-w-xl">
-                Kelola seluruh data transaksi tiket museum dari pengunjung.
+            <p class="text-xs text-slate-400 mt-0.5 max-w-xl">
+                {{ auth()->user()->isSuperAdmin() ? 'Memantau seluruh transaksi pembelian tiket online maupun walk-in di semua museum se-Indonesia.' : 'Pantau riwayat pemesanan tiket pengunjung, status pembayaran, dan invoice transaksi untuk museum Anda.' }}
             </p>
         </div>
-
-        <div class="w-16 h-16 rounded-3xl bg-blue-50 text-blue-600 flex items-center justify-center">
-            💳
-        </div>
-
     </div>
 
-    {{-- SUMMARY --}}
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-        <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
-            <p class="text-sm text-slate-400 mb-2">Total Transaksi</p>
-            <h2 class="text-3xl font-bold text-slate-800">
-                {{ $transactions->total() }}
+    {{-- SUMMARY CARDS --}}
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white rounded-xl border border-slate-100 p-4 shadow-sm">
+            <p class="text-[11px] font-semibold text-slate-400 uppercase">Total Pesanan Transaksi</p>
+            <h2 class="text-2xl font-extrabold text-slate-800 mt-1">
+                {{ method_exists($transactions, 'total') ? $transactions->total() : $transactions->count() }}
             </h2>
+            <p class="text-[10px] text-slate-400 mt-0.5">Semua status pemesanan</p>
         </div>
 
-        <div class="bg-white rounded-3xl shadow-sm border border-blue-100 p-6">
-            <p class="text-sm text-slate-400 mb-2">Total Pendapatan</p>
-            <h2 class="text-3xl font-bold text-slate-800">
-                Rp {{ number_format($totalRevenue, 0, ',', '.') }}
-            </h2>
-        </div>
-
-        <div class="bg-blue-600 rounded-3xl shadow-sm p-6 text-white">
-            <p class="text-sm text-blue-100 mb-2">Transaksi Berhasil</p>
-            <h2 class="text-2xl font-bold">
+        <div class="bg-white rounded-xl border border-slate-100 p-4 shadow-sm">
+            <p class="text-[11px] font-semibold text-slate-400 uppercase">Pesanan Lunas (Paid)</p>
+            <h2 class="text-2xl font-extrabold text-emerald-600 mt-1">
                 {{ $totalPaidTransactions }}
             </h2>
+            <p class="text-[10px] text-slate-400 mt-0.5">Tiket aktif / siap scan</p>
         </div>
 
+        <div class="{{ auth()->user()->isSuperAdmin() ? 'bg-purple-600' : 'bg-blue-600' }} rounded-xl p-4 text-white shadow-sm flex flex-col justify-between">
+            <p class="text-[11px] font-semibold {{ auth()->user()->isSuperAdmin() ? 'text-purple-200' : 'text-blue-100' }} uppercase">Total Nilai Pendapatan</p>
+            <h2 class="text-2xl font-extrabold mt-1">
+                Rp {{ number_format($totalRevenue, 0, ',', '.') }}
+            </h2>
+            <p class="text-[10px] {{ auth()->user()->isSuperAdmin() ? 'text-purple-200' : 'text-blue-100' }} mt-0.5">Akumulasi transaksi berhasil</p>
+        </div>
     </div>
 
-    {{-- TABLE --}}
-    <div class="bg-white rounded-3xl shadow-sm border border-blue-100 overflow-hidden">
-
-        <div class="px-6 py-5 border-b border-blue-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-
-            <div>
-                <h2 class="text-lg font-bold text-slate-800">
-                    Daftar Transaksi
-                </h2>
-
-                <p class="text-sm text-slate-400">
-                    Menampilkan seluruh transaksi tiket museum.
-                </p>
+    {{-- SEARCH & TABLE --}}
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        <div class="px-4 py-3.5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="text-xs text-slate-500 font-medium">
+                Daftar Transaksi Tiket
             </div>
 
-            <form method="GET" class="flex items-center bg-blue-50 rounded-xl px-4 py-2 w-full sm:w-72">
+            <form method="GET" class="flex items-center gap-2">
                 <input type="text"
                        name="search"
                        value="{{ request('search') }}"
-                       placeholder="Cari transaksi..."
-                       class="bg-transparent outline-none text-sm w-full text-slate-600">
+                       placeholder="Cari kode invoice atau nama..."
+                       class="px-3 py-1.5 border border-slate-200 rounded-lg text-xs w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-slate-800">
+                @if(request('search'))
+                    <a href="{{ route('transactions.index') }}" class="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs text-slate-500 hover:bg-slate-50">
+                        Reset
+                    </a>
+                @endif
             </form>
-
         </div>
 
         <div class="overflow-x-auto">
-
-            <table class="min-w-[900px] w-full">
-
-                <thead class="bg-blue-50 text-blue-600 text-xs font-bold uppercase">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-50 text-slate-500 font-bold uppercase border-b border-slate-100">
                     <tr>
-                        <th class="px-6 py-4">Invoice</th>
-                        <th class="px-6 py-4">Pengunjung</th>
-                        <th class="px-6 py-4">Total</th>
-                        <th class="px-6 py-4">Tanggal</th>
-                        <th class="px-6 py-4">Status</th>
-                        <th class="px-6 py-4 text-right">Aksi</th>
+                        <th class="px-4 py-3">Kode Invoice</th>
+                        <th class="px-4 py-3">Pengunjung & Museum</th>
+                        <th class="px-4 py-3 text-right">Total Bayar</th>
+                        <th class="px-4 py-3">Waktu Pemesanan</th>
+                        <th class="px-4 py-3 text-center">Status</th>
+                        <th class="px-4 py-3 text-right">Aksi</th>
                     </tr>
                 </thead>
-
-                <tbody class="divide-y divide-blue-50">
-
+                <tbody class="divide-y divide-slate-100 text-slate-700">
                     @forelse ($transactions as $transaction)
-
-                    <tr class="hover:bg-blue-50/30 transition">
-
-                        {{-- INVOICE --}}
-                        <td class="px-6 py-4">
-                            <div class="flex items-center gap-4">
-
-                                <div class="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
-                                    TR
-                                </div>
-
-                                <div>
-                                    <p class="font-bold text-slate-800">
-                                        {{ $transaction->invoice_code ?? 'TRX-'.$transaction->id }}
-                                    </p>
-
-                                    <p class="text-xs text-slate-400">
-                                        ID #{{ $transaction->id }}
-                                    </p>
-                                </div>
-
-                            </div>
-                        </td>
-
-                        {{-- USER --}}
-                        <td class="px-6 py-4 text-slate-500">
-                            {{ $transaction->booking->user->name ?? 'Guest' }}
-                        </td>
-
-                        {{-- TOTAL --}}
-                        <td class="px-6 py-4 font-bold text-slate-800">
-                            Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}
-                        </td>
-
-                        {{-- DATE --}}
-                        <td class="px-6 py-4 text-slate-500">
-                            {{ $transaction->created_at->format('d M Y H:i') }}
-                        </td>
-
-                        {{-- STATUS --}}
-                        <td class="px-6 py-4">
-
-                            @if($transaction->payment_status == 'paid')
-                                <span class="px-3 py-1 rounded-full bg-green-50 text-green-600 text-xs font-semibold">
-                                    Paid
+                        <tr class="hover:bg-slate-50/70 transition align-middle">
+                            <td class="px-4 py-3 font-bold text-slate-800 whitespace-nowrap">
+                                {{ $transaction->invoice_code ?? ('#TRX-' . $transaction->id) }}
+                            </td>
+                            <td class="px-4 py-3">
+                                <p class="font-semibold text-slate-800">
+                                    {{ $transaction->booking->user->name ?? 'Tamu' }}
+                                </p>
+                                <p class="text-[10px] text-slate-400">
+                                    🏛 {{ $transaction->booking->museum->name ?? '-' }}
+                                </p>
+                            </td>
+                            <td class="px-4 py-3 text-right font-extrabold text-slate-800 whitespace-nowrap">
+                                Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}
+                            </td>
+                            <td class="px-4 py-3 text-slate-400 text-[11px] whitespace-nowrap">
+                                {{ $transaction->created_at?->translatedFormat('d M Y, H:i') ?? '-' }}
+                            </td>
+                            <td class="px-4 py-3 text-center whitespace-nowrap">
+                                @php
+                                    $badge = match($transaction->payment_status) {
+                                        'paid' => 'bg-emerald-50 text-emerald-700',
+                                        'pending' => 'bg-amber-50 text-amber-700',
+                                        default => 'bg-red-50 text-red-700',
+                                    };
+                                @endphp
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase {{ $badge }}">
+                                    {{ $transaction->payment_status }}
                                 </span>
-
-                            @elseif($transaction->payment_status == 'pending')
-                                <span class="px-3 py-1 rounded-full bg-yellow-50 text-yellow-600 text-xs font-semibold">
-                                    Pending
-                                </span>
-
-                            @else
-                                <span class="px-3 py-1 rounded-full bg-red-50 text-red-600 text-xs font-semibold">
-                                    Failed
-                                </span>
-                            @endif
-
-                        </td>
-
-                        {{-- ACTION --}}
-                        <td class="px-6 py-4 text-right">
-                            <a href="{{ route('transactions.show', $transaction->id) }}"
-                               class="px-4 py-2 rounded-xl bg-blue-50 text-blue-600 text-sm font-semibold hover:bg-blue-600 hover:text-white transition">
-                                Detail
-                            </a>
-                        </td>
-
-                    </tr>
-
+                            </td>
+                            <td class="px-4 py-3 text-right whitespace-nowrap">
+                                <a href="{{ route('transactions.show', $transaction->id) }}"
+                                   class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] transition">
+                                    Detail
+                                </a>
+                            </td>
+                        </tr>
                     @empty
-
-                    <tr>
-                        <td colspan="6" class="px-6 py-16 text-center text-slate-400">
-                            Belum ada transaksi.
-                        </td>
-                    </tr>
-
+                        <tr>
+                            <td colspan="6" class="px-4 py-12 text-center text-xs text-slate-400">
+                                Belum ada data transaksi tercatat.
+                            </td>
+                        </tr>
                     @endforelse
-
                 </tbody>
-
             </table>
-
         </div>
 
+        @if(method_exists($transactions, 'links'))
+            <div class="p-4 border-t border-slate-100">
+                {{ $transactions->links() }}
+            </div>
+        @endif
     </div>
-
-    {{-- PAGINATION --}}
-    @if(method_exists($transactions, 'links'))
-        <div>
-            {{ $transactions->links() }}
-        </div>
-    @endif
 
 </div>
 @endsection
