@@ -5,6 +5,98 @@
 @section('content')
 <div class="max-w-7xl mx-auto space-y-6">
 
+    {{-- FITUR E SUPER ADMIN: BANNER PENGUMUMAN / BROADCAST RESMI AKTIF --}}
+    @if(isset($activeBroadcasts) && $activeBroadcasts->isNotEmpty())
+        <div class="space-y-2.5 print:hidden">
+            @foreach($activeBroadcasts as $bc)
+                @php
+                    $style = match($bc->urgency) {
+                        'danger' => 'bg-red-600 text-white border-red-700',
+                        'warning' => 'bg-amber-500 text-slate-950 border-amber-600',
+                        'success' => 'bg-emerald-600 text-white border-emerald-700',
+                        default => 'bg-blue-600 text-white border-blue-700',
+                    };
+                    $icon = match($bc->urgency) {
+                        'danger' => '🚨',
+                        'warning' => '⚠️',
+                        'success' => '🎉',
+                        default => '📢',
+                    };
+                @endphp
+                <div class="rounded-2xl p-4 sm:p-4.5 shadow-md flex items-start justify-between gap-3 border {{ $style }}" x-data="{ dismissed: false }" x-show="!dismissed">
+                    <div class="flex items-start gap-3">
+                        <span class="text-xl shrink-0 mt-0.5">{{ $icon }}</span>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h4 class="font-bold text-xs sm:text-sm uppercase tracking-wide">{{ $bc->title }}</h4>
+                                <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-black/20 uppercase tracking-widest">
+                                    Resmi Super Admin
+                                </span>
+                            </div>
+                            <p class="text-xs mt-1 leading-relaxed opacity-95">{{ $bc->message }}</p>
+                            <span class="text-[10px] opacity-75 mt-1.5 block">
+                                Diterbitkan: {{ $bc->created_at->translatedFormat('d M Y, H:i') }} WIB
+                                @if($bc->expires_at) • Berlaku s/d {{ $bc->expires_at->translatedFormat('d M Y, H:i') }} WIB @endif
+                            </span>
+                        </div>
+                    </div>
+                    <button type="button" @click="dismissed = true" class="opacity-75 hover:opacity-100 p-1 text-sm font-bold shrink-0">✕</button>
+                </div>
+            @endforeach
+        </div>
+    @endif
+
+    {{-- FITUR A SUPER ADMIN: TOOLBAR FILTER RENTANG WAKTU ANALITIK --}}
+    <div class="bg-white rounded-2xl border border-slate-100 p-3.5 sm:p-4 shadow-sm flex flex-col md:flex-row md:items-center md:justify-between gap-3 print:hidden"
+         x-data="{ showCustom: '{{ $period }}' === 'custom' }">
+        <div class="flex items-center gap-2 text-xs">
+            <span class="font-bold text-slate-700 flex items-center gap-1.5 shrink-0">
+                <span>📅 Rentang Waktu:</span>
+                <span class="{{ $isSuperAdmin ? 'text-purple-700' : 'text-blue-700' }} font-extrabold">{{ $periodLabel }}</span>
+            </span>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-1.5">
+            <a href="{{ route('admin.dashboard', ['period' => 'all']) }}"
+               class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $period === 'all' ? ($isSuperAdmin ? 'bg-purple-900 text-white' : 'bg-blue-600 text-white') : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                Semua Waktu
+            </a>
+            <a href="{{ route('admin.dashboard', ['period' => 'today']) }}"
+               class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $period === 'today' ? ($isSuperAdmin ? 'bg-purple-900 text-white' : 'bg-blue-600 text-white') : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                Hari Ini
+            </a>
+            <a href="{{ route('admin.dashboard', ['period' => 'this_week']) }}"
+               class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $period === 'this_week' ? ($isSuperAdmin ? 'bg-purple-900 text-white' : 'bg-blue-600 text-white') : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                Minggu Ini
+            </a>
+            <a href="{{ route('admin.dashboard', ['period' => 'this_month']) }}"
+               class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $period === 'this_month' ? ($isSuperAdmin ? 'bg-purple-900 text-white' : 'bg-blue-600 text-white') : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                Bulan Ini
+            </a>
+            <a href="{{ route('admin.dashboard', ['period' => 'this_year']) }}"
+               class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $period === 'this_year' ? ($isSuperAdmin ? 'bg-purple-900 text-white' : 'bg-blue-600 text-white') : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                Tahun Ini
+            </a>
+            <button type="button" @click="showCustom = !showCustom"
+                    class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $period === 'custom' ? ($isSuperAdmin ? 'bg-purple-900 text-white' : 'bg-blue-600 text-white') : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                Kustom ⚙️
+            </button>
+        </div>
+
+        {{-- FORM CUSTOM DATE RANGE --}}
+        <form method="GET" action="{{ route('admin.dashboard') }}" x-show="showCustom" class="w-full md:w-auto flex items-center gap-2 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
+            <input type="hidden" name="period" value="custom">
+            <input type="date" name="start_date" value="{{ $customStart ?? now()->subDays(7)->toDateString() }}" required
+                   class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-mono">
+            <span class="text-xs text-slate-400">s/d</span>
+            <input type="date" name="end_date" value="{{ $customEnd ?? now()->toDateString() }}" required
+                   class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-mono">
+            <button type="submit" class="px-3 py-1.5 {{ $isSuperAdmin ? 'bg-purple-600 hover:bg-purple-700' : 'bg-blue-600 hover:bg-blue-700' }} text-white text-xs font-bold rounded-lg transition shadow-xs">
+                Terapkan
+            </button>
+        </form>
+    </div>
+
     @if($isSuperAdmin)
         {{-- ====================================================================== --}}
         {{-- SUPER ADMIN DASHBOARD (GLOBAL ECOSYSTEM MONITORING)                   --}}
@@ -14,10 +106,6 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 print:hidden">
             <div class="lg:col-span-2 bg-gradient-to-br from-purple-950 via-purple-900 to-indigo-950 rounded-2xl p-6 text-white shadow-sm flex flex-col justify-between">
                 <div>
-                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-purple-200 text-xs font-semibold backdrop-blur-sm mb-3">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        Super Admin • Pusat Pemantauan & Audit Global
-                    </div>
                     <h1 class="text-xl md:text-2xl font-bold tracking-tight">
                         Monitoring Ekosistem Museum Indonesia
                     </h1>
@@ -352,10 +440,6 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
             <div class="lg:col-span-2 bg-gradient-to-br from-slate-900 to-blue-950 rounded-2xl p-6 text-white shadow-sm flex flex-col justify-between">
                 <div>
-                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-blue-200 text-xs font-semibold backdrop-blur-sm mb-3">
-                        <span class="w-2 h-2 rounded-full bg-blue-400"></span>
-                        Admin Museum • {{ $museum->name ?? 'Museum' }}
-                    </div>
                     <h1 class="text-xl md:text-2xl font-bold tracking-tight">
                         Panel Operasional {{ $museum->name ?? 'Museum' }}
                     </h1>

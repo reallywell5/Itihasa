@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Wishlist;
+use App\Services\PassportBadgeService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,23 +17,26 @@ class UserProfileController extends Controller
     {
         $user = Auth::user();
 
-        // 1. Ambil transaksi paid yang booking-nya masih berstatus 'active'
-        $activeTransactions = Transaction::with(['booking.museum'])
+        // 1. Loop untuk mengecek apakah booking paid sudah lewat tanggal kunjungan atau jam operasional
+        $paidTransactions = Transaction::with(['booking.museum'])
             ->whereHas('booking', function ($query) use ($user) {
-                $query->where('user_id', $user->id)->where('status', 'active');
+                $query->where('user_id', $user->id);
             })
             ->where('payment_status', 'paid')
+            ->whereNull('used_at')
             ->get();
 
-        // 2. Loop untuk mengecek apakah sudah melewati closing_time museum
-        foreach ($activeTransactions as $transaction) {
+        foreach ($paidTransactions as $transaction) {
             $booking = $transaction->booking;
 
-            if ($booking && $booking->museum) {
-                $closingDateTime = Carbon::parse($booking->visit_date.' '.$booking->museum->closing_time);
+            if ($booking) {
+                $closingTime = $booking->museum->closing_time ?? '23:59:59';
+                $closingDateTime = Carbon::parse($booking->visit_date.' '.$closingTime);
 
                 if (now()->greaterThan($closingDateTime)) {
                     $booking->update(['status' => 'expired']);
+                } elseif ($booking->status === 'pending') {
+                    $booking->update(['status' => 'active']);
                 }
             }
         }
@@ -83,13 +87,17 @@ class UserProfileController extends Controller
                 ($transaction->booking->child_qty ?? 0);
         });
 
+        $passportService = app(PassportBadgeService::class);
+        $passportData = $passportService->getPassportData($user);
+
         return view('user.profile', compact(
             'user',
             'transactions',
             'pendingTransactions',
             'wishlists',
             'totalTransactions',
-            'totalVisitors'
+            'totalVisitors',
+            'passportData'
         ));
     }
 

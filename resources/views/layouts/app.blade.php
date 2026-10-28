@@ -71,35 +71,111 @@
 
         {{-- NAVIGATION LINKS --}}
         <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
-            <p class="px-3 pt-2 pb-1 text-[9px] font-bold uppercase tracking-widest text-slate-400">
-                Menu Utama
-            </p>
-
-            <a href="{{ route('admin.dashboard') }}"
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
-               {{ request()->routeIs('admin.dashboard') ? 'menu-active' : 'menu-normal' }}">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M4 10v10h6v-6h4v6h6V10"/>
-                </svg>
-                <span>Dashboard</span>
-            </a>
-
             @if(Auth::user()?->isSuperAdmin())
+                {{-- ======================================================= --}}
+                {{-- 👑 MENU EKSKLUSIF SUPER ADMIN (EKOSISTEM GLOBAL)         --}}
+                {{-- ======================================================= --}}
+                <p class="px-3 pt-2 pb-1 text-[9px] font-bold uppercase tracking-widest text-purple-600">
+                    Pemantauan Ekosistem
+                </p>
+
+                <a href="{{ route('admin.dashboard') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
+                   {{ request()->routeIs('admin.dashboard') ? 'menu-active' : 'menu-normal' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M4 10v10h6v-6h4v6h6V10"/>
+                    </svg>
+                    <span>Pusat Pemantauan</span>
+                </a>
+
+                <a href="{{ route('museums.index') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
+                   {{ request()->routeIs('museums.*') ? 'menu-active' : 'menu-normal' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    <span>Direktori Museum</span>
+                </a>
+
                 <a href="{{ route('users.index') }}"
                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
                    {{ request()->routeIs('users.*') ? 'menu-active' : 'menu-normal' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-5-4M9 20H4v-2a4 4 0 015-4m4-4a4 4 0 11-8 0 4 4 0 018 0m6 0a4 4 0 11-8 0"/>
                     </svg>
-                    <span>User & Admin</span>
+                    <span>Kelola Admin Museum</span>
                 </a>
-            @endif
 
-            <p class="px-3 pt-4 pb-1 text-[9px] font-bold uppercase tracking-widest text-slate-400">
-                Data Operasional
-            </p>
+                <a href="{{ route('admin.broadcasts.index') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
+                   {{ request()->routeIs('admin.broadcasts.*') ? 'menu-active' : 'menu-normal' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/>
+                    </svg>
+                    <span>Broadcast Resmi</span>
+                </a>
 
-            @if(Auth::user()?->isAdmin())
+                <p class="px-3 pt-4 pb-1 text-[9px] font-bold uppercase tracking-widest text-purple-600">
+                    Pemantauan Finansial & Ulasan
+                </p>
+
+                <a href="{{ route('transactions.index') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
+                   {{ request()->routeIs('transactions.*') ? 'menu-active' : 'menu-normal' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                    </svg>
+                    <span>Pantau Transaksi</span>
+                </a>
+
+                <a href="{{ route('payments.index') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
+                   {{ request()->routeIs('payments.*') ? 'menu-active' : 'menu-normal' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                    </svg>
+                    <span>Pantau Pembayaran</span>
+                </a>
+
+                <a href="{{ route('admin.reviews.index') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
+                   {{ request()->routeIs('admin.reviews.*') ? 'menu-active' : 'menu-normal' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.539 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                    </svg>
+                    <span>Pantau Ulasan</span>
+                </a>
+
+            @else
+                {{-- ======================================================= --}}
+                {{-- 🏛 MENU EKSKLUSIF ADMIN MUSEUM (OPERASIONAL LOKAL)       --}}
+                {{-- ======================================================= --}}
+                <p class="px-3 pt-2 pb-1 text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                    Menu Utama
+                </p>
+
+                <a href="{{ route('admin.dashboard') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
+                   {{ request()->routeIs('admin.dashboard') ? 'menu-active' : 'menu-normal' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M4 10v10h6v-6h4v6h6V10"/>
+                    </svg>
+                    <span>Dashboard Museum</span>
+                </a>
+
+                <p class="px-3 pt-4 pb-1 text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                    Data Operasional
+                </p>
+
+                <a href="{{ route('admin.museum.profile.edit') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
+                   {{ request()->routeIs('admin.museum.profile.*') ? 'menu-active' : 'menu-normal' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                    </svg>
+                    <span>Profil Museum</span>
+                </a>
+
                 <a href="{{ route('admin.petugas.index') }}"
                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
                    {{ request()->routeIs('admin.petugas.*') ? 'menu-active' : 'menu-normal' }}">
@@ -108,56 +184,83 @@
                     </svg>
                     <span>Petugas Loket</span>
                 </a>
+
+                <a href="{{ route('tickets.index') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
+                   {{ request()->routeIs('tickets.*') ? 'menu-active' : 'menu-normal' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5h14a2 2 0 012 2v3a2 2 0 010 4v3a2 2 0 01-2 2H5a2 2 0 01-2-2v-3a2 2 0 010-4V7a2 2 0 012-2z"/>
+                    </svg>
+                    <span>Varian Tiket</span>
+                </a>
+
+                <a href="{{ route('admin.promos.index') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
+                   {{ request()->routeIs('admin.promos.*') ? 'menu-active' : 'menu-normal' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                    </svg>
+                    <span>Kupon Promo</span>
+                </a>
+
+                <a href="{{ route('admin.special-dates.index') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
+                   {{ request()->routeIs('admin.special-dates.*') ? 'menu-active' : 'menu-normal' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span>Kalender Libur</span>
+                </a>
+
+                <a href="{{ route('galleries.index') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
+                   {{ request()->routeIs('galleries.*') ? 'menu-active' : 'menu-normal' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M4 6h16a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V7a1 1 0 011-1z"/>
+                    </svg>
+                    <span>Galeri Museum</span>
+                </a>
+
+                <a href="{{ route('admin.reviews.index') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
+                   {{ request()->routeIs('admin.reviews.*') ? 'menu-active' : 'menu-normal' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.539 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                    </svg>
+                    <span>Ulasan & Respon</span>
+                </a>
+
+                <p class="px-3 pt-4 pb-1 text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                    Keuangan Loket
+                </p>
+
+                <a href="{{ route('admin.transactions.rekap') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
+                   {{ request()->routeIs('admin.transactions.rekap') ? 'menu-active' : 'menu-normal' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span>Rekap Kas Harian</span>
+                </a>
+
+                <a href="{{ route('transactions.index') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
+                   {{ request()->routeIs('transactions.*') ? 'menu-active' : 'menu-normal' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                    </svg>
+                    <span>Riwayat Transaksi</span>
+                </a>
+
+                <a href="{{ route('payments.index') }}"
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
+                   {{ request()->routeIs('payments.*') ? 'menu-active' : 'menu-normal' }}">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                    </svg>
+                    <span>Pembayaran</span>
+                </a>
             @endif
-
-            <a href="{{ route('tickets.index') }}"
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
-               {{ request()->routeIs('tickets.*') ? 'menu-active' : 'menu-normal' }}">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5h14a2 2 0 012 2v3a2 2 0 010 4v3a2 2 0 01-2 2H5a2 2 0 01-2-2v-3a2 2 0 010-4V7a2 2 0 012-2z"/>
-                </svg>
-                <span>Tiket</span>
-            </a>
-
-            <a href="{{ route('galleries.index') }}"
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
-               {{ request()->routeIs('galleries.*') ? 'menu-active' : 'menu-normal' }}">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M4 6h16a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V7a1 1 0 011-1z"/>
-                </svg>
-                <span>Galeri</span>
-            </a>
-
-            <a href="{{ route('admin.reviews.index') }}"
-                class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
-                {{ request()->routeIs('admin.reviews.*') ? 'menu-active' : 'menu-normal' }}">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.539 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                </svg>
-                <span>Ulasan</span>
-            </a>
-
-            <p class="px-3 pt-4 pb-1 text-[9px] font-bold uppercase tracking-widest text-slate-400">
-                Keuangan
-            </p>
-
-            <a href="{{ route('payments.index') }}"
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
-               {{ request()->routeIs('payments.*') ? 'menu-active' : 'menu-normal' }}">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-                </svg>
-                <span>Pembayaran</span>
-            </a>
-
-            <a href="{{ route('transactions.index') }}"
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
-               {{ request()->routeIs('transactions.*') ? 'menu-active' : 'menu-normal' }}">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                </svg>
-                <span>Transaksi</span>
-            </a>
         </nav>
 
         {{-- LOGOUT BUTTON --}}
@@ -184,49 +287,97 @@
         </a>
 
         <div class="flex-1 space-y-2 flex flex-col items-center">
-            <a href="{{ route('admin.dashboard') }}"
-               class="p-2.5 rounded-xl transition {{ request()->routeIs('admin.dashboard') ? 'menu-active' : 'menu-normal' }}" title="Dashboard">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M4 10v10h6v-6h4v6h6V10"/></svg>
-            </a>
-
             @if(Auth::user()?->isSuperAdmin())
+                <a href="{{ route('admin.dashboard') }}"
+                   class="p-2.5 rounded-xl transition {{ request()->routeIs('admin.dashboard') ? 'menu-active' : 'menu-normal' }}" title="Pusat Pemantauan">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M4 10v10h6v-6h4v6h6V10"/></svg>
+                </a>
+
+                <a href="{{ route('museums.index') }}"
+                   class="p-2.5 rounded-xl transition {{ request()->routeIs('museums.*') ? 'menu-active' : 'menu-normal' }}" title="Direktori Museum">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                </a>
+
                 <a href="{{ route('users.index') }}"
                    class="p-2.5 rounded-xl transition {{ request()->routeIs('users.*') ? 'menu-active' : 'menu-normal' }}" title="User & Admin">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-5-4M9 20H4v-2a4 4 0 015-4m4-4a4 4 0 11-8 0 4 4 0 018 0m6 0a4 4 0 11-8 0"/></svg>
                 </a>
-            @endif
 
-            @if(Auth::user()?->isAdmin())
+                <a href="{{ route('admin.broadcasts.index') }}"
+                   class="p-2.5 rounded-xl transition {{ request()->routeIs('admin.broadcasts.*') ? 'menu-active' : 'menu-normal' }}" title="Broadcast Resmi">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+                </a>
+
+                <a href="{{ route('transactions.index') }}"
+                   class="p-2.5 rounded-xl transition {{ request()->routeIs('transactions.*') ? 'menu-active' : 'menu-normal' }}" title="Audit Transaksi">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                </a>
+
+                <a href="{{ route('payments.index') }}"
+                   class="p-2.5 rounded-xl transition {{ request()->routeIs('payments.*') ? 'menu-active' : 'menu-normal' }}" title="Audit Pembayaran">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                </a>
+
+                <a href="{{ route('admin.reviews.index') }}"
+                   class="p-2.5 rounded-xl transition {{ request()->routeIs('admin.reviews.*') ? 'menu-active' : 'menu-normal' }}" title="Moderasi Ulasan">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.539 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                </a>
+            @else
+                <a href="{{ route('admin.dashboard') }}"
+                   class="p-2.5 rounded-xl transition {{ request()->routeIs('admin.dashboard') ? 'menu-active' : 'menu-normal' }}" title="Dashboard Museum">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M4 10v10h6v-6h4v6h6V10"/></svg>
+                </a>
+
+                <a href="{{ route('admin.museum.profile.edit') }}"
+                   class="p-2.5 rounded-xl transition {{ request()->routeIs('admin.museum.profile.*') ? 'menu-active' : 'menu-normal' }}" title="Profil Museum">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                </a>
+
                 <a href="{{ route('admin.petugas.index') }}"
                    class="p-2.5 rounded-xl transition {{ request()->routeIs('admin.petugas.*') ? 'menu-active' : 'menu-normal' }}" title="Petugas Loket">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                 </a>
+
+                <a href="{{ route('tickets.index') }}"
+                   class="p-2.5 rounded-xl transition {{ request()->routeIs('tickets.*') ? 'menu-active' : 'menu-normal' }}" title="Varian Tiket">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5h14a2 2 0 012 2v3a2 2 0 010 4v3a2 2 0 01-2 2H5a2 2 0 01-2-2v-3a2 2 0 010-4V7a2 2 0 012-2z"/></svg>
+                </a>
+
+                <a href="{{ route('admin.promos.index') }}"
+                   class="p-2.5 rounded-xl transition {{ request()->routeIs('admin.promos.*') ? 'menu-active' : 'menu-normal' }}" title="Kupon Promo">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                </a>
+
+                <a href="{{ route('admin.special-dates.index') }}"
+                   class="p-2.5 rounded-xl transition {{ request()->routeIs('admin.special-dates.*') ? 'menu-active' : 'menu-normal' }}" title="Kalender Libur">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </a>
+
+                <a href="{{ route('galleries.index') }}"
+                   class="p-2.5 rounded-xl transition {{ request()->routeIs('galleries.*') ? 'menu-active' : 'menu-normal' }}" title="Galeri">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M4 6h16a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V7a1 1 0 011-1z"/></svg>
+                </a>
+
+                <a href="{{ route('admin.reviews.index') }}"
+                   class="p-2.5 rounded-xl transition {{ request()->routeIs('admin.reviews.*') ? 'menu-active' : 'menu-normal' }}" title="Ulasan">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.539 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                </a>
+
+                <a href="{{ route('admin.transactions.rekap') }}"
+                   class="p-2.5 rounded-xl transition {{ request()->routeIs('admin.transactions.rekap') ? 'menu-active' : 'menu-normal' }}" title="Rekap Kas">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                </a>
+
+                <a href="{{ route('transactions.index') }}"
+                   class="p-2.5 rounded-xl transition {{ request()->routeIs('transactions.*') ? 'menu-active' : 'menu-normal' }}" title="Transaksi">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                </a>
+
+                <a href="{{ route('payments.index') }}"
+                   class="p-2.5 rounded-xl transition {{ request()->routeIs('payments.*') ? 'menu-active' : 'menu-normal' }}" title="Pembayaran">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                </a>
             @endif
-
-            <a href="{{ route('tickets.index') }}"
-               class="p-2.5 rounded-xl transition {{ request()->routeIs('tickets.*') ? 'menu-active' : 'menu-normal' }}" title="Tiket">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5h14a2 2 0 012 2v3a2 2 0 010 4v3a2 2 0 01-2 2H5a2 2 0 01-2-2v-3a2 2 0 010-4V7a2 2 0 012-2z"/></svg>
-            </a>
-
-            <a href="{{ route('galleries.index') }}"
-               class="p-2.5 rounded-xl transition {{ request()->routeIs('galleries.*') ? 'menu-active' : 'menu-normal' }}" title="Galeri">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M4 6h16a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V7a1 1 0 011-1z"/></svg>
-            </a>
-
-            <a href="{{ route('admin.reviews.index') }}"
-               class="p-2.5 rounded-xl transition {{ request()->routeIs('admin.reviews.*') ? 'menu-active' : 'menu-normal' }}" title="Ulasan">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.539 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-            </a>
-
-            <a href="{{ route('payments.index') }}"
-               class="p-2.5 rounded-xl transition {{ request()->routeIs('payments.*') ? 'menu-active' : 'menu-normal' }}" title="Pembayaran">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-            </a>
-
-            <a href="{{ route('transactions.index') }}"
-               class="p-2.5 rounded-xl transition {{ request()->routeIs('transactions.*') ? 'menu-active' : 'menu-normal' }}" title="Transaksi">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-            </a>
         </div>
 
         <form method="POST" action="{{ route('logout') }}" class="mt-auto">
@@ -300,65 +451,154 @@
 
                 {{-- DRAWER LINKS --}}
                 <nav class="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-230px)]">
-                    <a href="{{ route('admin.dashboard') }}"
-                       class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
-                       {{ request()->routeIs('admin.dashboard') ? 'menu-active' : 'menu-normal' }}">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M4 10v10h6v-6h4v6h6V10"/></svg>
-                        <span>Dashboard</span>
-                    </a>
-
                     @if(Auth::user()?->isSuperAdmin())
+                        <p class="px-3 pt-2 pb-1 text-[9px] font-bold uppercase tracking-widest text-purple-600">
+                            Pemantauan Global
+                        </p>
+
+                        <a href="{{ route('admin.dashboard') }}"
+                           class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
+                           {{ request()->routeIs('admin.dashboard') ? 'menu-active' : 'menu-normal' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M4 10v10h6v-6h4v6h6V10"/></svg>
+                            <span>Pusat Pemantauan</span>
+                        </a>
+
+                        <a href="{{ route('museums.index') }}"
+                           class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
+                           {{ request()->routeIs('museums.*') ? 'menu-active' : 'menu-normal' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                            <span>Direktori Museum</span>
+                        </a>
+
                         <a href="{{ route('users.index') }}"
                            class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
                            {{ request()->routeIs('users.*') ? 'menu-active' : 'menu-normal' }}">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-5-4M9 20H4v-2a4 4 0 015-4m4-4a4 4 0 11-8 0 4 4 0 018 0m6 0a4 4 0 11-8 0"/></svg>
                             <span>User & Admin</span>
                         </a>
-                    @endif
 
-                    @if(Auth::user()?->isAdmin())
+                        <a href="{{ route('admin.broadcasts.index') }}"
+                           class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
+                           {{ request()->routeIs('admin.broadcasts.*') ? 'menu-active' : 'menu-normal' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+                            <span>Broadcast Resmi</span>
+                        </a>
+
+                        <p class="px-3 pt-4 pb-1 text-[9px] font-bold uppercase tracking-widest text-purple-600">
+                            Audit & Finansial
+                        </p>
+
+                        <a href="{{ route('transactions.index') }}"
+                           class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
+                           {{ request()->routeIs('transactions.*') ? 'menu-active' : 'menu-normal' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                            <span>Audit Transaksi</span>
+                        </a>
+
+                        <a href="{{ route('payments.index') }}"
+                           class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
+                           {{ request()->routeIs('payments.*') ? 'menu-active' : 'menu-normal' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                            <span>Audit Pembayaran</span>
+                        </a>
+
+                        <a href="{{ route('admin.reviews.index') }}"
+                           class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
+                           {{ request()->routeIs('admin.reviews.*') ? 'menu-active' : 'menu-normal' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.539 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                            <span>Moderasi Ulasan</span>
+                        </a>
+
+                    @else
+                        <p class="px-3 pt-2 pb-1 text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                            Menu Utama
+                        </p>
+
+                        <a href="{{ route('admin.dashboard') }}"
+                           class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
+                           {{ request()->routeIs('admin.dashboard') ? 'menu-active' : 'menu-normal' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M4 10v10h6v-6h4v6h6V10"/></svg>
+                            <span>Dashboard Museum</span>
+                        </a>
+
+                        <p class="px-3 pt-4 pb-1 text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                            Data Operasional
+                        </p>
+
+                        <a href="{{ route('admin.museum.profile.edit') }}"
+                           class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
+                           {{ request()->routeIs('admin.museum.profile.*') ? 'menu-active' : 'menu-normal' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                            <span>Profil Museum</span>
+                        </a>
+
                         <a href="{{ route('admin.petugas.index') }}"
                            class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
                            {{ request()->routeIs('admin.petugas.*') ? 'menu-active' : 'menu-normal' }}">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                             <span>Petugas Loket</span>
                         </a>
+
+                        <a href="{{ route('tickets.index') }}"
+                           class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
+                           {{ request()->routeIs('tickets.*') ? 'menu-active' : 'menu-normal' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5h14a2 2 0 012 2v3a2 2 0 010 4v3a2 2 0 01-2 2H5a2 2 0 01-2-2v-3a2 2 0 010-4V7a2 2 0 012-2z"/></svg>
+                            <span>Varian Tiket</span>
+                        </a>
+
+                        <a href="{{ route('admin.promos.index') }}"
+                           class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
+                           {{ request()->routeIs('admin.promos.*') ? 'menu-active' : 'menu-normal' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                            <span>Kupon Promo</span>
+                        </a>
+
+                        <a href="{{ route('admin.special-dates.index') }}"
+                           class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
+                           {{ request()->routeIs('admin.special-dates.*') ? 'menu-active' : 'menu-normal' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <span>Kalender Libur</span>
+                        </a>
+
+                        <a href="{{ route('galleries.index') }}"
+                           class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
+                           {{ request()->routeIs('galleries.*') ? 'menu-active' : 'menu-normal' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M4 6h16a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V7a1 1 0 011-1z"/></svg>
+                            <span>Galeri Museum</span>
+                        </a>
+
+                        <a href="{{ route('admin.reviews.index') }}"
+                           class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
+                           {{ request()->routeIs('admin.reviews.*') ? 'menu-active' : 'menu-normal' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.539 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                            <span>Ulasan & Respon</span>
+                        </a>
+
+                        <p class="px-3 pt-4 pb-1 text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                            Keuangan Loket
+                        </p>
+
+                        <a href="{{ route('admin.transactions.rekap') }}"
+                           class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
+                           {{ request()->routeIs('admin.transactions.rekap') ? 'menu-active' : 'menu-normal' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <span>Rekap Kas Harian</span>
+                        </a>
+
+                        <a href="{{ route('transactions.index') }}"
+                           class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
+                           {{ request()->routeIs('transactions.*') ? 'menu-active' : 'menu-normal' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                            <span>Riwayat Transaksi</span>
+                        </a>
+
+                        <a href="{{ route('payments.index') }}"
+                           class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
+                           {{ request()->routeIs('payments.*') ? 'menu-active' : 'menu-normal' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                            <span>Pembayaran</span>
+                        </a>
                     @endif
-
-                    <a href="{{ route('tickets.index') }}"
-                       class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
-                       {{ request()->routeIs('tickets.*') ? 'menu-active' : 'menu-normal' }}">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5h14a2 2 0 012 2v3a2 2 0 010 4v3a2 2 0 01-2 2H5a2 2 0 01-2-2v-3a2 2 0 010-4V7a2 2 0 012-2z"/></svg>
-                        <span>Tiket</span>
-                    </a>
-
-                    <a href="{{ route('galleries.index') }}"
-                       class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
-                       {{ request()->routeIs('galleries.*') ? 'menu-active' : 'menu-normal' }}">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M4 6h16a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V7a1 1 0 011-1z"/></svg>
-                        <span>Galeri</span>
-                    </a>
-
-                    <a href="{{ route('admin.reviews.index') }}"
-                       class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
-                       {{ request()->routeIs('admin.reviews.*') ? 'menu-active' : 'menu-normal' }}">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.539 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.196-1.539-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.783-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-                        <span>Ulasan</span>
-                    </a>
-
-                    <a href="{{ route('payments.index') }}"
-                       class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
-                       {{ request()->routeIs('payments.*') ? 'menu-active' : 'menu-normal' }}">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-                        <span>Pembayaran</span>
-                    </a>
-
-                    <a href="{{ route('transactions.index') }}"
-                       class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
-                       {{ request()->routeIs('transactions.*') ? 'menu-active' : 'menu-normal' }}">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                        <span>Transaksi</span>
-                    </a>
                 </nav>
             </div>
 
@@ -403,17 +643,6 @@
                     <p class="text-xs font-bold text-slate-800 leading-none">
                         {{ Auth::user()->name ?? 'Administrator' }}
                     </p>
-                    <div class="mt-0.5">
-                        @if(Auth::user()?->isSuperAdmin())
-                            <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-purple-100 text-purple-700">
-                                Super Admin
-                            </span>
-                        @else
-                            <span class="px-2 py-0.5 rounded text-[9px] font-bold uppercase bg-blue-100 text-blue-700">
-                                Admin • {{ Auth::user()?->museum?->name ?? 'Museum' }}
-                            </span>
-                        @endif
-                    </div>
                 </div>
 
                 <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full {{ Auth::user()?->isSuperAdmin() ? 'bg-purple-600' : 'bg-blue-600' }} text-white flex items-center justify-center font-bold text-xs shadow-sm">

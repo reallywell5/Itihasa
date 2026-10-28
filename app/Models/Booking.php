@@ -14,6 +14,9 @@ class Booking extends Model
         'no_hp',
         'ticket_id',
         'museum_id',
+        'promo_id',
+        'promo_code',
+        'discount_amount',
         'visit_date',
         'adult_qty',
         'student_qty',
@@ -30,7 +33,13 @@ class Booking extends Model
     protected $casts = [
         'manifest' => 'array',
         'cancelled_at' => 'datetime',
+        'discount_amount' => 'integer',
     ];
+
+    public function promo()
+    {
+        return $this->belongsTo(Promo::class);
+    }
 
     public function transactions()
     {

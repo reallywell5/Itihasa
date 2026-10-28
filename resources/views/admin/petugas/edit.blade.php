@@ -18,10 +18,6 @@
                 Perbarui nama, email, atau atur ulang kata sandi petugas gate.
             </p>
         </div>
-
-        <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold border border-blue-100">
-            Admin • {{ Auth::user()?->museum?->name ?? 'Museum' }}
-        </span>
     </div>
 
     {{-- FORM --}}

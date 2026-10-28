@@ -31,6 +31,7 @@ class TransactionController extends Controller
         $transaction = Transaction::with([
             'booking.museum',
             'booking.user',
+            'booking.review',
         ])->findOrFail($id);
 
         // Hanya user pemilik booking yang bisa akses

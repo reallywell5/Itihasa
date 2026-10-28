@@ -12,11 +12,15 @@ class QrScanLog extends Model
         'qr_code_input',
         'status',
         'message',
+        'gate_incident_tag',
+        'gate_notes',
+        'scanned_pax',
         'scanned_at',
     ];
 
     protected $casts = [
         'scanned_at' => 'datetime',
+        'scanned_pax' => 'integer',
     ];
 
     public function transaction()

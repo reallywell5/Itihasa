@@ -13,7 +13,16 @@ class MuseumWebController extends Controller
     {
         $user = auth()->user();
 
+        $totalMuseums = Museum::count();
+        $totalActive = Museum::where(function ($q) {
+            $q->where('status', 'active')->orWhereNull('status');
+        })->count();
+        $totalRenovation = Museum::where('status', 'renovation')->count();
+        $totalInactive = Museum::where('status', 'inactive')->count();
+
         $museums = Museum::query()
+            ->with(['adminUser'])
+            ->withCount(['tickets', 'reviews'])
             ->when(! $user->isSuperAdmin(), function ($query) use ($user) {
                 $query->where('id', $user->museum_id);
             })
@@ -27,11 +36,20 @@ class MuseumWebController extends Controller
             ->when($request->filled('category'), function ($query) use ($request) {
                 $query->where('category', $request->category);
             })
+            ->when($request->filled('status'), function ($query) use ($request) {
+                $query->where('status', $request->status);
+            })
             ->latest()
             ->paginate(10)
             ->withQueryString();
 
-        return view('admin.museums.index', compact('museums'));
+        return view('admin.museums.index', compact(
+            'museums',
+            'totalMuseums',
+            'totalActive',
+            'totalRenovation',
+            'totalInactive'
+        ));
     }
 
     public function create()
@@ -134,11 +152,38 @@ class MuseumWebController extends Controller
             ->with('success', 'Museum berhasil dihapus');
     }
 
+    /**
+     * Fitur C Super Admin: Kontrol Status Operasional & Kemitraan Museum
+     */
+    public function updateStatus(Request $request, Museum $museum)
+    {
+        if (! auth()->user()->isSuperAdmin()) {
+            abort(403, 'Hanya Super Admin yang dapat mengubah status operasional museum.');
+        }
+
+        $validated = $request->validate([
+            'status' => 'required|in:active,renovation,inactive',
+        ]);
+
+        $museum->update(['status' => $validated['status']]);
+
+        $statusLabels = [
+            'active' => 'Aktif & Beroperasi',
+            'renovation' => 'Tutup Sementara / Renovasi',
+            'inactive' => 'Nonaktif / Kemitraan Ditangguhkan',
+        ];
+
+        $label = $statusLabels[$validated['status']] ?? $validated['status'];
+
+        return back()->with('success', "Status operasional museum {$museum->name} berhasil diubah menjadi: {$label}.");
+    }
+
     private function validateMuseum(Request $request): array
     {
         return $request->validate([
             'name' => 'required|string|max:255',
             'category' => 'required|in:museum,seni,budaya,alam,religius',
+            'status' => 'nullable|in:active,renovation,inactive',
             'address' => 'required|string',
             'description' => 'required|string',
             'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',

@@ -1,11 +1,15 @@
 <?php
 
+use App\Http\Controllers\Admin\BroadcastController;
 use App\Http\Controllers\Admin\DashboardWebController;
 use App\Http\Controllers\Admin\GalleryWebController;
+use App\Http\Controllers\Admin\MuseumProfileController;
 use App\Http\Controllers\Admin\MuseumWebController;
 use App\Http\Controllers\Admin\PaymentWebController;
 use App\Http\Controllers\Admin\PetugasController;
+use App\Http\Controllers\Admin\PromoController;
 use App\Http\Controllers\Admin\ReviewWebController;
+use App\Http\Controllers\Admin\SpecialDateController;
 use App\Http\Controllers\Admin\TicketWebController;
 use App\Http\Controllers\Admin\TransactionWebController;
 use App\Http\Controllers\Admin\UserWebController;
@@ -46,6 +50,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/booking/{museum}', [BookingController::class, 'create'])->name('user.booking');
     Route::post('/booking/{museum}', [BookingController::class, 'store'])->name('user.booking.store');
     Route::get('/booking/{museum}/quota', [BookingController::class, 'checkQuota'])->name('user.booking.quota');
+    Route::post('/booking/{museum}/check-promo', [BookingController::class, 'checkPromo'])->name('user.booking.check-promo');
 
     // PAYMENT
     Route::get('/payment/{booking}', [PaymentController::class, 'index'])->name('user.payment');
@@ -99,18 +104,46 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
         'destroy' => 'admin.petugas.destroy',
     ]);
 
+    // Fitur C Super Admin: Kontrol Status Operasional & Kemitraan Museum
+    Route::post('/museums/{museum}/status', [MuseumWebController::class, 'updateStatus'])->name('admin.museums.status');
     Route::resource('museums', MuseumWebController::class);
+
+    // Fitur F Admin: Pengaturan Mandiri Profil & Fasilitas Museum
+    Route::get('/museum-profile', [MuseumProfileController::class, 'edit'])->name('admin.museum.profile.edit');
+    Route::put('/museum-profile', [MuseumProfileController::class, 'update'])->name('admin.museum.profile.update');
+
     Route::resource('tickets', TicketWebController::class);
     Route::resource('users', UserWebController::class)->middleware('super_admin');
+
+    // Fitur E Super Admin: Broadcast / Pengumuman Resmi Global
+    Route::post('/broadcasts/{broadcast}/toggle', [BroadcastController::class, 'toggle'])->name('admin.broadcasts.toggle')->middleware('super_admin');
+    Route::resource('broadcasts', BroadcastController::class)->names('admin.broadcasts')->middleware('super_admin');
+
     Route::resource('payments', PaymentWebController::class)->only(['index', 'show']);
+
+    // Fitur D Admin: Rekap Tutup Kas & Ekspor CSV
+    Route::get('/transactions/rekap', [TransactionWebController::class, 'rekapKas'])->name('admin.transactions.rekap');
+    Route::get('/transactions/export', [TransactionWebController::class, 'exportCsv'])->name('admin.transactions.export');
     Route::resource('transactions', TransactionWebController::class)->only(['index', 'show']);
 
     Route::resource('galleries', GalleryWebController::class)
         ->only(['index', 'create', 'store', 'destroy']);
 
+    // Fitur B Admin: Balas Ulasan Pengunjung
+    Route::post('/reviews/{review}/reply', [ReviewWebController::class, 'reply'])->name('admin.reviews.reply');
+    Route::delete('/reviews/{review}/reply', [ReviewWebController::class, 'destroyReply'])->name('admin.reviews.reply.destroy');
     Route::resource('reviews', ReviewWebController::class)
         ->names('admin.reviews')
         ->only(['index', 'destroy']);
+
+    // Fitur C Admin: Kalender Hari Libur Khusus / Blackout Dates & Kuota Dinamis
+    Route::get('/special-dates', [SpecialDateController::class, 'index'])->name('admin.special-dates.index');
+    Route::post('/special-dates', [SpecialDateController::class, 'store'])->name('admin.special-dates.store');
+    Route::delete('/special-dates/{specialDate}', [SpecialDateController::class, 'destroy'])->name('admin.special-dates.destroy');
+
+    // Fitur E Admin: Kode Promo & Kupon Diskon
+    Route::post('/promos/{promo}/toggle', [PromoController::class, 'toggle'])->name('admin.promos.toggle');
+    Route::resource('promos', PromoController::class)->names('admin.promos');
 });
 
 // =============================
@@ -125,6 +158,8 @@ Route::prefix('petugas')->middleware(['auth', 'petugas'])->group(function () {
 
     Route::get('/scan', [ScanController::class, 'index'])->name('petugas.qrcodes.scan');
     Route::post('/scan/validate', [ScanController::class, 'validateQr'])->name('petugas.qrcodes.validate');
+    Route::get('/scan/offline-cache', [ScanController::class, 'offlineCache'])->name('petugas.scan.offline-cache');
+    Route::post('/scan/sync-offline', [ScanController::class, 'syncOffline'])->name('petugas.scan.sync-offline');
 
     Route::get('/validasi', [ValidasiController::class, 'index'])->name('petugas.validasi');
 

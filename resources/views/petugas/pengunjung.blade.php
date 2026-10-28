@@ -7,9 +7,6 @@
 
     {{-- HEADER --}}
     <div class="bg-white rounded-2xl border border-slate-100 p-4 sm:p-5 shadow-sm">
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold mb-1.5">
-            👥 Monitoring Tamu • Data Gate Hari Ini
-        </span>
         <h1 class="text-lg sm:text-xl font-bold text-slate-800">
             Daftar Pengunjung Hari Ini
         </h1>

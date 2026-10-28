@@ -27,13 +27,13 @@
             <div class="bg-white rounded-3xl shadow-sm border border-[#EADBC8] p-5 sm:p-7">
 
                 <div class="mb-4">
-                    <button onclick="history.back()"
-                        class="inline-flex items-center gap-1.5 text-xs text-[#102A43] hover:text-[#B88A44] font-semibold transition">
+                    <a href="{{ route('user.home') }}"
+                       class="inline-flex items-center gap-1.5 text-xs text-[#102A43] hover:text-[#B88A44] font-semibold transition">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                         </svg>
-                        Kembali
-                    </button>
+                        Kembali ke Beranda
+                    </a>
                 </div>
 
                 <div class="flex items-start justify-between gap-4 mb-4">
@@ -168,7 +168,7 @@
             </script>
 
             {{-- REVIEWS --}}
-            <div class="bg-white rounded-[28px] border border-[#EADBC8] p-8" x-data="{ reportModalOpen: false, reportReviewId: null }">
+            <div class="bg-white rounded-[28px] border border-[#EADBC8] p-8" x-data="{ reportModalOpen: false, reportReviewId: null, lightboxOpen: false, lightboxImg: '' }">
 
                 <h3 class="text-xl font-bold text-[#102A43] mb-6">
                     Ulasan Pengunjung
@@ -232,7 +232,23 @@
                                         @if ($review->comment)
                                             <p class="text-slate-600 text-sm leading-relaxed">{{ $review->comment }}</p>
                                         @endif
-                                        <div class="flex items-center gap-3 mt-1">
+
+                                        {{-- FOTO ULASAN --}}
+                                        @if (!empty($review->photos) && is_array($review->photos))
+                                            <div class="flex flex-wrap gap-2 mt-3">
+                                                @foreach ($review->photoUrls() as $photoUrl)
+                                                    <button type="button" @click="lightboxOpen = true; lightboxImg = '{{ $photoUrl }}'"
+                                                            class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border border-[#EADBC8] shadow-sm hover:scale-105 transition group relative">
+                                                        <img src="{{ $photoUrl }}" alt="Foto ulasan" class="w-full h-full object-cover">
+                                                        <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs">
+                                                            🔍
+                                                        </div>
+                                                    </button>
+                                                @endforeach
+                                            </div>
+                                        @endif
+
+                                        <div class="flex items-center gap-3 mt-2">
                                             <span class="text-xs text-slate-400">{{ $review->created_at->diffForHumans() }}</span>
                                             <button type="button" @click="editing = true"
                                                     class="text-xs font-semibold text-[#B88A44] hover:underline">
@@ -243,7 +259,7 @@
 
                                     {{-- MODE EDIT --}}
                                     <div x-show="editing" x-cloak>
-                                        <form action="{{ route('reviews.update', $review->id) }}" method="POST">
+                                        <form action="{{ route('reviews.update', $review->id) }}" method="POST" enctype="multipart/form-data">
                                             @csrf
                                             @method('PUT')
 
@@ -262,6 +278,12 @@
 
                                             <textarea name="comment" rows="3" placeholder="Ceritakan pengalaman kunjungan kamu (opsional)"
                                                     class="w-full rounded-xl border border-[#EADBC8] p-3 text-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-[#B88A44] mb-3">{{ $review->comment }}</textarea>
+
+                                            <div class="mb-3">
+                                                <label class="block text-xs font-semibold text-slate-700 mb-1">Tambah Foto (Maks 3 Foto)</label>
+                                                <input type="file" name="photos[]" multiple accept="image/*"
+                                                       class="text-xs text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#F6F1E8] file:text-[#102A43] hover:file:bg-[#EADBC8]">
+                                            </div>
 
                                             <div class="flex gap-2">
                                                 <button type="submit"
@@ -284,7 +306,23 @@
                                     @if ($review->comment)
                                         <p class="text-slate-600 text-sm leading-relaxed">{{ $review->comment }}</p>
                                     @endif
-                                    <div class="flex items-center gap-3 mt-1">
+
+                                    {{-- FOTO ULASAN --}}
+                                    @if (!empty($review->photos) && is_array($review->photos))
+                                        <div class="flex flex-wrap gap-2 mt-3">
+                                            @foreach ($review->photoUrls() as $photoUrl)
+                                                <button type="button" @click="lightboxOpen = true; lightboxImg = '{{ $photoUrl }}'"
+                                                        class="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border border-[#EADBC8] shadow-sm hover:scale-105 transition group relative">
+                                                    <img src="{{ $photoUrl }}" alt="Foto ulasan" class="w-full h-full object-cover">
+                                                    <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs">
+                                                        🔍
+                                                    </div>
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                    @endif
+
+                                    <div class="flex items-center gap-3 mt-2">
                                         <span class="text-xs text-slate-400">{{ $review->created_at->diffForHumans() }}</span>
                                         @auth
                                             <button type="button"
@@ -293,6 +331,25 @@
                                                 Laporkan
                                             </button>
                                         @endauth
+                                    </div>
+                                @endif
+
+                                {{-- RESPON RESMI PENGELOLA MUSEUM (FITUR B ADMIN) --}}
+                                @if($review->admin_reply)
+                                    <div class="mt-3.5 p-3.5 rounded-2xl bg-[#F6F1E8]/80 border border-[#EADBC8] text-slate-700 text-xs shadow-2xs">
+                                        <div class="flex items-center justify-between gap-2 font-bold text-[#102A43] mb-1.5">
+                                            <span class="flex items-center gap-1.5">
+                                                <span class="text-sm">🏛️</span>
+                                                <span>Respon Resmi Pengelola</span>
+                                                <span class="px-2 py-0.5 rounded-full bg-[#102A43] text-[#B88A44] text-[10px] font-bold">Terverifikasi</span>
+                                            </span>
+                                            <span class="text-[10px] text-slate-400 font-normal">
+                                                {{ $review->admin_replied_at?->diffForHumans() }}
+                                            </span>
+                                        </div>
+                                        <p class="leading-relaxed text-slate-600 pl-4 border-l-2 border-[#B88A44]">
+                                            {{ $review->admin_reply }}
+                                        </p>
                                     </div>
                                 @endif
 
@@ -314,10 +371,10 @@
                     @endphp
 
                     @if ($reviewableBooking)
-                        <div class="bg-[#F6F1E8] rounded-2xl p-6 mb-8">
+                        <div class="bg-[#F6F1E8] rounded-2xl p-6 mb-8 mt-6">
                             <h4 class="font-semibold text-[#102A43] mb-3">Beri Ulasan Kunjungan Kamu</h4>
 
-                            <form action="{{ route('reviews.store', $reviewableBooking->id) }}" method="POST">
+                            <form action="{{ route('reviews.store', $reviewableBooking->id) }}" method="POST" enctype="multipart/form-data">
                                 @csrf
 
                                 <div class="flex flex-row-reverse justify-end mb-3" id="ratingInput">
@@ -331,11 +388,44 @@
                                 </div>
 
                                 <textarea name="comment" rows="3" placeholder="Ceritakan pengalaman kunjungan kamu (opsional)"
-                                        class="w-full rounded-xl border border-[#EADBC8] p-3 text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#B88A44] mb-3"></textarea>
+                                        class="w-full rounded-xl border border-[#EADBC8] p-3 text-slate-600 focus:outline-none focus:ring-2 focus:ring-[#B88A44] mb-3 bg-white"></textarea>
+
+                                {{-- UNGGAH FOTO PENGALAMAN (FITUR B USER) --}}
+                                <div x-data="{ photoCount: 0, previews: [] }" class="mb-4">
+                                    <label class="block text-xs font-bold text-[#102A43] mb-1.5">
+                                        📷 Unggah Foto Pengalaman (Maksimal 3 Foto, opsional)
+                                    </label>
+                                    <div class="flex items-center gap-3">
+                                        <label class="px-4 py-2 rounded-xl bg-white border border-[#EADBC8] text-xs font-semibold text-[#102A43] hover:border-[#B88A44] transition cursor-pointer flex items-center gap-2 shadow-sm">
+                                            <span>Pilih Foto</span>
+                                            <input type="file" name="photos[]" multiple accept="image/*" class="hidden"
+                                                   @change="
+                                                       previews = [];
+                                                       let files = Array.from($event.target.files).slice(0, 3);
+                                                       photoCount = files.length;
+                                                       files.forEach(f => {
+                                                           let r = new FileReader();
+                                                           r.onload = (e) => previews.push(e.target.result);
+                                                           r.readAsDataURL(f);
+                                                       });
+                                                   ">
+                                        </label>
+                                        <span class="text-xs text-slate-500" x-text="photoCount > 0 ? photoCount + ' foto dipilih (maks 3)' : 'Format: JPG, PNG, WEBP (maks 2MB)'"></span>
+                                    </div>
+                                    <template x-if="previews.length > 0">
+                                        <div class="flex gap-2 mt-3">
+                                            <template x-for="(p, idx) in previews" :key="idx">
+                                                <div class="w-16 h-16 rounded-xl overflow-hidden border border-[#B88A44] relative shadow-sm">
+                                                    <img :src="p" class="w-full h-full object-cover">
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
 
                                 <button type="submit"
-                                        class="px-6 py-2.5 rounded-xl bg-[#102A43] text-white font-semibold hover:bg-[#0c2238] transition">
-                                    Kirim Ulasan
+                                        class="px-6 py-2.5 rounded-xl bg-[#102A43] text-white font-semibold hover:bg-[#0c2238] transition shadow-sm">
+                                    Kirim Ulasan & Foto
                                 </button>
                             </form>
                         </div>
@@ -368,6 +458,19 @@
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+
+                {{-- LIGHTBOX MODAL UNTUK FOTO ULASAN --}}
+                <div x-show="lightboxOpen" x-cloak
+                     class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+                     @click.self="lightboxOpen = false">
+                    <div class="relative max-w-3xl w-full max-h-[85vh] flex flex-col items-center">
+                        <button type="button" @click="lightboxOpen = false"
+                                class="absolute -top-10 right-0 text-white font-bold text-sm bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg transition">
+                            ✕ Tutup
+                        </button>
+                        <img :src="lightboxImg" alt="Pratinjau Foto Ulasan" class="max-w-full max-h-[80vh] rounded-2xl object-contain shadow-2xl border border-white/20">
                     </div>
                 </div>
             </div>
@@ -407,6 +510,111 @@
                 </a>
 
             </div>
+
+            {{-- REKOMENDASI RUTE & MUSEUM TERDEKAT (FITUR D USER: ONE-DAY CULTURAL TRAIL) --}}
+            @if(isset($nearbyMuseums) && $nearbyMuseums->count() > 0)
+                <div class="bg-white rounded-3xl border border-[#EADBC8] p-6 sm:p-8 shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-[#B88A44] block mb-1">
+                                RUTE WISATA 1 HARI
+                            </span>
+                            <h2 class="font-display text-xl sm:text-2xl font-bold text-[#102A43]">
+                                🏛️ Destinasi & Museum Terdekat
+                            </h2>
+                        </div>
+                        <span class="text-xs text-slate-500 font-medium">
+                            Lanjutkan rute jelajah budayamu
+                        </span>
+                    </div>
+
+                    <div class="space-y-4">
+                        @foreach($nearbyMuseums as $index => $nearby)
+                            @php
+                                $todayBoundsNearby = $nearby->operatingBoundsForDate(now());
+                                $nowTime = now()->format('H:i');
+                                $isNearbyOpen = false;
+                                if (!$nearby->isClosedOnDate(now()) && $todayBoundsNearby && $nowTime >= $todayBoundsNearby['open'] && $nowTime <= $todayBoundsNearby['close']) {
+                                    $isNearbyOpen = true;
+                                }
+                                $lowestNearbyPrice = $nearby->lowestTicketPrice();
+                            @endphp
+
+                            <div class="group bg-[#FAF7F2]/60 hover:bg-[#FAF7F2] rounded-2xl border border-[#EADBC8] p-4 transition-all duration-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                
+                                {{-- IMAGE & INFO --}}
+                                <div class="flex items-center gap-4 min-w-0 flex-1">
+                                    {{-- THUMBNAIL WITH STOP BADGE --}}
+                                    <div class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shrink-0 bg-slate-200 border border-[#EADBC8]">
+                                        <img src="{{ $nearby->image
+                                                ? (Str::startsWith($nearby->image, 'storage/')
+                                                    ? asset($nearby->image)
+                                                    : asset('storage/' . $nearby->image))
+                                                : asset('images/default-museum.jpg') }}"
+                                             alt="{{ $nearby->name }}"
+                                             class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                        
+                                        <span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-md bg-[#102A43]/90 text-white text-[9px] font-bold">
+                                            #{{ $index + 1 }}
+                                        </span>
+                                    </div>
+
+                                    <div class="min-w-0 flex-1">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-white text-[#B88A44] border border-[#EADBC8]">
+                                                {{ ucfirst($nearby->category ?? 'Museum') }}
+                                            </span>
+                                            <span class="text-[10px] font-semibold {{ $isNearbyOpen ? 'text-emerald-700' : 'text-red-500' }}">
+                                                {{ $isNearbyOpen ? '● Buka' : '○ Tutup' }}
+                                            </span>
+                                        </div>
+
+                                        <h3 class="font-bold text-sm sm:text-base text-[#102A43] truncate group-hover:text-[#B88A44] transition">
+                                            {{ $nearby->name }}
+                                        </h3>
+
+                                        <p class="text-[11px] text-slate-500 truncate mt-0.5">
+                                            📍 {{ $nearby->address }}
+                                        </p>
+
+                                        {{-- DISTANCE & TIME ESTIMATE --}}
+                                        <div class="flex items-center gap-2 mt-2 text-[11px] text-slate-600 flex-wrap">
+                                            <span class="inline-flex items-center gap-1 font-bold text-[#102A43] bg-white px-2 py-0.5 rounded-md border border-[#EADBC8]">
+                                                🚗 {{ $nearby->trail_distance }}
+                                            </span>
+                                            <span class="text-slate-400">•</span>
+                                            <span>Est. {{ $nearby->trail_time }}</span>
+                                            <span class="text-slate-400">•</span>
+                                            <span class="font-semibold text-[#B88A44]">
+                                                @if($lowestNearbyPrice !== null && $lowestNearbyPrice > 0)
+                                                    Rp {{ number_format($lowestNearbyPrice, 0, ',', '.') }}
+                                                @else
+                                                    Gratis
+                                                @endif
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- ACTION BUTTONS --}}
+                                <div class="flex sm:flex-col items-center gap-2 w-full sm:w-auto shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-[#EADBC8]/70">
+                                    <a href="{{ route('museum.detail', $nearby->id) }}"
+                                       class="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-[#102A43] hover:bg-[#0c2238] text-white text-xs font-bold transition shadow-sm text-center">
+                                        Lihat Museum →
+                                    </a>
+                                    <a href="{{ $nearby->trail_maps_url }}"
+                                       target="_blank"
+                                       rel="noopener noreferrer"
+                                       class="flex-1 sm:flex-none px-3 py-1.5 rounded-xl border border-[#EADBC8] text-slate-700 hover:bg-white text-xs font-semibold transition text-center">
+                                        Rute Maps 📍
+                                    </a>
+                                </div>
+
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
 
         </div>
 
@@ -466,12 +674,30 @@
 
                     </div>
 
-                    <a href="{{ auth()->check()
-                        ? route('user.booking', $museum->id)
-                        : route('login') }}"
-                       class="mt-8 w-full flex justify-center py-4 rounded-2xl bg-[#102A43] text-white font-semibold hover:bg-[#0c2238] transition">
-                        Pesan Tiket
-                    </a>
+                    @if($museum->isUnderRenovation())
+                        <div class="mt-8 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-center space-y-2">
+                            <span class="text-2xl block">⚠️</span>
+                            <p class="font-bold text-xs">Sedang Renovasi / Tutup Sementara</p>
+                            <p class="text-[11px] text-amber-800">
+                                Museum ini sedang dalam pemeliharaan berkala. Pemesanan tiket dibuka kembali setelah renovasi selesai.
+                            </p>
+                        </div>
+                    @elseif($museum->isInactive())
+                        <div class="mt-8 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-900 text-center space-y-2">
+                            <span class="text-2xl block">❌</span>
+                            <p class="font-bold text-xs">Kemitraan Nonaktif</p>
+                            <p class="text-[11px] text-red-700">
+                                Saat ini museum tidak membuka reservasi tiket online.
+                            </p>
+                        </div>
+                    @else
+                        <a href="{{ auth()->check()
+                            ? route('user.booking', $museum->id)
+                            : route('login') }}"
+                           class="mt-8 w-full flex justify-center py-4 rounded-2xl bg-[#102A43] text-white font-semibold hover:bg-[#0c2238] transition">
+                            Pesan Tiket Sekarang
+                        </a>
+                    @endif
 
                 </div>
 

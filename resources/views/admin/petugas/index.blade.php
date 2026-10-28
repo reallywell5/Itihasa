@@ -8,9 +8,6 @@
     {{-- HEADER --}}
     <div class="bg-white rounded-2xl border border-blue-100 p-5 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[11px] font-bold mb-1.5">
-                🏛 Admin • {{ Auth::user()?->museum?->name ?? 'Museum' }}
-            </span>
             <h1 class="text-xl font-bold text-slate-800">
                 Daftar Petugas Gate & Loket
             </h1>

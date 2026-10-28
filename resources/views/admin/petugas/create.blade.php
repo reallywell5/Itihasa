@@ -18,10 +18,6 @@
                 Daftarkan akun staf yang bertugas memindai dan memvalidasi tiket masuk di loket/gate.
             </p>
         </div>
-
-        <span class="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold border border-blue-100">
-            Admin • {{ Auth::user()?->museum?->name ?? 'Museum' }}
-        </span>
     </div>
 
     {{-- FORM --}}
