@@ -1,33 +1,34 @@
 @extends('layouts.app')
 
-@section('title', 'Tambah Museum')
+@section('title', 'Tambah Museum Baru')
 
 @section('content')
-<div class="max-w-5xl mx-auto px-6 py-8 space-y-8">
+<div class="max-w-7xl mx-auto space-y-5">
 
     {{-- HEADER --}}
-    <div class="flex items-center justify-between">
+    <div class="bg-white rounded-2xl border border-purple-100 p-5 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-indigo-600">
-                <a href="{{ route('museums.index') }}" class="hover:text-indigo-700">
-                    Museum
+            <div class="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-purple-700 mb-1">
+                <a href="{{ route('museums.index') }}" class="hover:underline">
+                    Direktori Museum
                 </a>
                 <span>/</span>
-                <span class="text-zinc-500">Tambah Data</span>
+                <span class="text-slate-400">Pendaftaran Baru</span>
             </div>
 
-            <h1 class="text-3xl font-bold text-zinc-900 mt-2">
+            <h1 class="text-xl font-bold text-slate-800">
                 Tambah Museum Baru
             </h1>
 
-            <p class="text-sm text-zinc-500 mt-1">
-                Lengkapi informasi museum untuk ditampilkan kepada pengunjung.
+            <p class="text-xs text-slate-400 mt-0.5 max-w-xl">
+                Daftarkan destinasi museum baru ke ekosistem Itihasa beserta profil dasar dan jam operasional.
             </p>
         </div>
 
-        <div class="px-4 py-2 rounded-xl bg-emerald-50 text-emerald-700 text-sm font-semibold border border-emerald-200">
-            Draft Baru
-        </div>
+        <a href="{{ route('museums.index') }}"
+           class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-semibold transition">
+            ← Kembali ke Direktori
+        </a>
     </div>
 
     <form action="{{ route('museums.store') }}"

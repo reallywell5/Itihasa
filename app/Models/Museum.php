@@ -15,6 +15,7 @@ class Museum extends Model
     protected $fillable = [
         'name',
         'category',
+        'status', // active, renovation, inactive
         'address',
         'description',
         'image',
@@ -28,6 +29,26 @@ class Museum extends Model
         'facilities' => 'array',
         'operational_hours' => 'array',
     ];
+
+    public function isActive(): bool
+    {
+        return empty($this->status) || $this->status === 'active';
+    }
+
+    public function isUnderRenovation(): bool
+    {
+        return $this->status === 'renovation';
+    }
+
+    public function isInactive(): bool
+    {
+        return $this->status === 'inactive';
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
 
     // Relasi
     public function users()
@@ -105,15 +126,43 @@ class Museum extends Model
         ];
     }
 
-    /**
-     * Ambil jadwal (closed + sessions) untuk tanggal tertentu.
-     */
     public function scheduleForDate($date): ?array
     {
         $date = $date instanceof Carbon ? $date : Carbon::parse($date);
         $dayKey = self::dayKeys()[$date->dayOfWeekIso - 1];
 
-        return $this->operational_hours[$dayKey] ?? null;
+        if (! empty($this->operational_hours) && isset($this->operational_hours[$dayKey])) {
+            return $this->operational_hours[$dayKey];
+        }
+
+        // Fallback jika operational_hours belum diatur tapi ada opening_time dan closing_time
+        if ($this->opening_time && $this->closing_time) {
+            return [
+                'closed' => false,
+                'sessions' => [
+                    ['open' => substr($this->opening_time, 0, 5), 'close' => substr($this->closing_time, 0, 5)],
+                ],
+            ];
+        }
+
+        return null;
+    }
+
+    public function specialDates()
+    {
+        return $this->hasMany(MuseumSpecialDate::class);
+    }
+
+    public function promos()
+    {
+        return $this->hasMany(Promo::class);
+    }
+
+    public function specialDateFor($date): ?MuseumSpecialDate
+    {
+        $formattedDate = $date instanceof Carbon ? $date->toDateString() : Carbon::parse($date)->toDateString();
+
+        return $this->specialDates()->whereDate('date', $formattedDate)->first();
     }
 
     /**
@@ -122,6 +171,14 @@ class Museum extends Model
      */
     public function isClosedOnDate($date): bool
     {
+        $formattedDate = $date instanceof Carbon ? $date->toDateString() : Carbon::parse($date)->toDateString();
+
+        // Cek hari libur / tutup khusus (Blackout Date)
+        $specialDate = $this->specialDates()->whereDate('date', $formattedDate)->first();
+        if ($specialDate) {
+            return (bool) $specialDate->is_closed;
+        }
+
         $schedule = $this->scheduleForDate($date);
 
         // Data belum diisi sama sekali -> anggap libur demi keamanan (cegah booking ke jadwal tidak jelas)
@@ -129,7 +186,7 @@ class Museum extends Model
             return true;
         }
 
-        return $schedule['closed'] ?? true;
+        return (bool) ($schedule['closed'] ?? false);
     }
 
     /**

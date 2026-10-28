@@ -132,6 +132,12 @@ class PaymentController extends Controller
             'payment_status' => 'paid',
         ]);
 
+        if ($transaction->booking) {
+            $transaction->booking->update([
+                'status' => 'active',
+            ]);
+        }
+
         $this->syncPaymentStatus($transaction, 'paid', now());
 
         return redirect()

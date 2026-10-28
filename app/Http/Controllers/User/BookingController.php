@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Museum;
+use App\Models\Promo;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -46,16 +47,28 @@ class BookingController extends Controller
             'no_hp.regex' => 'Nomor HP hanya boleh berisi angka (9-15 digit).',
         ]);
 
-        // === VALIDASI MANIFES ROMBONGAN (>= 10 orang wajib isi nama anggota) ===
-        $isRombongan = (int) $request->jumlah_anggota >= 10;
+        // Cek status operasional museum (Fitur C Super Admin)
+        if (! $museum->isActive()) {
+            $statusText = $museum->isUnderRenovation()
+                ? "Museum \"{$museum->name}\" saat ini sedang dalam masa renovasi / tutup sementara. Pemesanan tiket tidak dapat diproses."
+                : "Museum \"{$museum->name}\" saat ini sedang tidak beroperasi. Pemesanan tiket ditangguhkan.";
+
+            return back()
+                ->withInput()
+                ->with('error', $statusText)
+                ->with('swal_error', $statusText);
+        }
+
+        // === VALIDASI MANIFES ROMBONGAN (>= 6 orang wajib isi nama anggota) ===
+        $isRombongan = (int) $request->jumlah_anggota >= 6;
 
         if ($isRombongan) {
             $request->validate([
-                'manifest' => 'required|array|min:10',
+                'manifest' => 'required|array|min:6',
                 'manifest.*' => 'required|string|max:255',
             ], [
-                'manifest.required' => 'Booking untuk 10 orang atau lebih wajib mengisi manifes nama anggota.',
-                'manifest.min' => 'Jumlah nama di manifes minimal 10 orang.',
+                'manifest.required' => 'Booking untuk 6 orang atau lebih wajib mengisi manifes nama anggota.',
+                'manifest.min' => 'Jumlah nama di manifes minimal 6 orang.',
                 'manifest.*.required' => 'Semua nama anggota rombongan wajib diisi.',
             ]);
 
@@ -161,6 +174,32 @@ class BookingController extends Controller
                     ->with('swal_error', "Jumlah anggota ({$request->jumlah_anggota} orang) harus sama dengan total tiket yang dipilih ({$totalTiket} tiket).");
             }
 
+            // Kalkulasi Promo Diskon jika ada
+            $discountAmount = 0;
+            $promoId = null;
+            $promoCode = null;
+
+            if ($request->filled('promo_code')) {
+                $code = strtoupper(trim($request->promo_code));
+                $promo = Promo::where('code', $code)
+                    ->where(function ($q) use ($museum) {
+                        $q->where('museum_id', $museum->id)
+                            ->orWhereNull('museum_id');
+                    })
+                    ->first();
+
+                if ($promo && $promo->isValid($request->visit_date)) {
+                    $discountAmount = $promo->calculateDiscount($total);
+                    if ($discountAmount > 0) {
+                        $promoId = $promo->id;
+                        $promoCode = $promo->code;
+                        $promo->increment('used_count');
+                    }
+                }
+            }
+
+            $finalPrice = max(0, $total - $discountAmount);
+
             $booking = Booking::create([
                 'user_id' => Auth::id(),
                 'nama_penanggung_jawab' => $request->nama_penanggung_jawab,
@@ -168,11 +207,14 @@ class BookingController extends Controller
                 'kota_asal' => $request->kota_asal,
                 'no_hp' => $request->no_hp,
                 'museum_id' => $museum->id,
+                'promo_id' => $promoId,
+                'promo_code' => $promoCode,
+                'discount_amount' => $discountAmount,
                 'visit_date' => $request->visit_date,
                 'adult_qty' => $adultQty,
                 'student_qty' => $studentQty,
                 'child_qty' => $childQty,
-                'total_price' => $total,
+                'total_price' => $finalPrice,
                 'ticket_summary' => json_encode($ticketData),
                 'status' => 'pending',
                 'is_rombongan' => $isRombongan,
@@ -186,6 +228,64 @@ class BookingController extends Controller
         });
     }
 
+    /**
+     * Endpoint validasi kupon promo saat checkout online (Fitur E Admin).
+     */
+    public function checkPromo(Request $request, Museum $museum)
+    {
+        $request->validate([
+            'promo_code' => 'required|string',
+            'total_price' => 'required|integer|min:0',
+            'visit_date' => 'nullable|date',
+        ]);
+
+        $code = strtoupper(trim($request->promo_code));
+        $totalPrice = (int) $request->total_price;
+        $visitDate = $request->visit_date ?? now()->toDateString();
+
+        $promo = Promo::where('code', $code)
+            ->where(function ($q) use ($museum) {
+                $q->where('museum_id', $museum->id)
+                    ->orWhereNull('museum_id');
+            })
+            ->first();
+
+        if (! $promo) {
+            return response()->json([
+                'valid' => false,
+                'message' => "Kode promo \"{$code}\" tidak ditemukan untuk museum ini.",
+            ], 404);
+        }
+
+        if (! $promo->isValid($visitDate)) {
+            return response()->json([
+                'valid' => false,
+                'message' => "Kupon promo \"{$code}\" sudah tidak aktif atau telah habis kuotanya.",
+            ], 422);
+        }
+
+        if ($totalPrice < $promo->min_total_price) {
+            $minFormatted = number_format($promo->min_total_price, 0, ',', '.');
+
+            return response()->json([
+                'valid' => false,
+                'message' => "Minimal total belanja untuk promo ini adalah Rp {$minFormatted}.",
+            ], 422);
+        }
+
+        $discount = $promo->calculateDiscount($totalPrice);
+
+        return response()->json([
+            'valid' => true,
+            'promo_id' => $promo->id,
+            'code' => $promo->code,
+            'title' => $promo->title,
+            'discount' => $discount,
+            'final_total' => max(0, $totalPrice - $discount),
+            'message' => "Kupon \"{$promo->title}\" berhasil diterapkan!",
+        ]);
+    }
+
     public function checkQuota(Request $request, Museum $museum)
     {
         $request->validate([
@@ -194,15 +294,24 @@ class BookingController extends Controller
 
         $museum->load('tickets');
 
+        $specialDate = $museum->specialDateFor($request->visit_date);
+        $isClosed = $museum->isClosedOnDate($request->visit_date);
+
         $result = [];
 
         foreach ($museum->tickets as $ticket) {
+            $slot = ($specialDate && $specialDate->quota_override !== null)
+                ? $specialDate->quota_override
+                : $ticket->slot;
+
             $terjual = $this->getSoldQty($ticket->id, $request->visit_date);
 
             $result[$ticket->id] = [
-                'slot' => $ticket->slot,
+                'slot' => $slot,
                 'terjual' => $terjual,
-                'sisa' => max(0, $ticket->slot - $terjual),
+                'sisa' => $isClosed ? 0 : max(0, $slot - $terjual),
+                'is_closed' => $isClosed,
+                'notes' => $specialDate?->notes,
             ];
         }
 

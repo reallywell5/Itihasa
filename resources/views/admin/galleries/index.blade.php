@@ -8,15 +8,6 @@
     {{-- HEADER --}}
     <div class="bg-white rounded-2xl border {{ auth()->user()->isSuperAdmin() ? 'border-purple-100' : 'border-blue-100' }} p-5 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            @if(auth()->user()->isSuperAdmin())
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700 text-[11px] font-bold mb-2">
-                    👑 Super Admin • Pemantauan Koleksi Galeri Seluruh Museum
-                </span>
-            @else
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[11px] font-bold mb-2">
-                    🏛 Admin • {{ auth()->user()->museum?->name ?? 'Museum' }}
-                </span>
-            @endif
             <h1 class="text-xl font-bold text-slate-800">
                 Galeri & Foto Koleksi
             </h1>

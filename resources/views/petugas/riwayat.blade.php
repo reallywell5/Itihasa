@@ -7,9 +7,6 @@
 
     {{-- HEADER --}}
     <div class="bg-white rounded-2xl border border-slate-100 p-4 sm:p-5 shadow-sm">
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold mb-1.5">
-            🛡 Log Aktivitas • Riwayat Verifikasi
-        </span>
         <h1 class="text-lg sm:text-xl font-bold text-slate-800">
             Riwayat Scan & Log Validasi
         </h1>
@@ -61,12 +58,16 @@
            class="px-3 py-1.5 rounded-lg text-xs font-bold transition {{ request('status') === 'failed' ? 'bg-red-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
             ✕ Gagal
         </a>
+        <a href="{{ route('petugas.riwayat', ['incident_only' => 1]) }}"
+           class="px-3 py-1.5 rounded-lg text-xs font-bold transition {{ request('incident_only') ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+            📝 Catatan / Insiden Gate
+        </a>
     </div>
 
     {{-- LOG TABLE --}}
     <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         <div class="p-4 border-b border-slate-100">
-            <h2 class="text-sm font-bold text-slate-800">Daftar Aktivitas Scan</h2>
+            <h2 class="text-sm font-bold text-slate-800">Daftar Aktivitas Scan & Gate Incident</h2>
             <p class="text-xs text-slate-400 mt-0.5">Diurutkan berdasarkan waktu pemindaian terbaru.</p>
         </div>
 
@@ -77,14 +78,14 @@
                         <th class="px-4 py-3">Status</th>
                         <th class="px-4 py-3">Pengunjung</th>
                         <th class="px-4 py-3">Kode Input</th>
-                        <th class="px-4 py-3">Keterangan / Pesan</th>
+                        <th class="px-4 py-3">Keterangan & Catatan Gate</th>
                         <th class="px-4 py-3">Petugas</th>
                         <th class="px-4 py-3 text-right">Waktu</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 text-slate-700">
                     @forelse($scans as $scan)
-                        <tr class="hover:bg-slate-50/70 transition align-middle">
+                        <tr class="hover:bg-slate-50/70 transition align-top">
                             <td class="px-4 py-3 whitespace-nowrap">
                                 @if($scan->status === 'success')
                                     <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800">
@@ -97,7 +98,7 @@
                                 @endif
                             </td>
                             <td class="px-4 py-3 font-bold text-slate-800">
-                                {{ $scan->transaction->booking->user->name ?? '-' }}
+                                {{ $scan->transaction->booking->nama_penanggung_jawab ?? ($scan->transaction->booking->user->name ?? '-') }}
                                 <span class="block text-[10px] text-slate-400 font-normal">
                                     {{ $scan->transaction->booking->museum->name ?? '' }}
                                 </span>
@@ -105,8 +106,18 @@
                             <td class="px-4 py-3 font-mono text-[11px] text-slate-600">
                                 {{ $scan->qr_code_input }}
                             </td>
-                            <td class="px-4 py-3 text-slate-500 max-w-xs truncate">
-                                {{ $scan->message }}
+                            <td class="px-4 py-3 text-slate-500 max-w-sm">
+                                <p class="leading-relaxed">{{ $scan->message }}</p>
+                                @if($scan->gate_incident_tag || $scan->gate_notes)
+                                    <div class="mt-1.5 p-2 bg-blue-50/70 border border-blue-200 rounded-lg text-[11px] text-blue-900">
+                                        @if($scan->gate_incident_tag)
+                                            <span class="font-bold block text-[10px] text-blue-800 mb-0.5">{{ $scan->gate_incident_tag }}</span>
+                                        @endif
+                                        @if($scan->gate_notes)
+                                            <span class="text-slate-600 italic">"{{ $scan->gate_notes }}"</span>
+                                        @endif
+                                    </div>
+                                @endif
                             </td>
                             <td class="px-4 py-3 text-slate-600 whitespace-nowrap">
                                 {{ $scan->petugas->name ?? '-' }}

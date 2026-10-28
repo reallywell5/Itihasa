@@ -231,9 +231,6 @@
                         <img src="{{ asset('images/logo-itihasa.png') }}" alt="Itihasa" class="w-8 h-8 object-contain">
                         <div>
                             <h2 class="text-sm font-bold text-slate-800">Itihasa</h2>
-                            <p class="text-[9px] uppercase font-bold text-emerald-600">
-                                🛡 Petugas Loket
-                            </p>
                         </div>
                     </div>
                     <button @click="mobileMenuOpen = false" class="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-50">

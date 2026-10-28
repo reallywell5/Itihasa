@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Broadcast;
 use App\Models\Museum;
 use App\Models\MuseumGallery;
 use App\Models\Payment;
@@ -11,38 +12,64 @@ use App\Models\Ticket;
 use App\Models\Transaction;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardWebController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
         $isSuperAdmin = $user->isSuperAdmin();
         $museumId = $user->museum_id;
 
+        // Ambil Pengumuman / Broadcast Aktif untuk peran ini (Fitur E Super Admin)
+        $activeBroadcasts = Broadcast::active()
+            ->forRole($user->role)
+            ->latest()
+            ->get();
+
+        // =========================================================
+        // FITUR A: FILTER RENTANG WAKTU FLEKSIBEL SUPER ADMIN & ADMIN
+        // =========================================================
+        $period = $request->input('period', 'all');
+        $customStart = $request->input('start_date');
+        $customEnd = $request->input('end_date');
+
+        [$startDate, $endDate, $periodLabel] = $this->resolveDateRange($period, $customStart, $customEnd);
+
         if ($isSuperAdmin) {
             // ==========================================
-            // STATISTIK REAL SUPER ADMIN (GLOBAL MONITORING)
+            // STATISTIK REAL SUPER ADMIN (GLOBAL MONITORING DENGAN FILTER TANGGAL)
             // ==========================================
             $totalMuseums = Museum::count();
+            $activeMuseumsCount = Museum::where('status', 'active')->count();
+            $renovationMuseumsCount = Museum::where('status', 'renovation')->count();
             $totalAdmins = User::where('role', 'admin')->count();
             $totalStaff = User::where('role', 'staff')->count();
             $totalVisitors = User::where('role', 'visitor')->count();
 
-            $totalRevenue = Transaction::where('payment_status', 'paid')->sum('total_amount');
-            $totalTransactions = Transaction::count();
-            $paidTransactions = Transaction::where('payment_status', 'paid')->count();
-            $pendingTransactions = Transaction::where('payment_status', 'pending')->count();
+            $baseTxQuery = Transaction::query()
+                ->when($startDate && $endDate, function ($q) use ($startDate, $endDate) {
+                    $q->whereBetween('created_at', [$startDate, $endDate]);
+                });
+
+            $totalRevenue = (clone $baseTxQuery)->where('payment_status', 'paid')->sum('total_amount');
+            $totalTransactions = (clone $baseTxQuery)->count();
+            $paidTransactions = (clone $baseTxQuery)->where('payment_status', 'paid')->count();
+            $pendingTransactions = (clone $baseTxQuery)->where('payment_status', 'pending')->count();
 
             $totalTickets = Ticket::count();
             $totalGalleries = MuseumGallery::count();
             $totalReviews = Review::count();
             $averageRating = Review::count() > 0 ? round((float) Review::avg('rating'), 1) : 0;
-            $totalPayments = Payment::count();
-            $totalQrCodes = Transaction::whereNotNull('used_at')->count();
+            $totalPayments = Payment::when($startDate && $endDate, fn ($q) => $q->whereBetween('created_at', [$startDate, $endDate]))->count();
 
-            // Breakdown komprehensif performa dan penanggung jawab per museum
+            $totalQrCodes = Transaction::whereNotNull('used_at')
+                ->when($startDate && $endDate, fn ($q) => $q->whereBetween('updated_at', [$startDate, $endDate]))
+                ->count();
+
+            // Breakdown komprehensif performa dan penanggung jawab per museum sesuai rentang tanggal
             $museumPerformances = Museum::with([
                 'adminUser',
                 'staffUsers',
@@ -50,20 +77,17 @@ class DashboardWebController extends Controller
                 'tickets',
                 'galleries',
                 'reviews',
-            ])->get()->map(function ($museum) {
-                $revenue = Transaction::where('payment_status', 'paid')
-                    ->whereHas('booking', fn ($q) => $q->where('museum_id', $museum->id))
-                    ->sum('total_amount');
+            ])->get()->map(function ($museum) use ($startDate, $endDate) {
+                $txQuery = Transaction::whereHas('booking', fn ($q) => $q->where('museum_id', $museum->id))
+                    ->when($startDate && $endDate, fn ($q) => $q->whereBetween('created_at', [$startDate, $endDate]));
+
+                $revenue = (clone $txQuery)->where('payment_status', 'paid')->sum('total_amount');
+                $txCount = (clone $txQuery)->count();
+                $paidCount = (clone $txQuery)->where('payment_status', 'paid')->count();
 
                 $visitors = Transaction::whereNotNull('used_at')
                     ->whereHas('booking', fn ($q) => $q->where('museum_id', $museum->id))
-                    ->count();
-
-                $txCount = Transaction::whereHas('booking', fn ($q) => $q->where('museum_id', $museum->id))
-                    ->count();
-
-                $paidCount = Transaction::where('payment_status', 'paid')
-                    ->whereHas('booking', fn ($q) => $q->where('museum_id', $museum->id))
+                    ->when($startDate && $endDate, fn ($q) => $q->whereBetween('updated_at', [$startDate, $endDate]))
                     ->count();
 
                 $avgRating = $museum->reviews_count > 0 ? round((float) $museum->reviews()->avg('rating'), 1) : 0;
@@ -73,6 +97,7 @@ class DashboardWebController extends Controller
                 return [
                     'id' => $museum->id,
                     'name' => $museum->name,
+                    'status' => $museum->status ?? 'active',
                     'address' => $museum->address,
                     'image' => $museum->image,
                     'admin_name' => $museum->adminUser?->name,
@@ -93,6 +118,7 @@ class DashboardWebController extends Controller
             });
 
             $recentTransactions = Transaction::with(['booking.user', 'booking.museum'])
+                ->when($startDate && $endDate, fn ($q) => $q->whereBetween('created_at', [$startDate, $endDate]))
                 ->latest()
                 ->take(6)
                 ->get();
@@ -107,7 +133,14 @@ class DashboardWebController extends Controller
 
             return view('admin.dashboard', compact(
                 'isSuperAdmin',
+                'activeBroadcasts',
+                'period',
+                'periodLabel',
+                'customStart',
+                'customEnd',
                 'totalMuseums',
+                'activeMuseumsCount',
+                'renovationMuseumsCount',
                 'totalAdmins',
                 'totalStaff',
                 'totalVisitors',
@@ -146,30 +179,32 @@ class DashboardWebController extends Controller
         $averageRating = $totalReviews > 0 ? round((float) Review::where('museum_id', $museumId)->avg('rating'), 1) : 0;
 
         // 4. Menu Pembayaran
-        $totalPayments = Payment::whereHas('transaction.booking', fn ($q) => $q->where('museum_id', $museumId))->count();
+        $totalPayments = Payment::whereHas('transaction.booking', fn ($q) => $q->where('museum_id', $museumId))
+            ->when($startDate && $endDate, fn ($q) => $q->whereBetween('created_at', [$startDate, $endDate]))
+            ->count();
         $successPayments = Payment::where('payment_status', 'paid')
             ->whereHas('transaction.booking', fn ($q) => $q->where('museum_id', $museumId))
+            ->when($startDate && $endDate, fn ($q) => $q->whereBetween('created_at', [$startDate, $endDate]))
             ->count();
 
         // 5. Menu Transaksi
-        $totalTransactions = Transaction::whereHas('booking', fn ($q) => $q->where('museum_id', $museumId))->count();
-        $paidTransactions = Transaction::where('payment_status', 'paid')
-            ->whereHas('booking', fn ($q) => $q->where('museum_id', $museumId))
-            ->count();
-        $pendingTransactions = Transaction::where('payment_status', 'pending')
-            ->whereHas('booking', fn ($q) => $q->where('museum_id', $museumId))
-            ->count();
+        $baseAdminTxQuery = Transaction::whereHas('booking', fn ($q) => $q->where('museum_id', $museumId))
+            ->when($startDate && $endDate, fn ($q) => $q->whereBetween('created_at', [$startDate, $endDate]));
+
+        $totalTransactions = (clone $baseAdminTxQuery)->count();
+        $paidTransactions = (clone $baseAdminTxQuery)->where('payment_status', 'paid')->count();
+        $pendingTransactions = (clone $baseAdminTxQuery)->where('payment_status', 'pending')->count();
 
         // 6. Pendapatan & Pengunjung Check-in (Scan QR)
-        $totalRevenue = Transaction::where('payment_status', 'paid')
-            ->whereHas('booking', fn ($q) => $q->where('museum_id', $museumId))
-            ->sum('total_amount');
+        $totalRevenue = (clone $baseAdminTxQuery)->where('payment_status', 'paid')->sum('total_amount');
         $totalQrCodes = Transaction::whereNotNull('used_at')
             ->whereHas('booking', fn ($q) => $q->where('museum_id', $museumId))
+            ->when($startDate && $endDate, fn ($q) => $q->whereBetween('updated_at', [$startDate, $endDate]))
             ->count();
 
         $recentTransactions = Transaction::with(['booking.user', 'booking.museum'])
             ->whereHas('booking', fn ($q) => $q->where('museum_id', $museumId))
+            ->when($startDate && $endDate, fn ($q) => $q->whereBetween('created_at', [$startDate, $endDate]))
             ->latest()
             ->take(5)
             ->get();
@@ -178,6 +213,11 @@ class DashboardWebController extends Controller
 
         return view('admin.dashboard', compact(
             'isSuperAdmin',
+            'activeBroadcasts',
+            'period',
+            'periodLabel',
+            'customStart',
+            'customEnd',
             'museum',
             'totalTickets',
             'totalQuota',
@@ -197,8 +237,55 @@ class DashboardWebController extends Controller
     }
 
     /**
-     * Ambil data transaksi 6 bulan terakhir (rolling), dihitung dari bulan
-     * berjalan mundur ke belakang. Mendukung scoping museum_id untuk Admin Museum.
+     * Resolusi rentang tanggal untuk filter analytics (Fitur A Super Admin).
+     */
+    private function resolveDateRange(string $period, ?string $customStart, ?string $customEnd): array
+    {
+        switch ($period) {
+            case 'today':
+                return [
+                    Carbon::today()->startOfDay(),
+                    Carbon::today()->endOfDay(),
+                    'Hari Ini ('.Carbon::today()->translatedFormat('d M Y').')',
+                ];
+            case 'this_week':
+                return [
+                    Carbon::now()->startOfWeek(),
+                    Carbon::now()->endOfWeek(),
+                    'Minggu Ini ('.Carbon::now()->startOfWeek()->format('d M').' - '.Carbon::now()->endOfWeek()->format('d M Y').')',
+                ];
+            case 'this_month':
+                return [
+                    Carbon::now()->startOfMonth(),
+                    Carbon::now()->endOfMonth(),
+                    'Bulan Ini ('.Carbon::now()->translatedFormat('F Y').')',
+                ];
+            case 'this_year':
+                return [
+                    Carbon::now()->startOfYear(),
+                    Carbon::now()->endOfYear(),
+                    'Tahun Ini ('.Carbon::now()->year.')',
+                ];
+            case 'custom':
+                if ($customStart && $customEnd) {
+                    $start = Carbon::parse($customStart)->startOfDay();
+                    $end = Carbon::parse($customEnd)->endOfDay();
+
+                    return [
+                        $start,
+                        $end,
+                        'Periode '.$start->translatedFormat('d M Y').' s/d '.$end->translatedFormat('d M Y'),
+                    ];
+                }
+
+                return [null, null, 'Semua Waktu'];
+            default:
+                return [null, null, 'Semua Waktu'];
+        }
+    }
+
+    /**
+     * Ambil data transaksi 6 bulan terakhir (rolling).
      */
     private function getMonthlyTransactions(?int $museumId = null): array
     {

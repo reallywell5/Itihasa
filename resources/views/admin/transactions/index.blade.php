@@ -8,15 +8,6 @@
     {{-- HEADER --}}
     <div class="bg-white rounded-2xl border {{ auth()->user()->isSuperAdmin() ? 'border-purple-100' : 'border-blue-100' }} p-5 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            @if(auth()->user()->isSuperAdmin())
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-700 text-[11px] font-bold mb-2">
-                    👑 Super Admin • Pemantauan Transaksi Seluruh Museum
-                </span>
-            @else
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-[11px] font-bold mb-2">
-                    🏛 Admin • {{ auth()->user()->museum?->name ?? 'Museum' }}
-                </span>
-            @endif
             <h1 class="text-xl font-bold text-slate-800">
                 Riwayat Transaksi Pemesanan
             </h1>
@@ -94,11 +85,21 @@
                             </td>
                             <td class="px-4 py-3">
                                 <p class="font-semibold text-slate-800">
-                                    {{ $transaction->booking->user->name ?? 'Tamu' }}
+                                    {{ $transaction->booking->nama_penanggung_jawab ?? ($transaction->booking->user->name ?? 'Tamu') }}
                                 </p>
                                 <p class="text-[10px] text-slate-400">
                                     🏛 {{ $transaction->booking->museum->name ?? '-' }}
                                 </p>
+                                @if($transaction->gate_incident_tag || $transaction->gate_notes)
+                                    <div class="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-bold border border-blue-200">
+                                        <span>{{ $transaction->gate_incident_tag ?? '📝 Catatan Gate' }}</span>
+                                    </div>
+                                @endif
+                                @if(($transaction->booking->is_rombongan ?? false) && ($transaction->scanned_pax > 0))
+                                    <div class="mt-1 text-[10px] font-semibold text-emerald-700">
+                                        👥 {{ $transaction->scanned_pax }} / {{ $transaction->booking->jumlah_anggota }} Orang Masuk
+                                    </div>
+                                @endif
                             </td>
                             <td class="px-4 py-3 text-right font-extrabold text-slate-800 whitespace-nowrap">
                                 Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}

@@ -162,11 +162,6 @@
                 </div>
             </div>
 
-            {{-- MANIFES ROMBONGAN (muncul otomatis kalau jumlah anggota >= 10) --}}
-            <div id="manifest-section" class="bg-white rounded-[32px] border border-[#EADBC8] p-8 shadow-sm hidden">
-
-                <div class="flex items-center justify-between mb-2">
-                    <h2 class="text-3xl font-bold text-[#102A43]">
             {{-- MANIFES ROMBONGAN (muncul otomatis kalau jumlah anggota >= 6) --}}
             <div id="manifest-section" class="bg-white rounded-2xl border border-[#EADBC8] p-4 sm:p-6 shadow-sm hidden">
                 <div class="flex items-center justify-between mb-2">
@@ -270,7 +265,43 @@
 
                     <div id="ticket-summary" class="border-t border-slate-100 pt-3 space-y-2 text-xs"></div>
 
-                    <div class="border-t border-slate-100 pt-4 flex justify-between items-center">
+                    {{-- KODE PROMO / KUPON DISKON (FITUR E ADMIN) --}}
+                    <div class="border-t border-slate-100 pt-3">
+                        <label class="block text-[11px] font-bold text-[#102A43] mb-1.5 flex items-center justify-between">
+                            <span>🎟️ Kupon Promo / Diskon</span>
+                            <span id="promo-applied-badge" class="hidden text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full">
+                                ✓ Kupon Aktif
+                            </span>
+                        </label>
+                        <div class="flex gap-1.5">
+                            <input type="text"
+                                   name="promo_code"
+                                   id="promo-code-input"
+                                   placeholder="KODE PROMO"
+                                   class="flex-1 uppercase font-mono font-bold px-3 py-2 rounded-xl border border-[#D9CBB8] text-xs focus:outline-none focus:ring-2 focus:ring-[#B88A44]">
+                            <button type="button"
+                                    id="btn-apply-promo"
+                                    onclick="applyPromo()"
+                                    class="px-3.5 py-2 rounded-xl bg-[#102A43] text-white text-xs font-bold hover:bg-[#0d2238] transition">
+                                Terapkan
+                            </button>
+                        </div>
+                        <p id="promo-msg" class="text-[11px] mt-1.5 hidden"></p>
+                    </div>
+
+                    {{-- RINCIAN HARGA & DISKON --}}
+                    <div class="border-t border-slate-100 pt-3 space-y-1.5 text-xs text-slate-600">
+                        <div class="flex justify-between">
+                            <span>Subtotal Tiket</span>
+                            <span id="summary-subtotal" class="font-semibold text-slate-800">Rp 0</span>
+                        </div>
+                        <div id="discount-row" class="flex justify-between text-emerald-600 font-semibold hidden">
+                            <span id="discount-label">Diskon Promo</span>
+                            <span id="discount-amount">- Rp 0</span>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-slate-100 pt-3 flex justify-between items-center">
                         <span class="font-bold text-sm text-[#102A43]">
                             Total Bayar
                         </span>
@@ -280,8 +311,14 @@
                     </div>
                 </div>
 
+                {{-- BLACKOUT NOTICE --}}
+                <div id="blackout-notice" class="hidden mt-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs font-semibold">
+                    ⛔ Museum tutup pada tanggal yang dipilih. Silakan pilih tanggal lain.
+                </div>
+
                 <button type="submit"
-                        class="mt-6 w-full py-3 rounded-xl bg-[#102A43] text-white font-bold text-xs hover:bg-[#0d2238] transition shadow">
+                        id="btn-submit-booking"
+                        class="mt-6 w-full py-3 rounded-xl bg-[#102A43] text-white font-bold text-xs hover:bg-[#0d2238] transition shadow disabled:opacity-40 disabled:cursor-not-allowed">
                     Lanjut ke Pembayaran
                 </button>
             </div>
@@ -295,7 +332,13 @@
 
 <script>
 const quotaUrl = "{{ route('user.booking.quota', $museum->id) }}";
+const checkPromoUrl = "{{ route('user.booking.check-promo', $museum->id) }}";
+const csrfToken = "{{ csrf_token() }}";
+
 let remainingQuota = {}; // { ticketId: sisaKuota }
+let currentSubtotal = 0;
+let appliedDiscount = 0;
+let appliedPromoCode = '';
 
 function changeQty(ticketId, change) {
     let input = document.getElementById('ticket-' + ticketId + '-input');
@@ -320,6 +363,7 @@ function changeQty(ticketId, change) {
 
 function updateTotal() {
     let total = 0;
+    let totalQty = 0;
     let summaryHtml = '';
 
     @foreach($museum->tickets as $ticket)
@@ -328,44 +372,167 @@ function updateTotal() {
         );
 
         if (qty{{ $ticket->id }} > 0) {
+            totalQty += qty{{ $ticket->id }};
             let subtotal = qty{{ $ticket->id }} * {{ $ticket->price }};
             total += subtotal;
 
             summaryHtml += `
-                <div class="flex justify-between items-center py-3 border-b border-[#EADBC8]">
-
+                <div class="flex justify-between items-center py-2 border-b border-slate-100">
                     <div>
-                        <p class="font-semibold text-[#102A43] text-lg">
+                        <p class="font-bold text-[#102A43]">
                             {{ $ticket->ticket_name }} x ${qty{{ $ticket->id }}}
                         </p>
-
-                        <p class="text-sm text-slate-400">
+                        <p class="text-[10px] text-slate-400">
                             Rp {{ number_format($ticket->price, 0, ',', '.') }} / tiket
                         </p>
                     </div>
-
-                    <span class="font-bold text-[#102A43] text-lg">
+                    <span class="font-bold text-[#102A43]">
                         Rp ${subtotal.toLocaleString('id-ID')}
                     </span>
-
                 </div>
             `;
         }
     @endforeach
 
+    currentSubtotal = total;
+
+    if (totalQty > 0) {
+        document.getElementById('jumlah_anggota').value = totalQty;
+        renderManifestInputs(totalQty);
+    }
+
     document.getElementById('ticket-summary').innerHTML =
         summaryHtml || `
-            <div class="py-6 text-center text-slate-400">
+            <div class="py-4 text-center text-slate-400">
                 Belum ada tiket dipilih
             </div>
         `;
 
+    document.getElementById('summary-subtotal').innerText =
+        'Rp ' + currentSubtotal.toLocaleString('id-ID');
+
+    // Jika ada promo yang sudah diterapkan tapi subtotal berubah
+    if (appliedDiscount > 0 && appliedPromoCode) {
+        // Otomatis cek ulang promo dengan subtotal baru
+        recalculatePromo();
+    } else {
+        renderFinalPrice();
+    }
+}
+
+function renderFinalPrice() {
+    let finalPrice = Math.max(0, currentSubtotal - appliedDiscount);
     document.getElementById('total-price').innerText =
-        'Rp ' + total.toLocaleString('id-ID');
+        'Rp ' + finalPrice.toLocaleString('id-ID');
+
+    let discountRow = document.getElementById('discount-row');
+    let discountAmount = document.getElementById('discount-amount');
+    let promoBadge = document.getElementById('promo-applied-badge');
+
+    if (appliedDiscount > 0) {
+        discountRow.classList.remove('hidden');
+        discountAmount.innerText = '- Rp ' + appliedDiscount.toLocaleString('id-ID');
+        promoBadge.classList.remove('hidden');
+    } else {
+        discountRow.classList.add('hidden');
+        promoBadge.classList.add('hidden');
+    }
+}
+
+async function applyPromo() {
+    const promoInput = document.getElementById('promo-code-input');
+    const promoCode = promoInput.value.trim().toUpperCase();
+    const promoMsg = document.getElementById('promo-msg');
+    const visitDate = document.getElementById('visit-date').value;
+
+    if (!promoCode) {
+        promoMsg.className = 'text-[11px] mt-1.5 text-amber-600 block';
+        promoMsg.innerText = 'Masukkan kode promo terlebih dahulu.';
+        return;
+    }
+
+    if (currentSubtotal <= 0) {
+        promoMsg.className = 'text-[11px] mt-1.5 text-amber-600 block';
+        promoMsg.innerText = 'Pilih minimal 1 tiket sebelum menerapkan kupon.';
+        return;
+    }
+
+    promoMsg.className = 'text-[11px] mt-1.5 text-slate-400 block';
+    promoMsg.innerText = 'Memeriksa kupon promo...';
+
+    try {
+        const res = await fetch(checkPromoUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                promo_code: promoCode,
+                total_price: currentSubtotal,
+                visit_date: visitDate,
+            }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.valid) {
+            appliedDiscount = data.discount;
+            appliedPromoCode = data.code;
+            promoMsg.className = 'text-[11px] mt-1.5 text-emerald-600 font-semibold block';
+            promoMsg.innerText = '✓ ' + data.message + ' (Hemat Rp ' + data.discount.toLocaleString('id-ID') + ')';
+            renderFinalPrice();
+        } else {
+            appliedDiscount = 0;
+            appliedPromoCode = '';
+            promoMsg.className = 'text-[11px] mt-1.5 text-red-600 block';
+            promoMsg.innerText = data.message || 'Kupon tidak dapat digunakan.';
+            renderFinalPrice();
+        }
+    } catch (err) {
+        console.error(err);
+        promoMsg.className = 'text-[11px] mt-1.5 text-red-600 block';
+        promoMsg.innerText = 'Terjadi kesalahan saat memeriksa kode promo.';
+    }
+}
+
+async function recalculatePromo() {
+    if (!appliedPromoCode) return;
+    const visitDate = document.getElementById('visit-date').value;
+
+    try {
+        const res = await fetch(checkPromoUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+                promo_code: appliedPromoCode,
+                total_price: currentSubtotal,
+                visit_date: visitDate,
+            }),
+        });
+
+        const data = await res.json();
+        if (res.ok && data.valid) {
+            appliedDiscount = data.discount;
+        } else {
+            appliedDiscount = 0;
+        }
+        renderFinalPrice();
+    } catch (err) {
+        renderFinalPrice();
+    }
 }
 
 async function fetchQuota(visitDate) {
     const loadingEl = document.getElementById('quota-loading');
+    const blackoutNotice = document.getElementById('blackout-notice');
+    const submitBtn = document.getElementById('btn-submit-booking');
+
     loadingEl.classList.remove('hidden');
 
     try {
@@ -376,24 +543,30 @@ async function fetchQuota(visitDate) {
         if (!res.ok) throw new Error('Gagal mengambil data kuota');
 
         const data = await res.json();
+        let isMuseumClosed = false;
+        let closedNotes = '';
 
         Object.keys(data).forEach(function (ticketId) {
             const info = data[ticketId];
             remainingQuota[ticketId] = info.sisa;
+
+            if (info.is_closed) {
+                isMuseumClosed = true;
+                if (info.notes) closedNotes = info.notes;
+            }
 
             const quotaLabel = document.getElementById('ticket-' + ticketId + '-quota');
             const plusBtn = document.getElementById('ticket-' + ticketId + '-plus');
             const qtyInput = document.getElementById('ticket-' + ticketId + '-input');
             const qtyText = document.getElementById('ticket-' + ticketId + '-qty');
 
-            if (info.sisa <= 0) {
-                quotaLabel.innerText = 'Kuota habis untuk tanggal ini';
+            if (info.sisa <= 0 || info.is_closed) {
+                quotaLabel.innerText = info.is_closed ? 'Tutup pada tanggal ini' : 'Kuota habis untuk tanggal ini';
                 quotaLabel.classList.add('text-red-500');
                 quotaLabel.classList.remove('text-[#B88A44]');
                 plusBtn.disabled = true;
                 plusBtn.classList.add('opacity-40', 'cursor-not-allowed');
 
-                // Reset qty kalau ternyata sudah dipilih tapi kuota habis
                 qtyInput.value = 0;
                 qtyText.innerText = 0;
             } else {
@@ -403,13 +576,21 @@ async function fetchQuota(visitDate) {
                 plusBtn.disabled = false;
                 plusBtn.classList.remove('opacity-40', 'cursor-not-allowed');
 
-                // Kalau qty yang sudah dipilih ternyata melebihi sisa kuota terbaru, sesuaikan
                 if (parseInt(qtyInput.value) > info.sisa) {
                     qtyInput.value = info.sisa;
                     qtyText.innerText = info.sisa;
                 }
             }
         });
+
+        if (isMuseumClosed) {
+            blackoutNotice.innerHTML = '⛔ Museum tutup pada tanggal yang dipilih.' + (closedNotes ? ' (' + closedNotes + ')' : '') + ' Silakan pilih tanggal kunjungan lain.';
+            blackoutNotice.classList.remove('hidden');
+            submitBtn.disabled = true;
+        } else {
+            blackoutNotice.classList.add('hidden');
+            submitBtn.disabled = false;
+        }
 
         updateTotal();
     } catch (err) {
@@ -467,9 +648,8 @@ document.getElementById('jumlah_anggota').addEventListener('input', function () 
     renderManifestInputs(count);
 });
 
-// Kalau halaman reload karena validasi gagal, tetap tampilkan manifes sesuai jumlah anggota lama
 const initialJumlah = parseInt(document.getElementById('jumlah_anggota').value) || 0;
-if (initialJumlah >= 10) {
+if (initialJumlah >= 6) {
     renderManifestInputs(initialJumlah);
 }
 

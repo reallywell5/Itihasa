@@ -8,9 +8,6 @@
     {{-- HEADER --}}
     <div class="bg-white rounded-2xl border border-slate-100 p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold mb-1.5">
-                🛡 Gate System • Tiket {{ Auth::user()?->museum?->name ?? 'Museum' }}
-            </span>
             <h1 class="text-lg sm:text-xl font-bold text-slate-800">
                 Katalog Tiket & QR Code
             </h1>
