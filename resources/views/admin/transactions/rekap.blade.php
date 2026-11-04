@@ -91,7 +91,7 @@
         {{-- TOTAL PENGUNJUNG --}}
         <div class="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
             <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-                👥 Total Pengunjung
+                Total Pengunjung
             </span>
             <div class="text-lg md:text-xl font-black text-slate-800">
                 {{ number_format($totalPax, 0, ',', '.') }} Orang
@@ -158,7 +158,7 @@
                                 </td>
                                 <td class="px-4 py-3 text-center whitespace-nowrap">
                                     <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full {{ $isCash ? 'bg-emerald-50 text-emerald-700' : 'bg-blue-50 text-blue-700' }} text-[10px] font-bold">
-                                        {{ $isCash ? '💵 TUNAI' : '💳 '.strtoupper($tx->payment_method ?? 'DIGITAL') }}
+                                        {{ $isCash ? 'TUNAI' : strtoupper($tx->payment_method ?? 'DIGITAL') }}
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 text-right text-slate-600 font-mono whitespace-nowrap">

@@ -15,17 +15,24 @@ class PaymentWebController extends Controller
         $user = Auth::user();
         $isSuperAdmin = $user->isSuperAdmin();
 
-        // 1. Otomatis update status PAYMENT menjadi failed jika TRANSACTION-nya sudah expired
-        Payment::where('payment_status', 'pending')
-            ->whereHas('transaction', function ($query) {
-                $query->where('expired_at', '<', now());
-            })
-            ->update(['payment_status' => 'failed']);
-
-        // 2. Otomatis update juga status TRANSACTION-nya menjadi failed agar sinkron
-        Transaction::where('payment_status', 'pending')
+        // 1. Sinkronisasi otomatis transaksi yang sudah melewati batas waktu (expired)
+        $expiredTransactions = Transaction::where('payment_status', 'pending')
             ->where('expired_at', '<', now())
-            ->update(['payment_status' => 'failed']);
+            ->with(['booking.promo', 'payment'])
+            ->get();
+
+        foreach ($expiredTransactions as $etx) {
+            $etx->update(['payment_status' => 'failed']);
+            if ($etx->payment) {
+                $etx->payment->update(['payment_status' => 'failed']);
+            }
+            if ($etx->booking && $etx->booking->status !== 'failed') {
+                $etx->booking->update(['status' => 'failed']);
+                if ($etx->booking->promo_id && $etx->booking->promo) {
+                    $etx->booking->promo->decrement('used_count');
+                }
+            }
+        }
 
         // 3. Ambil data payment terbaru untuk tabel admin
         $payments = Payment::with(['transaction.booking.user', 'transaction.booking.museum'])

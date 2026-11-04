@@ -3,10 +3,17 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Booking;
+use App\Models\Payment;
+use App\Models\QrCode;
+use App\Models\Ticket;
 use App\Models\Transaction;
+use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class TransactionWebController extends Controller
@@ -16,11 +23,24 @@ class TransactionWebController extends Controller
         $user = Auth::user();
         $isSuperAdmin = $user->isSuperAdmin();
 
-        Transaction::where('payment_status', 'pending')
+        // Sinkronisasi otomatis transaksi yang expired
+        $expiredTransactions = Transaction::where('payment_status', 'pending')
             ->where('expired_at', '<', now())
-            ->update([
-                'payment_status' => 'failed',
-            ]);
+            ->with(['booking.promo', 'payment'])
+            ->get();
+
+        foreach ($expiredTransactions as $etx) {
+            $etx->update(['payment_status' => 'failed']);
+            if ($etx->payment) {
+                $etx->payment->update(['payment_status' => 'failed']);
+            }
+            if ($etx->booking && $etx->booking->status !== 'failed') {
+                $etx->booking->update(['status' => 'failed']);
+                if ($etx->booking->promo_id && $etx->booking->promo) {
+                    $etx->booking->promo->decrement('used_count');
+                }
+            }
+        }
 
         $transactionsQuery = Transaction::with(['booking.user', 'booking.museum'])
             ->when(! $isSuperAdmin, function ($query) use ($user) {
@@ -57,10 +77,17 @@ class TransactionWebController extends Controller
         $totalRevenue = (clone $revenueQuery)->sum('total_amount');
         $totalPaidTransactions = (clone $revenueQuery)->count();
 
+        $availableTickets = Ticket::with('museum')
+            ->when(! $isSuperAdmin, function ($q) use ($user) {
+                $q->where('museum_id', $user->museum_id);
+            })
+            ->get();
+
         return view('admin.transactions.index', [
             'transactions' => $transactions,
             'totalRevenue' => $totalRevenue,
             'totalPaidTransactions' => $totalPaidTransactions,
+            'availableTickets' => $availableTickets,
         ]);
     }
 
@@ -105,10 +132,12 @@ class TransactionWebController extends Controller
         $totalPax = $transactions->sum(function ($t) {
             $b = $t->booking;
             if (! $b) {
-                return 0;
+                return (int) ($t->scanned_pax ?: 1);
             }
 
-            return ($b->adult_qty ?? 0) + ($b->student_qty ?? 0) + ($b->child_qty ?? 0);
+            $paxFromQtys = (int) ($b->adult_qty ?? 0) + (int) ($b->student_qty ?? 0) + (int) ($b->child_qty ?? 0);
+
+            return $paxFromQtys > 0 ? $paxFromQtys : (int) ($b->jumlah_anggota ?: ($t->scanned_pax ?: 1));
         });
 
         return view('admin.transactions.rekap', compact(
@@ -193,6 +222,105 @@ class TransactionWebController extends Controller
 
             fclose($handle);
         }, 200, $headers);
+    }
+
+    /**
+     * Penjualan Tiket Langsung di Loket Fisik / POS Walk-in (Fitur D Admin).
+     */
+    public function posStore(Request $request)
+    {
+        $user = Auth::user();
+        $isSuperAdmin = $user->isSuperAdmin();
+
+        $validated = $request->validate([
+            'ticket_id' => 'required|exists:tickets,id',
+            'qty' => 'required|integer|min:1|max:100',
+            'nama_penanggung_jawab' => 'nullable|string|max:255',
+            'no_hp' => 'nullable|string|max:30',
+            'payment_method' => 'required|in:tunai,cash,qris,debit',
+        ], [
+            'ticket_id.required' => 'Kategori tiket wajib dipilih.',
+            'qty.required' => 'Jumlah tiket wajib diisi.',
+            'qty.min' => 'Jumlah tiket minimal 1.',
+            'payment_method.required' => 'Metode pembayaran wajib dipilih.',
+        ]);
+
+        $ticket = Ticket::with('museum')->findOrFail($validated['ticket_id']);
+
+        if (! $isSuperAdmin && $ticket->museum_id !== $user->museum_id) {
+            abort(403, 'Anda tidak berhak menjual tiket untuk museum lain.');
+        }
+
+        $qty = (int) $validated['qty'];
+        $total = $ticket->price * $qty;
+        $today = Carbon::today()->toDateString();
+        $namaPengunjung = ! empty(trim($validated['nama_penanggung_jawab'] ?? '')) ? trim($validated['nama_penanggung_jawab']) : 'Pengunjung Loket Fisik';
+        $method = strtolower($validated['payment_method']) === 'cash' ? 'tunai' : strtolower($validated['payment_method']);
+
+        $transaction = DB::transaction(function () use ($ticket, $qty, $total, $today, $namaPengunjung, $method, $validated, $user) {
+            $booking = Booking::create([
+                'user_id' => $user->id,
+                'museum_id' => $ticket->museum_id,
+                'ticket_id' => $ticket->id,
+                'nama_penanggung_jawab' => $namaPengunjung,
+                'no_hp' => $validated['no_hp'] ?? '-',
+                'jumlah_anggota' => $qty,
+                'visit_date' => $today,
+                'adult_qty' => $qty,
+                'student_qty' => 0,
+                'child_qty' => 0,
+                'total_price' => $total,
+                'status' => 'confirmed',
+                'is_rombongan' => $qty >= 6,
+                'ticket_summary' => json_encode([
+                    [
+                        'ticket_id' => $ticket->id,
+                        'ticket_name' => $ticket->ticket_name,
+                        'qty' => $qty,
+                        'price' => (int) $ticket->price,
+                    ],
+                ]),
+            ]);
+
+            $tx = Transaction::create([
+                'booking_id' => $booking->id,
+                'invoice_code' => 'POS-'.strtoupper(Str::random(8)),
+                'payment_method' => $method,
+                'subtotal' => $total,
+                'total_amount' => $total,
+                'payment_status' => 'paid',
+                'used_at' => now(),
+                'scanned_by_user_id' => $user->id,
+                'scanned_pax' => $qty,
+                'gate_incident_tag' => 'Loket Fisik (Walk-in)',
+                'gate_notes' => 'Pembelian langsung di loket kasir museum.',
+            ]);
+
+            Payment::create([
+                'transaction_id' => $tx->id,
+                'payment_method' => $method,
+                'amount' => $total,
+                'payment_status' => 'paid',
+                'paid_at' => now(),
+            ]);
+
+            QrCode::create([
+                'transaction_id' => $tx->id,
+                'qr_code' => 'QR-'.$tx->invoice_code,
+            ]);
+
+            try {
+                app(NotificationService::class)->notifyPaymentSuccess($tx);
+            } catch (\Throwable $e) {
+                \Log::warning('Gagal notifikasi payment POS: '.$e->getMessage());
+            }
+
+            return $tx;
+        });
+
+        return redirect()
+            ->route('transactions.index')
+            ->with('success', "Tiket loket berhasil diterbitkan untuk {$qty} pengunjung (Invoice: {$transaction->invoice_code}). Transaksi otomatis tercatat pada Rekap Kas Harian.");
     }
 
     public function show(Transaction $transaction)

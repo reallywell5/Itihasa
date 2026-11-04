@@ -9,13 +9,13 @@
     <div class="flex items-center justify-between">
         <div>
             <a href="{{ route('galleries.index') }}" class="text-xs text-blue-600 hover:underline font-semibold flex items-center gap-1 mb-1">
-                ← Kembali ke Galeri
+                Kembali ke Galeri
             </a>
             <h1 class="text-xl font-bold text-slate-800">
                 Upload Foto Koleksi Baru
             </h1>
             <p class="text-xs text-slate-400">
-                Museum: <span class="font-bold text-slate-700">{{ $museums->first()->name ?? auth()->user()->museum?->name }}</span>
+                Museum: <span class="font-bold text-slate-700">{{ $museums->first()?->name ?? auth()->user()->museum?->name ?? 'Museum Mitra' }}</span>
             </p>
         </div>
 
@@ -40,7 +40,33 @@
         <form action="{{ route('galleries.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4 max-w-xl">
             @csrf
 
-            <input type="hidden" name="museum_id" value="{{ $museums->first()->id }}">
+            @if($isSuperAdmin)
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5">
+                        Pilih Museum <span class="text-red-500">*</span>
+                    </label>
+                    <select name="museum_id" required
+                            class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-600 font-medium">
+                        <option value="">-- Pilih Museum --</option>
+                        @foreach($museums as $m)
+                            <option value="{{ $m->id }}" {{ old('museum_id') == $m->id ? 'selected' : '' }}>
+                                {{ $m->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            @else
+                <input type="hidden" name="museum_id" value="{{ $museums->first()?->id }}">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5">
+                        Museum
+                    </label>
+                    <input type="text"
+                           disabled
+                           value="{{ $museums->first()?->name ?? auth()->user()->museum?->name ?? 'Museum Anda' }}"
+                           class="w-full rounded-xl bg-slate-50 border border-slate-200 px-3.5 py-2.5 text-xs text-slate-600 font-semibold cursor-not-allowed">
+                </div>
+            @endif
 
             <div>
                 <label class="block text-xs font-bold text-slate-600 mb-1.5">
@@ -48,7 +74,7 @@
                 </label>
                 <input type="file" name="image" accept="image/*" required
                        class="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-700 file:mr-3 file:py-1.5 file:px-3.5 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 file:font-semibold file:text-xs">
-                <p class="text-[10px] text-slate-400 mt-1">Maksimal 2MB (format JPG, PNG, atau WEBP)</p>
+                <p class="text-[10px] text-slate-400 mt-1">Maksimal 3MB (format JPG, PNG, atau WEBP)</p>
             </div>
 
             <div>
@@ -56,6 +82,7 @@
                     Caption / Keterangan Foto (opsional)
                 </label>
                 <input type="text" name="caption" maxlength="255"
+                       value="{{ old('caption') }}"
                        placeholder="Contoh: Koleksi Keris Majapahit Abad ke-14"
                        class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-600">
             </div>
@@ -64,7 +91,7 @@
                 <label class="block text-xs font-bold text-slate-600 mb-1.5">
                     Urutan Tampil (opsional)
                 </label>
-                <input type="number" name="order" min="0" value="0"
+                <input type="number" name="order" min="0" value="{{ old('order', 0) }}"
                        class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-600">
             </div>
 

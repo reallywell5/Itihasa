@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Petugas;
 
 use App\Http\Controllers\Controller;
 use App\Models\Broadcast;
+use App\Models\DailyScanSummary;
 use App\Models\QrScanLog;
 use App\Models\Transaction;
+use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -95,15 +97,19 @@ class ScanController extends Controller
                     $manifestChecked = is_array($item['manifest_checked'] ?? null) ? $item['manifest_checked'] : [];
 
                     $totalMembers = (int) ($tx->booking->jumlah_anggota ?? 1);
-                    $newPax = ! empty($manifestChecked) ? count($manifestChecked) : $totalMembers;
+                    $existingManifest = is_array($tx->scanned_manifest) ? $tx->scanned_manifest : [];
+                    $updatedManifest = ! empty($manifestChecked)
+                        ? array_values(array_unique(array_merge($existingManifest, $manifestChecked)))
+                        : (is_array($tx->booking->manifest) ? $tx->booking->manifest : []);
+                    $newPax = ! empty($updatedManifest) ? count($updatedManifest) : $totalMembers;
                     $isFull = $newPax >= $totalMembers;
 
                     $tx->update([
                         'scanned_by_user_id' => Auth::id(),
-                        'scanned_manifest' => ! empty($manifestChecked) ? $manifestChecked : ($tx->booking->manifest ?? []),
+                        'scanned_manifest' => $updatedManifest,
                         'scanned_pax' => $newPax,
-                        'gate_incident_tag' => $item['gate_incident_tag'] ?? null,
-                        'gate_notes' => $item['gate_notes'] ?? null,
+                        'gate_incident_tag' => $item['gate_incident_tag'] ?? $tx->gate_incident_tag,
+                        'gate_notes' => $item['gate_notes'] ?? $tx->gate_notes,
                         'used_at' => $isFull ? $now : null,
                     ]);
 
@@ -227,17 +233,19 @@ class ScanController extends Controller
                 }
             }
 
-            // === FITUR A: MANIFES ROMBONGAN BERTAHAP & FITUR E: GATE NOTES ===
+            // === FITUR VALIDASI ROMBONGAN & GATE NOTES ===
             $booking = $transaction->booking;
             $now = now();
             $gateIncidentTag = $request->input('gate_incident_tag');
             $gateNotes = $request->input('gate_notes');
 
-            $manifestChecked = $request->input('manifest_checked'); // Array of names checked in
             $totalPax = (int) ($booking->jumlah_anggota ?? 1);
+            $alreadyScannedPax = (int) ($transaction->scanned_pax ?? 0);
+            $remainingPax = max(0, $totalPax - $alreadyScannedPax);
+
+            $manifestChecked = $request->input('manifest_checked'); // Jika ada data manifes legacy
 
             if ($booking->is_rombongan && is_array($manifestChecked) && ! empty($manifestChecked)) {
-                // Merge dengan manifest yang sudah pernah masuk
                 $existingManifest = is_array($transaction->scanned_manifest) ? $transaction->scanned_manifest : [];
                 $updatedManifest = array_values(array_unique(array_merge($existingManifest, $manifestChecked)));
                 $scannedPax = count($updatedManifest);
@@ -258,17 +266,46 @@ class ScanController extends Controller
 
                 $this->logScan($transaction->id, $qrInput, 'success', $msg, $gateIncidentTag, $gateNotes, $scannedPax);
 
-                return $this->success($msg)->with('scan_manifest_progress', [
-                    'jumlah_anggota' => $totalPax,
-                    'scanned_pax' => $scannedPax,
-                    'nama_penanggung_jawab' => $booking->nama_penanggung_jawab,
-                    'daftar_nama' => $booking->manifest ?? [],
-                    'scanned_manifest' => $updatedManifest,
-                    'is_fully_used' => $isFullyUsed,
-                ]);
+                try {
+                    app(NotificationService::class)->notifyTicketValidated($transaction, $scannedPax, Auth::user());
+                } catch (\Throwable $e) {
+                    \Log::warning('Gagal notifikasi ticket validated: '.$e->getMessage());
+                }
+
+                return $this->success($msg);
             }
 
-            // Normal / Rombongan sekaligus
+            // Validasi Rombongan Cepat (Berdasarkan Perwakilan & Pax Masuk)
+            if ($booking->is_rombongan && $remainingPax > 0) {
+                $inputPax = $request->filled('pax_entered') ? (int) $request->input('pax_entered') : $remainingPax;
+                $paxEnteringNow = min($remainingPax, max(1, $inputPax));
+                $newScannedPax = $alreadyScannedPax + $paxEnteringNow;
+                $isFullyUsed = $newScannedPax >= $totalPax;
+
+                $transaction->update([
+                    'scanned_by_user_id' => Auth::id(),
+                    'scanned_pax' => $newScannedPax,
+                    'gate_incident_tag' => $gateIncidentTag ?? $transaction->gate_incident_tag,
+                    'gate_notes' => $gateNotes ?? $transaction->gate_notes,
+                    'used_at' => $isFullyUsed ? $now : null,
+                ]);
+
+                $msg = $isFullyUsed
+                    ? "Rombongan {$booking->nama_penanggung_jawab} telah masuk lengkap ({$newScannedPax}/{$totalPax} orang)."
+                    : "Sebagian rombongan ({$paxEnteringNow} orang) berhasil masuk. Total masuk: {$newScannedPax}/{$totalPax} orang. Tiket masih aktif untuk sisa anggota.";
+
+                $this->logScan($transaction->id, $qrInput, 'success', $msg, $gateIncidentTag, $gateNotes, $newScannedPax);
+
+                try {
+                    app(NotificationService::class)->notifyTicketValidated($transaction, $paxEnteringNow, Auth::user());
+                } catch (\Throwable $e) {
+                    \Log::warning('Gagal notifikasi ticket validated: '.$e->getMessage());
+                }
+
+                return $this->success($msg);
+            }
+
+            // Normal / Perorangan
             $scannedPax = $totalPax;
             $allManifest = is_array($booking->manifest) ? $booking->manifest : [];
 
@@ -291,17 +328,13 @@ class ScanController extends Controller
 
             $this->logScan($transaction->id, $qrInput, 'success', $successMsg, $gateIncidentTag, $gateNotes, $scannedPax);
 
-            $response = $this->success($successMsg);
-            if ($booking->is_rombongan && ! empty($booking->manifest)) {
-                $response->with('scan_manifest_progress', [
-                    'jumlah_anggota' => $totalPax,
-                    'scanned_pax' => $scannedPax,
-                    'nama_penanggung_jawab' => $booking->nama_penanggung_jawab,
-                    'daftar_nama' => $booking->manifest,
-                    'scanned_manifest' => $booking->manifest,
-                    'is_fully_used' => true,
-                ]);
+            try {
+                app(NotificationService::class)->notifyTicketValidated($transaction, $scannedPax, Auth::user());
+            } catch (\Throwable $e) {
+                \Log::warning('Gagal notifikasi ticket validated: '.$e->getMessage());
             }
+
+            return $this->success($successMsg);
 
             return $response;
         });
@@ -353,6 +386,17 @@ class ScanController extends Controller
 
     private function logScan(?int $transactionId, string $qrInput, string $status, string $message, ?string $tag = null, ?string $notes = null, ?int $pax = null): void
     {
+        // Hindari pencatatan duplikat jika tombol ditekan berkali-kali secara instan (< 2 detik)
+        $recentDuplicate = QrScanLog::where('scanned_by', Auth::id())
+            ->where('qr_code_input', $qrInput)
+            ->where('status', $status)
+            ->where('scanned_at', '>=', now()->subSeconds(2))
+            ->exists();
+
+        if ($recentDuplicate) {
+            return;
+        }
+
         QrScanLog::create([
             'transaction_id' => $transactionId,
             'scanned_by' => Auth::id(),
@@ -393,11 +437,21 @@ class ScanController extends Controller
             });
         });
 
-        $totalScan = (clone $baseCountQuery)->count();
-        $successScan = (clone $baseCountQuery)->where('status', 'success')->count();
-        $failedScan = (clone $baseCountQuery)->where('status', 'failed')->count();
+        // Hitung akumulasi dari tabel riwayat aktif dan tabel ringkasan arsip (agar statistik historis tidak hilang)
+        $archivedSummaryQuery = DailyScanSummary::when($staffMuseumId, function ($q) use ($staffMuseumId) {
+            $q->where('museum_id', $staffMuseumId);
+        });
+
+        $archivedTotal = (int) (clone $archivedSummaryQuery)->sum('total_scans');
+        $archivedSuccess = (int) (clone $archivedSummaryQuery)->sum('successful_scans');
+        $archivedFailed = (int) (clone $archivedSummaryQuery)->sum('failed_scans');
+        $archivedIncidents = (int) (clone $archivedSummaryQuery)->sum('incidents_count');
+
+        $totalScan = (clone $baseCountQuery)->count() + $archivedTotal;
+        $successScan = (clone $baseCountQuery)->where('status', 'success')->count() + $archivedSuccess;
+        $failedScan = (clone $baseCountQuery)->where('status', 'failed')->count() + $archivedFailed;
         $todayScan = (clone $baseCountQuery)->whereDate('scanned_at', now()->toDateString())->count();
-        $incidentsCount = (clone $baseCountQuery)->whereNotNull('gate_incident_tag')->count();
+        $incidentsCount = (clone $baseCountQuery)->whereNotNull('gate_incident_tag')->count() + $archivedIncidents;
 
         return view('petugas.riwayat', compact(
             'scans', 'totalScan', 'successScan', 'failedScan', 'todayScan', 'incidentsCount'

@@ -202,8 +202,9 @@
                 </div>
 
                 {{-- RIGHT (PROFILE & AUTH) --}}
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 sm:gap-3">
                     @auth
+                        @include('components.notification-bell')
                         <a href="{{ route('user.profile') }}"
                            title="{{ Auth::user()->name }}"
                            class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#102A43] text-white flex items-center justify-center font-bold text-xs sm:text-sm border border-[#B88A44]/40 hover:border-[#B88A44] transition shadow-sm hover:scale-105 {{ request()->routeIs('user.profile') ? 'ring-2 ring-[#B88A44] ring-offset-2' : '' }}">
@@ -225,6 +226,7 @@
 
     {{-- MAIN CONTENT --}}
     <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-4">
+        @include('components.broadcast-alerts')
         @yield('content')
     </main>
 

@@ -60,7 +60,7 @@
         </a>
         <a href="{{ route('petugas.riwayat', ['incident_only' => 1]) }}"
            class="px-3 py-1.5 rounded-lg text-xs font-bold transition {{ request('incident_only') ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
-            📝 Catatan / Insiden Gate
+            Catatan / Insiden Gate
         </a>
     </div>
 

@@ -107,14 +107,18 @@
 
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">
-                        Nama Lengkap Penanggung Jawab <span class="text-red-500">*</span>
+                        Nama Pemesan / Perwakilan Rombongan <span class="text-red-500">*</span>
                     </label>
                     <input type="text"
                            name="nama_penanggung_jawab"
+                           id="nama_penanggung_jawab"
                            value="{{ old('nama_penanggung_jawab', auth()->user()->name) }}"
                            required
-                           placeholder="Contoh: Asep Supriatna"
+                           placeholder="Contoh: Bpk. Ahmad Subarjo"
                            class="w-full px-3.5 py-2.5 rounded-xl border border-[#D9CBB8] text-xs focus:outline-none focus:ring-2 focus:ring-[#B88A44]">
+                    <p class="text-[10px] text-slate-400 mt-1">
+                        Cukup 1 nama perwakilan untuk seluruh tiket yang dipesan (perorangan maupun rombongan).
+                    </p>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -160,22 +164,6 @@
                            pattern="[0-9+]{9,15}"
                            class="w-full px-3.5 py-2.5 rounded-xl border border-[#D9CBB8] text-xs focus:outline-none focus:ring-2 focus:ring-[#B88A44]">
                 </div>
-            </div>
-
-            {{-- MANIFES ROMBONGAN (muncul otomatis kalau jumlah anggota >= 6) --}}
-            <div id="manifest-section" class="bg-white rounded-2xl border border-[#EADBC8] p-4 sm:p-6 shadow-sm hidden">
-                <div class="flex items-center justify-between mb-2">
-                    <h2 class="text-base sm:text-lg font-bold text-[#102A43]">
-                        Manifes Rombongan
-                    </h2>
-                    <span id="manifest-count" class="text-xs font-semibold text-[#B88A44]"></span>
-                </div>
-
-                <p class="text-slate-400 text-xs mb-4">
-                    Pemesanan untuk 6 orang atau lebih wajib mengisi nama seluruh anggota rombongan.
-                </p>
-
-                <div id="manifest-inputs" class="space-y-2.5"></div>
             </div>
 
             {{-- EMAIL NOTIFIKASI --}}
@@ -398,7 +386,6 @@ function updateTotal() {
 
     if (totalQty > 0) {
         document.getElementById('jumlah_anggota').value = totalQty;
-        renderManifestInputs(totalQty);
     }
 
     document.getElementById('ticket-summary').innerHTML =
@@ -608,50 +595,6 @@ document.getElementById('visit-date').addEventListener('change', function () {
         fetchQuota(this.value);
     }
 });
-
-let manifestValues = @json(old('manifest', []));
-
-function renderManifestInputs(count) {
-    const section = document.getElementById('manifest-section');
-    const container = document.getElementById('manifest-inputs');
-    const countLabel = document.getElementById('manifest-count');
-
-    if (count < 6) {
-        section.classList.add('hidden');
-        container.innerHTML = '';
-        return;
-    }
-
-    section.classList.remove('hidden');
-    countLabel.innerText = count + ' nama dibutuhkan';
-
-    let html = '';
-    for (let i = 0; i < count; i++) {
-        const savedValue = manifestValues[i] || '';
-        html += `
-            <input type="text"
-                   name="manifest[]"
-                   value="${savedValue}"
-                   required
-                   maxlength="255"
-                   placeholder="Nama anggota ke-${i + 1}"
-                   oninput="manifestValues[${i}] = this.value"
-                   class="w-full px-5 py-3 rounded-xl border border-[#D9CBB8] text-base">
-        `;
-    }
-
-    container.innerHTML = html;
-}
-
-document.getElementById('jumlah_anggota').addEventListener('input', function () {
-    const count = parseInt(this.value) || 0;
-    renderManifestInputs(count);
-});
-
-const initialJumlah = parseInt(document.getElementById('jumlah_anggota').value) || 0;
-if (initialJumlah >= 6) {
-    renderManifestInputs(initialJumlah);
-}
 
 updateTotal();
 </script>

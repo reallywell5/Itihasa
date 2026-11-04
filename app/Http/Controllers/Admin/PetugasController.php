@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Museum;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -11,11 +12,16 @@ class PetugasController extends Controller
 {
     public function index(Request $request)
     {
-        $adminMuseumId = auth()->user()->museum_id;
+        $user = auth()->user();
+        $isSuperAdmin = $user->isSuperAdmin();
+        $adminMuseumId = $user->museum_id;
 
         $query = User::where('role', 'staff')
-            ->when($adminMuseumId, function ($q) use ($adminMuseumId) {
+            ->when(! $isSuperAdmin, function ($q) use ($adminMuseumId) {
                 $q->where('museum_id', $adminMuseumId);
+            })
+            ->when($isSuperAdmin && $request->filled('museum_id'), function ($q) use ($request) {
+                $q->where('museum_id', $request->museum_id);
             });
 
         if ($request->filled('search')) {
@@ -28,73 +34,121 @@ class PetugasController extends Controller
 
         $totalPetugas = (clone $query)->count();
         $petugas = $query->with('museum')->latest()->paginate(10)->withQueryString();
+        $museums = $isSuperAdmin ? Museum::orderBy('name')->get() : collect();
 
-        return view('admin.petugas.index', compact('petugas', 'totalPetugas'));
+        return view('admin.petugas.index', compact('petugas', 'totalPetugas', 'museums', 'isSuperAdmin'));
     }
 
     public function create()
     {
-        $museum = auth()->user()->museum;
+        $user = auth()->user();
+        $isSuperAdmin = $user->isSuperAdmin();
+        $museums = $isSuperAdmin ? Museum::orderBy('name')->get() : collect();
+        $museum = $user->museum;
 
-        return view('admin.petugas.create', compact('museum'));
+        return view('admin.petugas.create', compact('museum', 'museums', 'isSuperAdmin'));
     }
 
     public function store(Request $request)
     {
-        $adminMuseumId = auth()->user()->museum_id;
+        $isSuperAdmin = auth()->user()->isSuperAdmin();
 
-        $request->validate([
+        $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
+        ];
+
+        if ($isSuperAdmin) {
+            $rules['museum_id'] = 'required|exists:museums,id';
+        }
+
+        $request->validate($rules, [
+            'museum_id.required' => 'Museum penugasan wajib dipilih untuk akun Petugas.',
+            'museum_id.exists' => 'Museum yang dipilih tidak valid.',
         ]);
+
+        $museumId = $isSuperAdmin ? $request->museum_id : auth()->user()->museum_id;
 
         User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'staff',
-            'museum_id' => $adminMuseumId,
+            'museum_id' => $museumId,
         ]);
 
         return redirect()
             ->route('admin.petugas.index')
-            ->with('success', 'Akun petugas lapangan berhasil ditambahkan dan otomatis terikat ke museum Anda.');
+            ->with('success', 'Akun petugas lapangan berhasil ditambahkan.');
+    }
+
+    public function show($id)
+    {
+        $user = auth()->user();
+        $isSuperAdmin = $user->isSuperAdmin();
+        $adminMuseumId = $user->museum_id;
+
+        $petugas = User::where('role', 'staff')
+            ->when(! $isSuperAdmin, function ($q) use ($adminMuseumId) {
+                $q->where('museum_id', $adminMuseumId);
+            })
+            ->findOrFail($id);
+
+        return redirect()->route('admin.petugas.edit', $petugas->id);
     }
 
     public function edit($id)
     {
-        $adminMuseumId = auth()->user()->museum_id;
+        $user = auth()->user();
+        $isSuperAdmin = $user->isSuperAdmin();
+        $adminMuseumId = $user->museum_id;
 
         $petugas = User::where('role', 'staff')
-            ->when($adminMuseumId, function ($q) use ($adminMuseumId) {
+            ->when(! $isSuperAdmin, function ($q) use ($adminMuseumId) {
                 $q->where('museum_id', $adminMuseumId);
             })
             ->findOrFail($id);
 
-        $museum = auth()->user()->museum;
+        $museums = $isSuperAdmin ? Museum::orderBy('name')->get() : collect();
+        $museum = $isSuperAdmin ? $petugas->museum : $user->museum;
 
-        return view('admin.petugas.edit', compact('petugas', 'museum'));
+        return view('admin.petugas.edit', compact('petugas', 'museum', 'museums', 'isSuperAdmin'));
     }
 
     public function update(Request $request, $id)
     {
-        $adminMuseumId = auth()->user()->museum_id;
+        $user = auth()->user();
+        $isSuperAdmin = $user->isSuperAdmin();
+        $adminMuseumId = $user->museum_id;
 
         $petugas = User::where('role', 'staff')
-            ->when($adminMuseumId, function ($q) use ($adminMuseumId) {
+            ->when(! $isSuperAdmin, function ($q) use ($adminMuseumId) {
                 $q->where('museum_id', $adminMuseumId);
             })
             ->findOrFail($id);
 
-        $request->validate([
+        $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,'.$petugas->id,
             'password' => 'nullable|string|min:8|confirmed',
+        ];
+
+        if ($isSuperAdmin) {
+            $rules['museum_id'] = 'required|exists:museums,id';
+        }
+
+        $request->validate($rules, [
+            'museum_id.required' => 'Museum penugasan wajib dipilih.',
+            'museum_id.exists' => 'Museum yang dipilih tidak valid.',
         ]);
 
         $petugas->name = $request->name;
         $petugas->email = $request->email;
+
+        if ($isSuperAdmin) {
+            $petugas->museum_id = $request->museum_id;
+        }
 
         if ($request->filled('password')) {
             $petugas->password = Hash::make($request->password);
@@ -109,10 +163,12 @@ class PetugasController extends Controller
 
     public function destroy($id)
     {
-        $adminMuseumId = auth()->user()->museum_id;
+        $user = auth()->user();
+        $isSuperAdmin = $user->isSuperAdmin();
+        $adminMuseumId = $user->museum_id;
 
         $petugas = User::where('role', 'staff')
-            ->when($adminMuseumId, function ($q) use ($adminMuseumId) {
+            ->when(! $isSuperAdmin, function ($q) use ($adminMuseumId) {
                 $q->where('museum_id', $adminMuseumId);
             })
             ->findOrFail($id);

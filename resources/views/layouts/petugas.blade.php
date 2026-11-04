@@ -64,7 +64,7 @@
             <div>
                 <h1 class="text-base font-bold text-slate-800 leading-none">Itihasa</h1>
                 <p class="text-[9px] uppercase tracking-widest text-emerald-600 font-bold mt-1">
-                    🛡 Petugas Lapangan
+                    Petugas Lapangan
                 </p>
             </div>
         </div>
@@ -119,19 +119,6 @@
                 </svg>
                 <span>Riwayat Scan</span>
             </a>
-
-            <p class="px-3 pt-4 pb-1 text-[9px] font-bold uppercase tracking-widest text-slate-400">
-                Pengaturan
-            </p>
-
-            <a href="{{ route('petugas.profil') }}"
-               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all
-               {{ request()->routeIs('petugas.profil*') ? 'menu-active' : 'menu-normal' }}">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A9 9 0 1118.879 17.8M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                </svg>
-                <span>Profil Saya</span>
-            </a>
         </nav>
 
         {{-- LOGOUT BUTTON --}}
@@ -183,10 +170,7 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </a>
 
-            <a href="{{ route('petugas.profil') }}"
-               class="p-2.5 rounded-xl transition {{ request()->routeIs('petugas.profil*') ? 'menu-active' : 'menu-normal' }}" title="Profil">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A9 9 0 1118.879 17.8M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            </a>
+
         </div>
 
         <form method="POST" action="{{ route('logout') }}" class="mt-auto">
@@ -239,7 +223,7 @@
                 </div>
 
                 {{-- DRAWER USER PROFILE CARD --}}
-                <div class="p-4 bg-emerald-50/60 border-b border-emerald-100/60">
+                <a href="{{ route('petugas.profil') }}" class="block p-4 bg-emerald-50/60 border-b border-emerald-100/60 hover:bg-emerald-100/50 transition">
                     <div class="flex items-center gap-3">
                         <div class="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
                             {{ strtoupper(substr(Auth::user()->name ?? 'P', 0, 1)) }}
@@ -248,12 +232,13 @@
                             <p class="text-xs font-bold text-slate-800 truncate">
                                 {{ Auth::user()->name ?? 'Petugas' }}
                             </p>
-                            <span class="inline-block px-1.5 py-0.2 rounded text-[9px] font-bold uppercase bg-emerald-100 text-emerald-800">
-                                🏛 {{ Auth::user()?->museum?->name ?? 'Petugas Lapangan' }}
+                            <span class="inline-block px-1.5 py-0.5 rounded text-[9px] font-bold uppercase bg-emerald-100 text-emerald-800">
+                                {{ Auth::user()?->museum?->name ?? 'Petugas Lapangan' }}
                             </span>
                         </div>
+                        <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                     </div>
-                </div>
+                </a>
 
                 {{-- DRAWER LINKS --}}
                 <nav class="p-3 space-y-1 overflow-y-auto max-h-[calc(100vh-230px)]">
@@ -290,13 +275,6 @@
                        {{ request()->routeIs('petugas.riwayat') ? 'menu-active' : 'menu-normal' }}">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                         <span>Riwayat Scan</span>
-                    </a>
-
-                    <a href="{{ route('petugas.profil') }}"
-                       class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold transition
-                       {{ request()->routeIs('petugas.profil*') ? 'menu-active' : 'menu-normal' }}">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A9 9 0 1118.879 17.8M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                        <span>Profil Saya</span>
                     </a>
                 </nav>
             </div>
@@ -337,25 +315,111 @@
                 </div>
             </div>
 
-            <div class="flex items-center gap-3">
-                <div class="text-right hidden sm:block">
-                    <p class="text-xs font-bold text-slate-800 leading-none">
-                        {{ Auth::user()->name ?? 'Petugas' }}
-                    </p>
-                    <p class="text-[9px] text-emerald-600 font-bold uppercase mt-0.5">
-                        🛡 {{ Auth::user()?->museum?->name ?? 'Staff Lapangan' }}
-                    </p>
-                </div>
+            {{-- HEADER ACTIONS (NOTIFICATIONS + PROFILE) --}}
+            <div class="flex items-center gap-2 sm:gap-3">
+                @include('components.notification-bell')
 
-                <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-sm">
-                    {{ strtoupper(substr(Auth::user()->name ?? 'P', 0, 1)) }}
+                {{-- PROFILE DROPDOWN --}}
+                <div class="relative" x-data="{ profileMenuOpen: false }" @click.outside="profileMenuOpen = false">
+                <button type="button"
+                        @click="profileMenuOpen = !profileMenuOpen"
+                        class="flex items-center gap-2.5 px-3 py-1.5 rounded-2xl border border-slate-200/90 bg-white hover:bg-slate-50 transition shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        aria-expanded="profileMenuOpen"
+                        aria-haspopup="true">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-xs font-bold text-slate-800 leading-none">
+                            {{ Auth::user()->name ?? 'Petugas Gate' }}
+                        </p>
+                        <p class="text-[10px] text-slate-400 font-semibold mt-0.5">
+                            {{ Auth::user()?->museum?->name ?? 'Petugas Gate' }}
+                        </p>
+                    </div>
+
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xs shadow-sm ring-2 ring-white">
+                        {{ strtoupper(substr(Auth::user()->name ?? 'P', 0, 1)) }}
+                    </div>
+
+                    <svg class="w-3.5 h-3.5 text-slate-400 transition transform hidden sm:block" :class="profileMenuOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+
+                {{-- DROPDOWN MENU PANEL --}}
+                <div x-show="profileMenuOpen"
+                     x-cloak
+                     x-transition:enter="transition ease-out duration-100"
+                     x-transition:enter-start="transform opacity-0 scale-95"
+                     x-transition:enter-end="transform opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-75"
+                     x-transition:leave-start="transform opacity-100 scale-100"
+                     x-transition:leave-end="transform opacity-0 scale-95"
+                     class="absolute right-0 mt-2 w-64 rounded-2xl bg-white shadow-xl border border-slate-100 py-2 z-50 divide-y divide-slate-100"
+                     style="display: none;">
+
+                    {{-- USER INFO HEADER --}}
+                    <div class="px-4 py-3">
+                        <p class="text-xs font-bold text-slate-800 truncate">
+                            {{ Auth::user()->name ?? 'Petugas Gate' }}
+                        </p>
+                        <p class="text-[11px] text-slate-400 font-mono truncate mt-0.5">
+                            {{ Auth::user()->email ?? '-' }}
+                        </p>
+                        <div class="mt-2">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800">
+                                PETUGAS GATE
+                            </span>
+                        </div>
+                    </div>
+
+                    {{-- MENU LINKS --}}
+                    <div class="py-1">
+                        <a href="{{ route('petugas.profil') }}"
+                           class="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            <span>Profil & Akun Saya</span>
+                        </a>
+
+                        <a href="{{ route('petugas.qrcodes.scan') }}"
+                           class="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                            </svg>
+                            <span>Pindai QR Tiket</span>
+                        </a>
+
+                        <a href="{{ route('petugas.riwayat') }}"
+                           class="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">
+                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>Riwayat Scan Tiket</span>
+                        </a>
+                    </div>
+
+                    {{-- LOGOUT BUTTON --}}
+                    <div class="py-1">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit"
+                                    class="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 transition text-left">
+                                <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                <span>Keluar (Logout)</span>
+                            </button>
+                        </form>
+                    </div>
                 </div>
+            </div>
             </div>
         </header>
 
         {{-- PAGE CONTENT CONTAINER --}}
         <main class="flex-1 p-3 sm:p-5 lg:p-6 overflow-y-auto">
             <div class="w-full max-w-7xl mx-auto">
+                @include('components.broadcast-alerts')
                 @yield('content')
             </div>
         </main>

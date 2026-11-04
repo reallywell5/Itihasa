@@ -25,117 +25,216 @@
                 </p>
             </div>
 
-            {{-- SEARCH & FILTER (FITUR F USER: KOTA, KATEGORI & RENTANG HARGA) --}}
-            <div class="space-y-3">
-                <form method="GET" action="{{ route('user.home') }}">
-                    <div class="flex flex-col sm:flex-row gap-2 p-2 bg-white rounded-2xl border border-[#EADBC8] shadow-[0_8px_30px_rgba(16,42,67,0.06)] transition hover:border-[#B88A44]/60">
-                        {{-- KEYWORD INPUT --}}
-                        <div class="relative flex-1 flex items-center min-w-0">
-                            <svg class="w-4 h-4 text-[#B88A44] absolute left-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            {{-- SEARCH & FILTER (MODERN INDUSTRY-STANDARD DISCOVERY & SEARCH) --}}
+            <div class="space-y-3.5"
+                 x-data="{ 
+                    query: '{{ request('search') }}',
+                    city: '{{ request('city') }}',
+                    category: '{{ request('category') }}',
+                    price: '{{ request('price_range') }}',
+                    clearSearch() {
+                        this.query = '';
+                        $refs.searchInput.focus();
+                    }
+                 }">
+
+                {{-- MAIN SEARCH CARD --}}
+                <div class="bg-white rounded-3xl border border-[#EADBC8] p-3.5 sm:p-4 shadow-[0_12px_36px_rgba(16,42,67,0.07)] space-y-3 transition hover:border-[#B88A44]/50">
+                    <form method="GET" action="{{ route('user.home') }}#featured">
+
+                        {{-- 1. PRIMARY SEARCH INPUT BAR --}}
+                        <div class="relative flex items-center bg-[#FAF7F2] rounded-2xl border border-[#EADBC8] p-1.5 transition focus-within:border-[#B88A44] focus-within:ring-2 focus-within:ring-[#B88A44]/20 focus-within:bg-white shadow-inner">
+                            
+                            {{-- MAGNIFYING ICON --}}
+                            <div class="pl-3 pr-2 text-[#B88A44] flex items-center pointer-events-none">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                                </svg>
+                            </div>
+
+                            {{-- INPUT FIELD --}}
                             <input type="text"
                                    name="search"
-                                   placeholder="Cari nama museum..."
-                                   value="{{ request('search') }}"
-                                   class="w-full pl-10 pr-2 py-2.5 rounded-xl border-0 bg-transparent text-xs sm:text-sm text-slate-800 focus:outline-none placeholder:text-slate-400">
+                                   x-ref="searchInput"
+                                   x-model="query"
+                                   placeholder="Cari museum, pameran seni, atau kota..."
+                                   class="w-full py-2.5 sm:py-3 bg-transparent text-xs sm:text-sm text-slate-800 font-medium placeholder:text-slate-400 focus:outline-none">
+
+                            {{-- CLEAR BUTTON (MUNCUL JIKA ADA QUERY) --}}
+                            <button type="button"
+                                    x-show="query && query.length > 0"
+                                    x-cloak
+                                    @click="clearSearch()"
+                                    title="Hapus teks"
+                                    class="p-1.5 mr-1 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-200/60 transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+
+                            {{-- SEARCH CTA BUTTON --}}
+                            <button type="submit"
+                                    class="px-5 sm:px-6 py-2.5 sm:py-3 rounded-xl bg-[#102A43] hover:bg-[#0c2238] active:scale-95 text-white font-bold text-xs sm:text-sm transition shadow-md shrink-0 flex items-center gap-1.5">
+                                <span>Cari</span>
+                                <svg class="w-4 h-4 hidden sm:inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </button>
                         </div>
 
-                        {{-- CITY FILTER --}}
-                        <div class="sm:border-l sm:border-[#EADBC8]/80 sm:pl-1.5 flex items-center">
-                            <select name="city"
-                                    class="w-full sm:w-auto px-2.5 py-2.5 rounded-xl border-0 bg-[#F6F1E8]/70 text-xs text-slate-700 font-medium focus:outline-none cursor-pointer">
-                                <option value="">Semua Kota</option>
-                                @foreach($cities ?? [] as $city)
-                                    <option value="{{ $city }}" {{ request('city') == $city ? 'selected' : '' }}>
-                                        📍 {{ $city }}
-                                    </option>
-                                @endforeach
-                            </select>
+                        {{-- 2. FILTER STRIP (LOKASI, KATEGORI, HARGA) --}}
+                        <div class="pt-2 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            
+                            {{-- FILTER KOTA --}}
+                            <div class="relative">
+                                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1 ml-1 flex items-center gap-1">
+                                    <span>📍</span> <span>Lokasi / Kota</span>
+                                </label>
+                                <div class="relative">
+                                    <select name="city"
+                                            x-model="city"
+                                            @change="$el.form.submit()"
+                                            class="w-full pl-3 pr-8 py-2 rounded-xl border border-[#EADBC8] bg-[#FAF7F2] hover:bg-white text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#B88A44]/30 focus:border-[#B88A44] transition cursor-pointer appearance-none shadow-sm">
+                                        <option value="">Semua Kota</option>
+                                        @foreach($cities ?? [] as $c)
+                                            <option value="{{ $c }}" {{ request('city') == $c ? 'selected' : '' }}>
+                                                {{ $c }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-400 text-xs">
+                                        ▾
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- FILTER KATEGORI --}}
+                            <div class="relative">
+                                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1 ml-1 flex items-center gap-1">
+                                    <span>🏛️</span> <span>Kategori</span>
+                                </label>
+                                <div class="relative">
+                                    <select name="category"
+                                            x-model="category"
+                                            @change="$el.form.submit()"
+                                            class="w-full pl-3 pr-8 py-2 rounded-xl border border-[#EADBC8] bg-[#FAF7F2] hover:bg-white text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#B88A44]/30 focus:border-[#B88A44] transition cursor-pointer appearance-none shadow-sm">
+                                        <option value="">Semua Kategori</option>
+                                        <option value="museum" {{ request('category') == 'museum' ? 'selected' : '' }}>🏛️ Museum Sejarah</option>
+                                        <option value="seni" {{ request('category') == 'seni' ? 'selected' : '' }}>🎨 Seni & Galeri</option>
+                                        <option value="budaya" {{ request('category') == 'budaya' ? 'selected' : '' }}>🎭 Budaya & Etnik</option>
+                                        <option value="alam" {{ request('category') == 'alam' ? 'selected' : '' }}>🌋 Alam & Sains</option>
+                                        <option value="religius" {{ request('category') == 'religius' ? 'selected' : '' }}>⛪ Religius</option>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-400 text-xs">
+                                        ▾
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- FILTER HARGA --}}
+                            <div class="relative">
+                                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1 ml-1 flex items-center gap-1">
+                                    <span>🎟️</span> <span>Tiket Masuk</span>
+                                </label>
+                                <div class="relative">
+                                    <select name="price_range"
+                                            x-model="price"
+                                            @change="$el.form.submit()"
+                                            class="w-full pl-3 pr-8 py-2 rounded-xl border border-[#EADBC8] bg-[#FAF7F2] hover:bg-white text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#B88A44]/30 focus:border-[#B88A44] transition cursor-pointer appearance-none shadow-sm">
+                                        <option value="">Semua Harga</option>
+                                        <option value="free" {{ request('price_range') == 'free' ? 'selected' : '' }}>🎟️ Tiket Gratis</option>
+                                        <option value="under_25k" {{ request('price_range') == 'under_25k' ? 'selected' : '' }}>≤ Rp 25.000</option>
+                                        <option value="25k_50k" {{ request('price_range') == '25k_50k' ? 'selected' : '' }}>Rp 25k - 50k</option>
+                                        <option value="above_50k" {{ request('price_range') == 'above_50k' ? 'selected' : '' }}>&gt; Rp 50.000</option>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-400 text-xs">
+                                        ▾
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
 
-                        {{-- CATEGORY FILTER --}}
-                        <div class="sm:border-l sm:border-[#EADBC8]/80 sm:pl-1.5 flex items-center">
-                            <select name="category"
-                                    class="w-full sm:w-auto px-2.5 py-2.5 rounded-xl border-0 bg-[#F6F1E8]/70 text-xs text-slate-700 font-medium focus:outline-none cursor-pointer">
-                                <option value="">Semua Kategori</option>
-                                <option value="museum" {{ request('category') == 'museum' ? 'selected' : '' }}>Museum Sejarah</option>
-                                <option value="seni" {{ request('category') == 'seni' ? 'selected' : '' }}>Seni & Galeri</option>
-                                <option value="budaya" {{ request('category') == 'budaya' ? 'selected' : '' }}>Budaya & Etnik</option>
-                                <option value="alam" {{ request('category') == 'alam' ? 'selected' : '' }}>Alam & Sains</option>
-                                <option value="religius" {{ request('category') == 'religius' ? 'selected' : '' }}>Religius</option>
-                            </select>
-                        </div>
+                    </form>
+                </div>
 
-                        {{-- PRICE RANGE FILTER --}}
-                        <div class="sm:border-l sm:border-[#EADBC8]/80 sm:pl-1.5 flex items-center">
-                            <select name="price_range"
-                                    class="w-full sm:w-auto px-2.5 py-2.5 rounded-xl border-0 bg-[#F6F1E8]/70 text-xs text-slate-700 font-medium focus:outline-none cursor-pointer">
-                                <option value="">Semua Harga</option>
-                                <option value="free" {{ request('price_range') == 'free' ? 'selected' : '' }}>Gratis</option>
-                                <option value="under_25k" {{ request('price_range') == 'under_25k' ? 'selected' : '' }}>&le; Rp 25.000</option>
-                                <option value="25k_50k" {{ request('price_range') == '25k_50k' ? 'selected' : '' }}>Rp 25k - 50k</option>
-                                <option value="above_50k" {{ request('price_range') == 'above_50k' ? 'selected' : '' }}>&gt; Rp 50.000</option>
-                            </select>
-                        </div>
-
-                        <button type="submit"
-                                class="px-6 py-2.5 rounded-xl bg-[#102A43] hover:bg-[#0c2238] text-white font-bold text-xs sm:text-sm transition shadow-sm shrink-0 flex items-center justify-center gap-1.5">
-                            <span>Cari</span>
-                            <span>→</span>
-                        </button>
-                    </div>
-                </form>
-
-                {{-- QUICK FILTER CHIPS (FITUR F USER: 1-KLIK CEPAT) --}}
+                {{-- 3. QUICK CHIPS / REKOMENDASI POPULER --}}
                 <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1">
-                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider shrink-0 mr-1">Filter Cepat:</span>
+                    <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider shrink-0 mr-1 flex items-center gap-1">
+                        <span>🔥</span> <span>Paling Dicari:</span>
+                    </span>
                     
-                    <a href="{{ route('user.home') }}"
+                    <a href="{{ route('user.home') }}#featured"
                        class="px-3 py-1 rounded-full text-xs font-semibold shrink-0 transition {{ !request()->hasAny(['search', 'category', 'city', 'price_range']) ? 'bg-[#102A43] text-white shadow-sm' : 'bg-white border border-[#EADBC8] text-slate-600 hover:bg-[#F6F1E8]' }}">
                         Semua
                     </a>
 
-                    <a href="{{ route('user.home', ['category' => 'museum']) }}"
+                    <a href="{{ route('user.home', ['category' => 'museum']) }}#featured"
                        class="px-3 py-1 rounded-full text-xs font-semibold shrink-0 transition {{ request('category') == 'museum' ? 'bg-[#102A43] text-white shadow-sm' : 'bg-white border border-[#EADBC8] text-slate-600 hover:bg-[#F6F1E8]' }}">
                         🏛️ Sejarah
                     </a>
 
-                    <a href="{{ route('user.home', ['category' => 'seni']) }}"
+                    <a href="{{ route('user.home', ['category' => 'seni']) }}#featured"
                        class="px-3 py-1 rounded-full text-xs font-semibold shrink-0 transition {{ request('category') == 'seni' ? 'bg-[#102A43] text-white shadow-sm' : 'bg-white border border-[#EADBC8] text-slate-600 hover:bg-[#F6F1E8]' }}">
                         🎨 Seni & Galeri
                     </a>
 
-                    <a href="{{ route('user.home', ['category' => 'alam']) }}"
+                    <a href="{{ route('user.home', ['category' => 'alam']) }}#featured"
                        class="px-3 py-1 rounded-full text-xs font-semibold shrink-0 transition {{ request('category') == 'alam' ? 'bg-[#102A43] text-white shadow-sm' : 'bg-white border border-[#EADBC8] text-slate-600 hover:bg-[#F6F1E8]' }}">
-                        🌋 Alam & Sains
+                        🌋 Sains & Bumi
                     </a>
 
                     @if(!empty($cities))
                         @foreach(array_slice($cities, 0, 2) as $c)
-                            <a href="{{ route('user.home', ['city' => $c]) }}"
+                            <a href="{{ route('user.home', ['city' => $c]) }}#featured"
                                class="px-3 py-1 rounded-full text-xs font-semibold shrink-0 transition {{ request('city') == $c ? 'bg-[#102A43] text-white shadow-sm' : 'bg-white border border-[#EADBC8] text-slate-600 hover:bg-[#F6F1E8]' }}">
                                 📍 {{ $c }}
                             </a>
                         @endforeach
                     @endif
 
-                    <a href="{{ route('user.home', ['price_range' => 'free']) }}"
+                    <a href="{{ route('user.home', ['price_range' => 'free']) }}#featured"
                        class="px-3 py-1 rounded-full text-xs font-semibold shrink-0 transition {{ request('price_range') == 'free' ? 'bg-[#102A43] text-white shadow-sm' : 'bg-white border border-[#EADBC8] text-slate-600 hover:bg-[#F6F1E8]' }}">
                         🎟️ Tiket Gratis
                     </a>
                 </div>
 
-                {{-- ACTIVE FILTERS INDICATOR & RESET --}}
+                {{-- 4. ACTIVE FILTERS PILLS & DISMISS --}}
                 @if(request()->hasAny(['search', 'category', 'city', 'price_range']) && (request('search') || request('category') || request('city') || request('price_range')))
-                    <div class="flex items-center gap-2 pt-1">
-                        <span class="text-xs text-slate-500">
-                            Menampilkan hasil untuk:
-                            @if(request('search')) <strong class="text-[#102A43]">"{{ request('search') }}"</strong> @endif
-                            @if(request('city')) <span class="px-2 py-0.5 rounded-md bg-white border text-[10px] font-bold text-slate-700">📍 {{ request('city') }}</span> @endif
-                            @if(request('category')) <span class="px-2 py-0.5 rounded-md bg-white border text-[10px] font-bold text-slate-700">{{ $categories[request('category')] ?? request('category') }}</span> @endif
-                            @if(request('price_range')) <span class="px-2 py-0.5 rounded-md bg-white border text-[10px] font-bold text-slate-700">Harga: {{ request('price_range') }}</span> @endif
-                        </span>
-                        <a href="{{ route('user.home') }}" class="text-xs font-bold text-red-600 hover:underline">
-                            ✕ Reset Filter
+                    <div class="flex flex-wrap items-center gap-1.5 pt-1 text-xs">
+                        <span class="text-xs text-slate-500 font-medium">Filter aktif:</span>
+
+                        @if(request('search'))
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-900 border border-amber-200 text-xs font-semibold">
+                                <span>"{{ request('search') }}"</span>
+                                <a href="{{ route('user.home', request()->except('search')) }}#featured" class="hover:text-red-600 font-bold ml-0.5">✕</a>
+                            </span>
+                        @endif
+
+                        @if(request('city'))
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-900 border border-blue-200 text-xs font-semibold">
+                                <span>📍 {{ request('city') }}</span>
+                                <a href="{{ route('user.home', request()->except('city')) }}#featured" class="hover:text-red-600 font-bold ml-0.5">✕</a>
+                            </span>
+                        @endif
+
+                        @if(request('category'))
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-50 text-purple-900 border border-purple-200 text-xs font-semibold">
+                                <span>{{ $categories[request('category')] ?? request('category') }}</span>
+                                <a href="{{ route('user.home', request()->except('category')) }}#featured" class="hover:text-red-600 font-bold ml-0.5">✕</a>
+                            </span>
+                        @endif
+
+                        @if(request('price_range'))
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-900 border border-emerald-200 text-xs font-semibold">
+                                <span>Harga: {{ request('price_range') == 'free' ? 'Gratis' : (request('price_range') == 'under_25k' ? '≤ Rp 25k' : request('price_range')) }}</span>
+                                <a href="{{ route('user.home', request()->except('price_range')) }}#featured" class="hover:text-red-600 font-bold ml-0.5">✕</a>
+                            </span>
+                        @endif
+
+                        <a href="{{ route('user.home') }}#featured"
+                           class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold text-red-600 hover:bg-red-50 transition border border-transparent hover:border-red-200">
+                            <span>✕ Reset Semua</span>
                         </a>
                     </div>
                 @endif
@@ -159,9 +258,23 @@
 <section id="featured" class="max-w-7xl mx-auto py-12 sm:py-16">
     <div class="flex items-center justify-between mb-8">
         <div>
-            <span class="text-[10px] font-bold uppercase tracking-widest text-[#B88A44] block mb-1">Destinasi ({{ $museums->count() }})</span>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-[#B88A44] block mb-1">
+                @if(request()->hasAny(['search', 'category', 'city', 'price_range']) && (request('search') || request('category') || request('city') || request('price_range')))
+                    Hasil Pencarian ({{ $museums->count() }} Ditemukan)
+                @else
+                    Destinasi Terpilih ({{ $museums->count() }})
+                @endif
+            </span>
             <h2 class="font-display text-2xl sm:text-3xl font-bold text-[#102A43]">
-                Koleksi Pilihan
+                @if(request('search'))
+                    Museum untuk "{{ request('search') }}"
+                @elseif(request('city'))
+                    Koleksi Museum di {{ request('city') }}
+                @elseif(request('category'))
+                    Koleksi {{ $categories[request('category')] ?? 'Museum' }}
+                @else
+                    Koleksi Pilihan Nusantara
+                @endif
             </h2>
         </div>
 
@@ -271,8 +384,20 @@
                 </div>
             </div>
         @empty
-            <div class="w-full text-center py-12 text-slate-500 text-xs">
-                Tidak ada museum yang sesuai dengan filter pencarian.
+            <div class="w-full text-center py-16 px-4 bg-white rounded-3xl border border-[#EADBC8] shadow-sm">
+                <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-amber-50 text-[#B88A44] flex items-center justify-center text-3xl">
+                    🔍
+                </div>
+                <h3 class="font-bold text-base text-[#102A43]">Museum Tidak Ditemukan</h3>
+                <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto leading-relaxed">
+                    Tidak ada museum yang sesuai dengan kata kunci atau filter pencarian Anda. Coba ganti kata kunci atau reset filter.
+                </p>
+                <div class="mt-4">
+                    <a href="{{ route('user.home') }}#featured"
+                       class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#102A43] hover:bg-[#0c2238] text-white text-xs font-bold transition shadow-sm">
+                        <span>Lihat Semua Museum</span>
+                    </a>
+                </div>
             </div>
         @endforelse
     </div>
@@ -330,7 +455,7 @@
             </button>
             <div x-show="active === 2" x-collapse x-cloak>
                 <div class="px-6 pb-5 pt-1 text-xs sm:text-sm text-slate-600 leading-relaxed border-t border-[#EADBC8]/50">
-                    Ya. Pemesanan tiket untuk <strong>6 orang atau lebih</strong> secara otomatis dialihkan ke formulir reservasi rombongan. Anda dapat mengisi daftar nama peserta satu per satu atau menempel daftar nama sekaligus (bulk paste).
+                    Ya. Pemesanan tiket untuk <strong>6 orang atau lebih</strong> secara otomatis dialihkan ke reservasi rombongan. Pemesan cukup mengisi <strong>1 nama perwakilan / ketua rombongan</strong> tanpa perlu menginput puluhan nama anggota satu per satu.
                 </div>
             </div>
         </div>

@@ -80,7 +80,7 @@ class UserWebController extends Controller
 
     public function show(User $user)
     {
-        $user->load(['transactions', 'museum']);
+        $user->load(['transactions.booking.museum', 'museum']);
 
         return view('admin.users.show', [
             'user' => $user,

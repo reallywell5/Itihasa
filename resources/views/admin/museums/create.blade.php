@@ -109,7 +109,7 @@
                 </div>
 
                 {{-- JAM --}}
-                @include('admin.museums._schedule-fields', ['schedule' => old('operational_hours', [])])
+                @include('admin.museums.schedule-fields', ['schedule' => old('operational_hours', [])])
 
                     <div>
                         <label class="block text-sm font-semibold text-zinc-700 mb-2">
@@ -152,8 +152,8 @@
                                     placeholder="Contoh: Area Parkir"
                                     class="flex-1 rounded-xl border border-zinc-200 px-4 py-2.5 text-sm">
                                 <button type="button" onclick="removeFacilityRow(this)"
-                                        class="px-3 rounded-xl border border-red-200 text-red-500 text-sm font-semibold hover:bg-red-50 transition">
-                                    ✕
+                                        class="px-3 rounded-xl border border-red-200 text-red-500 text-xs font-semibold hover:bg-red-50 transition">
+                                    Hapus
                                 </button>
                             </div>
                         @endforeach
@@ -279,8 +279,8 @@ function addFacilityRow() {
         <input type="text" name="facilities[]" placeholder="Contoh: Kafe"
                class="flex-1 rounded-xl border border-zinc-200 px-4 py-2.5 text-sm">
         <button type="button" onclick="removeFacilityRow(this)"
-                class="px-3 rounded-xl border border-red-200 text-red-500 text-sm font-semibold hover:bg-red-50 transition">
-            ✕
+                class="px-3 rounded-xl border border-red-200 text-red-500 text-xs font-semibold hover:bg-red-50 transition">
+            Hapus
         </button>
     `;
     list.appendChild(row);

@@ -131,10 +131,11 @@
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                         @foreach ($museum->galleries as $photo)
                             <button type="button"
-                                    onclick="openGalleryModal('{{ asset('storage/' . $photo->image_path) }}')"
+                                    onclick="openGalleryModal('{{ $photo->image_url }}')"
                                     class="group relative rounded-2xl overflow-hidden border border-[#EADBC8] aspect-square">
-                                <img src="{{ asset('storage/' . $photo->image_path) }}"
+                                <img src="{{ $photo->image_url }}"
                                     alt="{{ $photo->caption ?? $museum->name }}"
+                                    onerror="this.src='{{ asset('images/default-museum.jpg') }}'"
                                     class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
                             </button>
                         @endforeach

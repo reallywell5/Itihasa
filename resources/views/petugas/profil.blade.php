@@ -1,167 +1,172 @@
 @extends('layouts.petugas')
 
-@section('title', 'Profil Petugas')
+@section('title', 'Profil dan Pengaturan Akun')
 
 @section('content')
-<div class="space-y-4 sm:space-y-5">
+<div class="max-w-3xl mx-auto space-y-6">
 
-    {{-- HERO PROFILE --}}
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div class="relative h-36 sm:h-44 bg-gradient-to-r from-emerald-700 via-emerald-600 to-teal-500">
-            <div class="absolute inset-0 opacity-20">
-                <div class="absolute top-6 left-10 w-28 h-28 rounded-full bg-white blur-2xl"></div>
-                <div class="absolute bottom-4 right-12 w-32 h-32 rounded-full bg-white blur-3xl"></div>
-            </div>
+    {{-- HEADER --}}
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-800">
+                Pengaturan Profil Saya
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-400 mt-0.5">
+                Kelola identitas akun, alamat email, dan pembaruan kata sandi keamanan Anda.
+            </p>
         </div>
 
-        <div class="px-4 sm:px-6 pb-5">
-            <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 -mt-12 sm:-mt-14 relative z-10">
-                <div class="flex flex-col sm:flex-row sm:items-end gap-3 sm:gap-4">
-                    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white p-1.5 shadow-md shrink-0">
-                        <div class="w-full h-full rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-3xl font-extrabold">
-                            {{ strtoupper(substr($petugas->name, 0, 1)) }}
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="flex items-center gap-1.5 mb-1">
-                            <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-100">
-                                ● Online
-                            </span>
-                            <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-100">
-                                🛡 Petugas Aktif
-                            </span>
-                        </div>
-
-                        <h1 class="text-xl sm:text-2xl font-bold text-slate-800">
-                            {{ $petugas->name }}
-                        </h1>
-
-                        <p class="text-xs text-slate-400">
-                            {{ $petugas->museum?->name ?? 'Staff Lapangan Museum' }}
-                        </p>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <a href="{{ route('petugas.profil.edit') }}"
-                       class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold shadow hover:bg-emerald-700 transition">
-                        Edit Profil
-                    </a>
-
-                    <form action="{{ route('logout') }}" method="POST">
-                        @csrf
-                        <button type="submit"
-                                class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition">
-                            Logout
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
+        <span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+            Petugas Lapangan
+        </span>
     </div>
 
-    {{-- STATISTIC CARDS --}}
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div class="bg-white rounded-xl border border-slate-100 p-4 shadow-sm">
-            <p class="text-[11px] font-semibold text-slate-400 uppercase">Total Scan QR</p>
-            <h2 class="text-2xl font-extrabold text-slate-800 mt-1">
-                {{ $totalScan }}
+    {{-- ALERTS --}}
+    @if(session('success'))
+        <div class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl text-xs font-semibold">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="p-4 bg-red-50 border border-red-200 text-red-800 rounded-2xl text-xs font-semibold space-y-1">
+            <p class="font-bold">Terjadi kesalahan pada data yang dimasukkan:</p>
+            <ul class="list-disc list-inside space-y-0.5 font-normal">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    {{-- USER SUMMARY CARD --}}
+    <div class="bg-white border border-slate-100 rounded-2xl shadow-sm p-5 sm:p-6 flex flex-col sm:flex-row items-center sm:items-start gap-5">
+        <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-2xl sm:text-3xl shadow-md shrink-0">
+            {{ strtoupper(substr($user->name, 0, 1)) }}
+        </div>
+
+        <div class="space-y-1.5 text-center sm:text-left flex-1 min-w-0">
+            <h2 class="text-lg font-bold text-slate-800 truncate">
+                {{ $user->name }}
             </h2>
-            <p class="text-[10px] text-slate-400 mt-0.5">Semua aktivitas</p>
-        </div>
-
-        <div class="bg-white rounded-xl border border-emerald-100 p-4 shadow-sm">
-            <p class="text-[11px] font-semibold text-emerald-600 uppercase">Tiket Valid</p>
-            <h2 class="text-2xl font-extrabold text-emerald-700 mt-1">
-                {{ $validTickets }}
-            </h2>
-            <p class="text-[10px] text-emerald-500 mt-0.5">Berhasil diverifikasi</p>
-        </div>
-
-        <div class="bg-white rounded-xl border border-slate-100 p-4 shadow-sm">
-            <p class="text-[11px] font-semibold text-red-600 uppercase">Tiket Ditolak</p>
-            <h2 class="text-2xl font-extrabold text-red-700 mt-1">
-                {{ $rejectedTickets }}
-            </h2>
-            <p class="text-[10px] text-slate-400 mt-0.5">QR sudah dipakai / expired</p>
-        </div>
-
-        <div class="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-xl p-4 text-white shadow-sm flex flex-col justify-between">
-            <p class="text-[11px] font-bold text-emerald-100 uppercase">Tamu Dilayani</p>
-            <div>
-                <h2 class="text-2xl font-extrabold mt-1">
-                    {{ $totalVisitors }}
-                </h2>
-                <p class="text-[10px] text-emerald-100 mt-0.5">Total pengunjung</p>
-            </div>
-        </div>
-    </div>
-
-    {{-- PROFILE DETAIL & SHIFT --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-100 p-4 sm:p-5 shadow-sm">
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-800">
-                        Informasi Akun Petugas
-                    </h2>
-                    <p class="text-xs text-slate-400 mt-0.5">
-                        Data pribadi dan detail penugasan loket.
-                    </p>
-                </div>
-
-                <span class="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                    Terverifikasi
-                </span>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                    <p class="text-[10px] text-slate-400 font-bold uppercase">Nama Lengkap</p>
-                    <h3 class="font-bold text-slate-800 mt-0.5">{{ $petugas->name }}</h3>
-                </div>
-
-                <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                    <p class="text-[10px] text-slate-400 font-bold uppercase">Email Akun</p>
-                    <h3 class="font-bold text-slate-800 mt-0.5">{{ $petugas->email }}</h3>
-                </div>
-
-                <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                    <p class="text-[10px] text-slate-400 font-bold uppercase">ID Petugas</p>
-                    <h3 class="font-bold font-mono text-slate-800 mt-0.5">
-                        PTG-{{ str_pad($petugas->id, 4, '0', STR_PAD_LEFT) }}
-                    </h3>
-                </div>
-
-                <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
-                    <p class="text-[10px] text-slate-400 font-bold uppercase">Bergabung Sejak</p>
-                    <h3 class="font-bold text-slate-800 mt-0.5">
-                        {{ $petugas->created_at?->translatedFormat('d F Y') ?? '-' }}
-                    </h3>
-                </div>
-            </div>
-        </div>
-
-        {{-- SHIFT INFO --}}
-        <div class="bg-white rounded-2xl border border-slate-100 p-4 sm:p-5 shadow-sm">
-            <h2 class="text-sm font-bold text-slate-800 mb-0.5">
-                Shift Operasional
-            </h2>
-            <p class="text-xs text-slate-400 mb-3">
-                Jadwal jaga gate masuk.
+            <p class="text-xs text-slate-500 font-mono">
+                {{ $user->email }}
             </p>
 
-            <div class="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-xl p-4 text-white shadow-sm">
-                <p class="text-[11px] font-semibold text-emerald-100">Shift Gate Masuk</p>
-                <h3 class="text-xl font-extrabold mt-1">
-                    08.00 - 16.00 WIB
-                </h3>
-                <p class="text-xs text-emerald-100 mt-1">
-                    🏛 {{ $petugas->museum?->name ?? 'Museum Itihasa' }}
-                </p>
+            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1 text-[11px]">
+                <span class="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 font-semibold">
+                    ID Akun: USR-{{ str_pad($user->id, 5, '0', STR_PAD_LEFT) }}
+                </span>
+
+                @if($user->museum)
+                    <span class="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold">
+                        Penugasan: {{ $user->museum->name }}
+                    </span>
+                @endif
+
+                <span class="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-semibold">
+                    Terdaftar sejak {{ $user->created_at?->translatedFormat('d F Y') ?? '-' }}
+                </span>
             </div>
         </div>
+    </div>
+
+    {{-- EDIT PROFILE FORM --}}
+    <div class="bg-white border border-slate-100 rounded-2xl shadow-sm p-6 sm:p-7">
+        <form action="{{ route('petugas.profil.update') }}" method="POST" class="space-y-5">
+            @csrf
+            @method('PUT')
+
+            <div class="border-b border-slate-100 pb-3">
+                <h3 class="text-sm font-bold text-slate-800">
+                    Informasi Identitas
+                </h3>
+                <p class="text-[11px] text-slate-400">
+                    Perbarui nama lengkap dan alamat email aktif yang digunakan untuk masuk ke sistem.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="name" class="block text-xs font-bold text-slate-700 mb-1.5">
+                        Nama Lengkap <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text"
+                           id="name"
+                           name="name"
+                           value="{{ old('name', $user->name) }}"
+                           required
+                           class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+                </div>
+
+                <div>
+                    <label for="email" class="block text-xs font-bold text-slate-700 mb-1.5">
+                        Alamat Email Login <span class="text-red-500">*</span>
+                    </label>
+                    <input type="email"
+                           id="email"
+                           name="email"
+                           value="{{ old('email', $user->email) }}"
+                           required
+                           class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-none font-mono">
+                </div>
+            </div>
+
+            <div class="border-b border-slate-100 pt-3 pb-3">
+                <h3 class="text-sm font-bold text-slate-800">
+                    Keamanan dan Kata Sandi
+                </h3>
+                <p class="text-[11px] text-slate-400">
+                    Biarkan kolom di bawah ini kosong jika Anda tidak berencana mengubah kata sandi lama.
+                </p>
+            </div>
+
+            <div>
+                <label for="current_password" class="block text-xs font-bold text-slate-700 mb-1.5">
+                    Kata Sandi Saat Ini (Diperlukan jika ingin mengubah kata sandi)
+                </label>
+                <input type="password"
+                       id="current_password"
+                       name="current_password"
+                       placeholder="Masukkan kata sandi lama Anda"
+                       class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="password" class="block text-xs font-bold text-slate-700 mb-1.5">
+                        Kata Sandi Baru
+                    </label>
+                    <input type="password"
+                           id="password"
+                           name="password"
+                           placeholder="Minimal 8 karakter"
+                           class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+                </div>
+
+                <div>
+                    <label for="password_confirmation" class="block text-xs font-bold text-slate-700 mb-1.5">
+                        Konfirmasi Kata Sandi Baru
+                    </label>
+                    <input type="password"
+                           id="password_confirmation"
+                           name="password_confirmation"
+                           placeholder="Ulangi kata sandi baru"
+                           class="w-full rounded-xl border border-slate-200 px-3.5 py-2.5 text-xs focus:ring-2 focus:ring-emerald-600 focus:outline-none">
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                <a href="{{ route('petugas.dashboard') }}"
+                   class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-semibold transition">
+                    Kembali ke Dashboard
+                </a>
+                <button type="submit"
+                        class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition">
+                    Simpan Perubahan Profil
+                </button>
+            </div>
+        </form>
     </div>
 
 </div>

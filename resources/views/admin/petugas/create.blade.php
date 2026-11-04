@@ -38,20 +38,38 @@
                     </div>
                 @endif
 
-                {{-- INFORMASI PENUGASAN OTOMATIS --}}
-                <div class="p-4 rounded-xl bg-blue-50/60 border border-blue-100 flex items-start gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
-                        🏛
-                    </div>
+                @if(!empty($isSuperAdmin))
                     <div>
-                        <p class="text-xs font-bold text-blue-900">
-                            Penugasan Otomatis: {{ Auth::user()?->museum?->name ?? 'Museum Anda' }}
-                        </p>
-                        <p class="text-[11px] text-blue-700 mt-0.5">
-                            Akun petugas yang dibuat di sini secara otomatis terdaftar khusus untuk memvalidasi tiket masuk di <strong>{{ Auth::user()?->museum?->name ?? 'museum Anda' }}</strong>.
-                        </p>
+                        <label for="museum_id" class="block text-xs font-bold text-slate-700 mb-1.5">
+                            Pilih Museum Penugasan <span class="text-red-500">*</span>
+                        </label>
+                        <select name="museum_id" id="museum_id" required
+                                class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-purple-600">
+                            <option value="">-- Pilih Museum --</option>
+                            @foreach($museums as $m)
+                                <option value="{{ $m->id }}" {{ old('museum_id') == $m->id ? 'selected' : '' }}>
+                                    {{ $m->name }} ({{ $m->address }})
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="text-[11px] text-slate-400 mt-1">Sebagai Super Admin, Anda dapat mendaftarkan akun petugas gate untuk museum mitra manapun.</p>
                     </div>
-                </div>
+                @else
+                    {{-- INFORMASI PENUGASAN OTOMATIS --}}
+                    <div class="p-4 rounded-xl bg-blue-50/60 border border-blue-100 flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-[10px] shrink-0 mt-0.5 tracking-wider">
+                            MUS
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-blue-900">
+                                Penugasan Otomatis: {{ Auth::user()?->museum?->name ?? 'Museum Anda' }}
+                            </p>
+                            <p class="text-[11px] text-blue-700 mt-0.5">
+                                Akun petugas yang dibuat di sini secara otomatis terdaftar khusus untuk memvalidasi tiket masuk di <strong>{{ Auth::user()?->museum?->name ?? 'museum Anda' }}</strong>.
+                            </p>
+                        </div>
+                    </div>
+                @endif
 
                 {{-- NAME --}}
                 <div>

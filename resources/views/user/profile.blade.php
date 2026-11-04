@@ -96,7 +96,29 @@
         </div>
 
         {{-- RIGHT CONTENT (MAIN NAVIGATION: TIKET vs PASPOR BUDAYA) --}}
-        <div class="lg:col-span-8 space-y-6" x-data="{ mainTab: 'tiket', cancelModalOpen: false, cancelBookingId: null, cancelMuseumName: '', reviewModalOpen: false, reviewBookingId: null, reviewMuseumName: '', photoCount: 0, previews: [] }">
+        <div class="lg:col-span-8 space-y-6" x-data="{ 
+            mainTab: '{{ request('tab', 'tiket') }}', 
+            cancelModalOpen: false, 
+            cancelBookingId: null, 
+            cancelMuseumName: '', 
+            reviewModalOpen: false, 
+            reviewBookingId: null, 
+            reviewMuseumName: '', 
+            photoCount: 0, 
+            previews: [],
+            stampModalOpen: false,
+            selectedStamp: null,
+            certificateModalOpen: false,
+            perkModalOpen: false,
+            selectedBadge: null,
+            copiedPromo: null,
+            copyCode(code) {
+                if (!code) return;
+                navigator.clipboard.writeText(code);
+                this.copiedPromo = code;
+                setTimeout(() => { if (this.copiedPromo === code) this.copiedPromo = null; }, 2500);
+            }
+        }">
 
             {{-- TOP NAVIGATION BUTTONS --}}
             <div class="flex items-center gap-3 p-1.5 bg-white rounded-2xl border border-[#EADBC8] shadow-sm">
@@ -361,150 +383,280 @@
             {{-- ======================================================== --}}
             <div x-show="mainTab === 'paspor'" x-cloak class="space-y-8">
 
-                {{-- PASSPORT COVER BANNER --}}
-                <div class="relative overflow-hidden rounded-3xl bg-[#102A43] text-white p-6 sm:p-8 border-2 border-[#B88A44]/40 shadow-lg">
-                    <div class="absolute -right-10 -bottom-10 w-48 h-48 rounded-full border-[20px] border-white/5 pointer-events-none"></div>
+                {{-- PASSPORT COVER IDENTITY BANNER --}}
+                <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0c2033] via-[#102A43] to-[#1e3a5a] text-white p-6 sm:p-8 border-2 border-[#B88A44]/60 shadow-xl">
+                    <div class="absolute -right-12 -bottom-12 w-56 h-56 rounded-full border-[18px] border-[#B88A44]/15 pointer-events-none"></div>
+                    <div class="absolute -right-4 -top-8 w-36 h-36 rounded-full border-[10px] border-white/5 pointer-events-none"></div>
 
-                    <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <div>
-                            <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-[#EADBC8] text-[10px] font-bold uppercase tracking-widest mb-2 border border-white/20">
-                                <span>🏛️</span>
-                                <span>PASPOR BUDAYA NUSANTARA</span>
-                            </span>
-                            <h2 class="font-display text-2xl sm:text-3xl font-bold text-white tracking-wide">
-                                {{ $passportData['rank_name'] }}
+                    <div class="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                        <div class="space-y-2">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#B88A44]/25 text-[#EADBC8] text-[10px] font-bold uppercase tracking-widest border border-[#B88A44]/40">
+                                    <span>🏛️</span>
+                                    <span>DOKUMEN RESMI PELESTARI BUDAYA</span>
+                                </span>
+                                <span class="px-2.5 py-1 rounded-full bg-white/10 text-slate-300 font-mono text-[10px] border border-white/15">
+                                    {{ $passportData['passport_serial'] }}
+                                </span>
+                            </div>
+
+                            <h2 class="font-display text-2xl sm:text-3xl font-extrabold text-white tracking-wide flex items-center gap-2.5">
+                                <span>{{ $passportData['rank_name'] }}</span>
+                                <span class="text-base sm:text-lg font-bold text-[#E8C581] px-2.5 py-0.5 rounded-full bg-white/10 border border-[#B88A44]/40">
+                                    Tingkat {{ $passportData['rank_level'] }}/4
+                                </span>
                             </h2>
-                            <p class="text-xs text-slate-300 mt-1 max-w-md">
+
+                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/15 border border-amber-400/30 text-amber-200 text-xs font-medium">
+                                <span>🎁</span>
+                                <span><strong>Benefit Aktif:</strong> {{ $passportData['rank_perk'] }}</span>
+                            </div>
+
+                            <p class="text-xs text-slate-300 max-w-xl leading-relaxed">
                                 @if($passportData['next_target'])
-                                    Kunjungi {{ $passportData['next_target'] - $passportData['distinct_museums'] }} museum lagi untuk naik ke tingkat berikutnya.
+                                    Kunjungi <strong>{{ $passportData['next_target'] - $passportData['distinct_museums'] }} museum lagi</strong> untuk naik tingkat dan membuka hadiah kupon diskon yang lebih tinggi serta cinderamata eksklusif di loket!
                                 @else
-                                    Selamat! Anda telah meraih gelar tertinggi penjelajah museum nusantara.
+                                    Selamat! Anda telah meraih gelar tertinggi Mahapatih Budaya Nusantara. Seluruh akses jalur cepat VIP dan diskon maksimal telah aktif di akun Anda!
                                 @endif
                             </p>
+
+                            @if($passportData['distinct_museums'] >= 1)
+                                <div class="pt-1">
+                                    <button type="button"
+                                            @click="certificateModalOpen = true"
+                                            class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#B88A44] hover:bg-[#a67c3b] text-white text-xs font-bold transition shadow-md">
+                                        <span>📜</span>
+                                        <span>Buka Sertifikat Penjelajah Budaya (Resmi)</span>
+                                    </button>
+                                </div>
+                            @endif
                         </div>
 
-                        <div class="flex items-center gap-3">
-                            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 text-center border border-white/20 min-w-[90px]">
-                                <span class="text-2xl font-black text-[#E8C581] block">{{ $passportData['total_stamps'] }}</span>
-                                <span class="text-[9px] uppercase font-bold tracking-wider text-slate-300">Stempel</span>
+                        {{-- STAT CHIPS --}}
+                        <div class="grid grid-cols-3 gap-2.5 w-full lg:w-auto shrink-0">
+                            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 text-center border border-white/20 min-w-[85px]">
+                                <span class="text-2xl sm:text-3xl font-black text-[#E8C581] block">{{ $passportData['total_stamps'] }}</span>
+                                <span class="text-[9px] uppercase font-bold tracking-wider text-slate-300">Stempel Sah</span>
                             </div>
-                            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 text-center border border-white/20 min-w-[90px]">
-                                <span class="text-2xl font-black text-[#E8C581] block">{{ $passportData['unlocked_badges_count'] }}/{{ $passportData['total_badges'] }}</span>
-                                <span class="text-[9px] uppercase font-bold tracking-wider text-slate-300">Lencana</span>
+                            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 text-center border border-white/20 min-w-[85px]">
+                                <span class="text-2xl sm:text-3xl font-black text-[#E8C581] block">{{ $passportData['distinct_museums'] }}</span>
+                                <span class="text-[9px] uppercase font-bold tracking-wider text-slate-300">Museum Unik</span>
+                            </div>
+                            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-4 text-center border border-white/20 min-w-[85px]">
+                                <span class="text-2xl sm:text-3xl font-black text-[#E8C581] block">{{ $passportData['unlocked_badges_count'] }}/{{ $passportData['total_badges'] }}</span>
+                                <span class="text-[9px] uppercase font-bold tracking-wider text-slate-300">Lencana & Hadiah</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {{-- BUKU STEMPEL PASPOR DIGITAL --}}
-                <div class="bg-white rounded-3xl border border-[#EADBC8] p-6 sm:p-8 shadow-sm">
-                    <div class="flex items-center justify-between mb-6">
+                {{-- BUKU LEMBAR STEMPEL PASPOR DIGITAL --}}
+                <div class="bg-[#FFFDF9] rounded-3xl border-2 border-[#EADBC8] p-6 sm:p-8 shadow-sm relative overflow-hidden">
+                    {{-- DECORATIVE BORDER MOTIF --}}
+                    <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#B88A44] via-[#102A43] to-[#B88A44]"></div>
+
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-5 border-b border-[#EADBC8] mb-6">
                         <div>
-                            <span class="text-[10px] font-bold uppercase tracking-widest text-[#B88A44] block">Koleksi Cap Loket</span>
-                            <h3 class="font-display text-lg sm:text-xl font-bold text-[#102A43]">
-                                Lembar Stempel Kunjungan Museum
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] font-bold uppercase tracking-widest text-[#B88A44] block">Lembar Validasi Kedatangan Resmi</span>
+                                <span class="px-2 py-0.5 rounded text-[9px] font-mono bg-amber-100 text-amber-900 font-bold">HALAMAN 01-02</span>
+                            </div>
+                            <h3 class="font-display text-lg sm:text-xl font-bold text-[#102A43] mt-0.5">
+                                Paspor Cap Loket Kunjungan Museum
                             </h3>
+                            <p class="text-xs text-slate-500 mt-0.5">
+                                Setiap tiket yang di-scan oleh petugas gate akan dicap permanen di paspor digital ini dengan stempel resmi berautentikasi unik.
+                            </p>
                         </div>
-                        <span class="text-xs text-slate-500 font-semibold">
-                            {{ count($passportData['stamps']) }} Museum Terverifikasi
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold shrink-0">
+                            <span>✓</span>
+                            <span>{{ count($passportData['stamps']) }} Cap Loket Terverifikasi</span>
                         </span>
                     </div>
 
                     @if(empty($passportData['stamps']))
-                        <div class="text-center py-12 px-4 border-2 border-dashed border-[#EADBC8] rounded-2xl bg-[#FAF7F2]/50">
-                            <div class="text-4xl mb-3">📑</div>
-                            <h4 class="font-bold text-sm text-[#102A43]">Belum Ada Stempel Paspor</h4>
-                            <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                                Tiket yang telah di-scan oleh petugas loket di pintu masuk museum akan otomatis meninggalkan stempel resmi di paspor digitalmu!
+                        <div class="text-center py-14 px-4 border-2 border-dashed border-[#D9CDBB] rounded-2xl bg-[#FAF7F2]/60">
+                            <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-[#102A43]/5 flex items-center justify-center text-3xl">
+                                📑
+                            </div>
+                            <h4 class="font-bold text-base text-[#102A43]">Lembar Paspor Belum Memiliki Cap</h4>
+                            <p class="text-xs text-slate-500 mt-1 max-w-md mx-auto leading-relaxed">
+                                Pesan tiket museum pertamamu dan tunjukkan QR e-tiket ke petugas loket pintu masuk. Stempel vintage otentik akan langsung tertera di lembar paspor ini!
                             </p>
+                            <div class="mt-4">
+                                <a href="{{ route('museums.index') }}"
+                                   class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#102A43] hover:bg-[#0c2238] text-white text-xs font-bold transition shadow-sm">
+                                    <span>🏛️</span>
+                                    <span>Jelajahi Museum Nusantara Sekarang</span>
+                                </a>
+                            </div>
                         </div>
                     @else
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {{-- GRID OF AUTHENTIC VINTAGE STAMPS --}}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                             @foreach($passportData['stamps'] as $stamp)
-                                <div class="relative bg-gradient-to-br from-[#FAF7F2] to-white rounded-2xl border-2 border-dashed p-4 shadow-sm flex flex-col justify-between"
-                                     style="border-color: {{ $stamp['color'] }}40;">
-                                    
-                                    {{-- STEMPEL BULAT OTENTIK --}}
-                                    <div class="flex items-start justify-between gap-2 mb-3">
-                                        <div class="w-12 h-12 rounded-full border-2 flex flex-col items-center justify-center text-center p-1"
-                                             style="border-color: {{ $stamp['color'] }}; color: {{ $stamp['color'] }};">
-                                            <span class="text-[8px] font-black uppercase tracking-tighter">ITIHASA</span>
-                                            <span class="text-[7px] font-bold">★ VERIFIED ★</span>
-                                        </div>
+                                <div @click="selectedStamp = {{ json_encode($stamp) }}; stampModalOpen = true"
+                                     class="group relative bg-[#FAF7F2] rounded-2xl border-2 p-5 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between cursor-pointer hover:-translate-y-0.5"
+                                     style="border-color: {{ $stamp['color'] }}60;">
 
-                                        <span class="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold"
-                                              style="background-color: {{ $stamp['color'] }}15; color: {{ $stamp['color'] }};">
-                                            {{ $stamp['city'] }}
+                                    {{-- HEADER STAMP CARD --}}
+                                    <div class="flex items-center justify-between gap-2 mb-3">
+                                        <span class="px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider {{ $stamp['badge_class'] }}">
+                                            📍 {{ $stamp['city'] }}
+                                        </span>
+                                        <span class="text-[9px] font-mono text-slate-400">
+                                            {{ $stamp['stamp_code'] }}
                                         </span>
                                     </div>
 
-                                    <div>
-                                        <h4 class="font-bold text-sm text-[#102A43] line-clamp-1">
+                                    {{-- REALISTIC RUBBER INK STAMP SEAL WITH ORGANIC TILT --}}
+                                    <div class="my-2 py-3 flex items-center justify-center">
+                                        <div class="relative transition-transform duration-300 group-hover:rotate-0"
+                                             style="transform: rotate({{ $stamp['rotation'] }}deg);">
+                                            
+                                            {{-- OUTER CIRCULAR GUILLOCHE POSTMARK --}}
+                                            <div class="w-32 h-32 rounded-full border-4 flex flex-col items-center justify-center text-center p-2 relative shadow-inner select-none"
+                                                 style="border-color: {{ $stamp['color'] }}; color: {{ $stamp['color_text'] }}; background-color: {{ $stamp['color_bg'] }}60;">
+                                                
+                                                {{-- INNER DOUBLE RING --}}
+                                                <div class="absolute inset-1 rounded-full border border-dashed" style="border-color: {{ $stamp['color'] }}80;"></div>
+
+                                                {{-- POSTMARK ARCH LABELS --}}
+                                                <span class="text-[7px] font-black uppercase tracking-widest block leading-tight">
+                                                    ★ ITIHASA RESMI ★
+                                                </span>
+                                                
+                                                {{-- LARGE CITY INK IMPRINT --}}
+                                                <span class="text-sm font-black uppercase tracking-wider my-0.5 block font-mono" style="color: {{ $stamp['color'] }};">
+                                                    {{ strtoupper($stamp['city']) }}
+                                                </span>
+
+                                                {{-- CANCELLATION DATE BOX --}}
+                                                <div class="px-2 py-0.5 my-0.5 border-y-2 border-current text-[8px] font-black font-mono tracking-tight bg-white/70">
+                                                    {{ strtoupper($stamp['date']) }}
+                                                </div>
+
+                                                {{-- GATE VALIDATION SUBTEXT --}}
+                                                <span class="text-[7px] font-bold uppercase tracking-tight block">
+                                                    GATE VALIDATED • {{ $stamp['time'] }}
+                                                </span>
+                                            </div>
+
+                                            {{-- WAVY POSTAL CANCELLATION LINES --}}
+                                            <div class="absolute -right-4 top-1/2 -translate-y-1/2 pointer-events-none opacity-80" style="color: {{ $stamp['color'] }};">
+                                                <svg class="w-8 h-8" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M0 10 Q10 5, 20 10 T40 10" />
+                                                    <path d="M0 20 Q10 15, 20 20 T40 20" />
+                                                    <path d="M0 30 Q10 25, 20 30 T40 30" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- MUSEUM INFO --}}
+                                    <div class="pt-2 border-t border-slate-200/80">
+                                        <h4 class="font-bold text-xs sm:text-sm text-[#102A43] line-clamp-1 group-hover:text-[#B88A44] transition-colors">
                                             {{ $stamp['museum_name'] }}
                                         </h4>
-                                        <p class="text-[11px] text-slate-500 mt-0.5">
-                                            Tanggal: <strong>{{ $stamp['date'] }}</strong> ({{ $stamp['time'] }} WIB)
-                                        </p>
-                                        <p class="text-[10px] text-slate-400 font-mono mt-0.5">
-                                            Kode: {{ $stamp['stamp_code'] }} • {{ $stamp['pax'] }} Pax
-                                        </p>
+                                        <div class="flex items-center justify-between text-[10px] text-slate-500 mt-1">
+                                            <span>👥 <strong>{{ $stamp['pax'] }} Pax</strong> Masuk</span>
+                                            <span class="font-semibold text-emerald-700 flex items-center gap-1">
+                                                <span>✓</span> Dicap Loket
+                                            </span>
+                                        </div>
                                     </div>
 
-                                    <div class="mt-3 pt-2 border-t border-slate-200/60 flex items-center justify-between text-[10px]">
-                                        <span class="text-emerald-700 font-bold flex items-center gap-1">
-                                            <span>✓</span> Stempel Sah
-                                        </span>
-                                        @if($stamp['review'])
-                                            <span class="text-amber-700 font-bold">⭐ {{ $stamp['review']->rating }}★</span>
-                                        @endif
+                                    {{-- HOVER HINT --}}
+                                    <div class="mt-2 text-center text-[9px] text-slate-400 font-medium group-hover:text-[#102A43] transition-colors">
+                                        Klik untuk perbesar cap & nomor seri 🔍
                                     </div>
+
                                 </div>
                             @endforeach
+
+                            {{-- EMPTY STAMP PLACEHOLDER SLOTS --}}
+                            @for($i = 1; $i <= $passportData['empty_slots_count']; $i++)
+                                <div class="relative bg-white/50 rounded-2xl border-2 border-dashed border-[#D9CDBB] p-5 flex flex-col items-center justify-center text-center min-h-[220px]">
+                                    <div class="w-16 h-16 rounded-full border-2 border-dashed border-slate-300 flex items-center justify-center text-slate-300 mb-2">
+                                        <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.5m-15 10.5V10.5" />
+                                        </svg>
+                                    </div>
+                                    <span class="text-[9px] font-bold uppercase tracking-widest text-slate-400 block">
+                                        Slot Lembar Kosong #{{ count($passportData['stamps']) + $i }}
+                                    </span>
+                                    <p class="text-[11px] text-slate-500 mt-1 max-w-[190px] leading-snug">
+                                        Kunjungi museum berikutnya untuk mengecap lembar paspor ini!
+                                    </p>
+                                    <a href="{{ route('museums.index') }}"
+                                       class="mt-3 px-3 py-1 rounded-xl bg-[#FAF7F2] hover:bg-[#F6F1E8] border border-[#EADBC8] text-[#102A43] font-bold text-[10px] transition">
+                                        Pesan Tiket →
+                                    </a>
+                                </div>
+                            @endfor
                         </div>
                     @endif
                 </div>
 
-                {{-- GALERI LENCANA WISATAWAN (EXPLORER BADGES) --}}
+                {{-- GALERI LENCANA WISATAWAN DENGAN HADIAH NYATA (EXPLORER BADGES & REAL PERKS) --}}
                 <div class="bg-white rounded-3xl border border-[#EADBC8] p-6 sm:p-8 shadow-sm">
-                    <div class="mb-6">
-                        <span class="text-[10px] font-bold uppercase tracking-widest text-[#B88A44] block">Prestasi Wisata</span>
-                        <h3 class="font-display text-lg sm:text-xl font-bold text-[#102A43]">
-                            Lencana Penjelajah Budaya (Explorer Badges)
-                        </h3>
-                        <p class="text-xs text-slate-500 mt-0.5">
-                            Buka seluruh lencana dengan mengunjungi beragam museum tematik di Indonesia.
-                        </p>
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6 pb-4 border-b border-[#EADBC8]/70">
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-[#B88A44] block">Prestasi Wisata & Hadiah Nyata</span>
+                            <h3 class="font-display text-lg sm:text-xl font-bold text-[#102A43]">
+                                Lencana Penjelajah & Insentif Kunjungan
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-0.5">
+                                Kumpulkan lencana untuk membuka kupon diskon tiket seumur hidup, merchandise pin fisik di loket, dan akses VIP gate bebas antre!
+                            </p>
+                        </div>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-200 text-xs font-bold shrink-0">
+                            <span>🏆</span>
+                            <span>{{ $passportData['unlocked_badges_count'] }}/{{ $passportData['total_badges'] }} Terbuka</span>
+                        </span>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {{-- BADGES GRID --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         @foreach($passportData['badges'] as $badge)
-                            <div class="rounded-2xl p-4 border transition-all duration-200 flex gap-3.5 {{ $badge['is_unlocked'] ? 'bg-gradient-to-br from-amber-50/60 via-white to-amber-50/30 border-[#B88A44] shadow-sm' : 'bg-slate-50/80 border-slate-200 opacity-75' }}">
+                            <div class="rounded-2xl p-5 border transition-all duration-200 flex flex-col justify-between {{ $badge['is_unlocked'] ? 'bg-gradient-to-br from-amber-50/60 via-white to-amber-50/30 border-[#B88A44] shadow-sm ring-1 ring-[#B88A44]/20' : 'bg-slate-50/80 border-slate-200 opacity-80' }}">
                                 
-                                {{-- BADGE ICON --}}
-                                <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shrink-0 {{ $badge['is_unlocked'] ? 'bg-[#102A43] text-white shadow-md ring-2 ring-[#B88A44]' : 'bg-slate-200 text-slate-400 grayscale' }}">
-                                    {{ $badge['icon'] }}
-                                </div>
+                                <div>
+                                    {{-- HEADER CARD: ICON, TIER, STATUS --}}
+                                    <div class="flex items-start gap-3.5 mb-3">
+                                        <div class="w-13 h-13 rounded-2xl flex items-center justify-center text-2xl shrink-0 {{ $badge['is_unlocked'] ? 'bg-[#102A43] text-white shadow-md ring-2 ring-[#B88A44]' : 'bg-slate-200 text-slate-400 grayscale' }}">
+                                            {{ $badge['icon'] }}
+                                        </div>
 
-                                {{-- BADGE INFO --}}
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-center justify-between gap-2 mb-1">
-                                        <h4 class="font-bold text-xs sm:text-sm text-[#102A43] truncate">
-                                            {{ $badge['name'] }}
-                                        </h4>
-                                        <span class="px-2 py-0.5 rounded-full text-[9px] font-bold shrink-0 {{ $badge['is_unlocked'] ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600' }}">
-                                            {{ $badge['is_unlocked'] ? '✓ Terbuka' : 'Terkunci' }}
-                                        </span>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center justify-between gap-1.5 mb-0.5">
+                                                <h4 class="font-bold text-sm text-[#102A43] truncate">
+                                                    {{ $badge['name'] }}
+                                                </h4>
+                                                <span class="px-2 py-0.5 rounded-full text-[9px] font-bold shrink-0 {{ $badge['is_unlocked'] ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-slate-200 text-slate-600' }}">
+                                                    {{ $badge['is_unlocked'] ? '✓ Terbuka' : 'Terkunci' }}
+                                                </span>
+                                            </div>
+
+                                            <div class="flex items-center gap-1.5 text-[10px]">
+                                                <span class="font-bold uppercase tracking-wider px-2 py-0.2 rounded text-[8px] {{ $badge['tier'] === 'Diamond' ? 'bg-purple-100 text-purple-800' : ($badge['tier'] === 'Gold' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700') }}">
+                                                    {{ $badge['tier'] }} Tier
+                                                </span>
+                                                <span class="text-slate-400">•</span>
+                                                <span class="text-slate-500 font-medium">{{ $badge['category'] }}</span>
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <p class="text-[11px] text-slate-500 leading-snug">
+                                    <p class="text-xs text-slate-600 leading-relaxed mb-3">
                                         {{ $badge['description'] }}
                                     </p>
 
                                     {{-- PROGRESS BAR --}}
-                                    <div class="mt-2.5">
+                                    <div class="mb-3">
                                         <div class="flex justify-between items-center text-[10px] text-slate-500 mb-1 font-medium">
-                                            <span>Progres: {{ $badge['current'] }}/{{ $badge['target'] }}</span>
-                                            <span>{{ $badge['progress_percent'] }}%</span>
+                                            <span>Progres Kunjungan: {{ $badge['current'] }}/{{ $badge['target'] }}</span>
+                                            <span class="font-bold text-[#102A43]">{{ $badge['progress_percent'] }}%</span>
                                         </div>
                                         <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
                                             <div class="h-full rounded-full transition-all duration-500 {{ $badge['is_unlocked'] ? 'bg-[#B88A44]' : 'bg-slate-400' }}"
@@ -512,6 +664,45 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                {{-- HADIAH NYATA / BENEFIT SECTION --}}
+                                @if($badge['is_unlocked'])
+                                    <div class="mt-2 pt-3 border-t border-[#EADBC8]/70 bg-white/80 rounded-xl p-3 border border-[#EADBC8]/80">
+                                        <div class="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-amber-800 mb-1">
+                                            <span>🎁</span>
+                                            <span>HADIAH TERBUKA: {{ $badge['reward_badge'] }}</span>
+                                        </div>
+                                        <p class="text-[11px] text-slate-600 leading-snug">
+                                            {{ $badge['reward_description'] }}
+                                        </p>
+
+                                        <div class="mt-2.5 flex flex-wrap items-center gap-2">
+                                            {{-- SALIN KODE PROMO --}}
+                                            <button type="button"
+                                                    @click="copyCode('{{ $badge['promo_code'] }}')"
+                                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#102A43] hover:bg-[#0c2238] text-white text-[11px] font-bold transition shadow-sm">
+                                                <span x-text="copiedPromo === '{{ $badge['promo_code'] }}' ? '✓ Tersalin!' : 'Salin Kupon: {{ $badge['promo_code'] }}'"></span>
+                                            </button>
+
+                                            {{-- KLAIM DI LOKET BUTTON --}}
+                                            <button type="button"
+                                                    @click="selectedBadge = {{ json_encode($badge) }}; perkModalOpen = true"
+                                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#B88A44] text-[#B88A44] hover:bg-[#FAF7F2] text-[11px] font-bold transition">
+                                                <span>🏷️ Klaim di Loket</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="mt-2 pt-3 border-t border-slate-200/80 p-2.5 rounded-xl bg-slate-100/70 text-[11px] text-slate-500">
+                                        <div class="font-bold text-slate-700 flex items-center gap-1 mb-0.5">
+                                            <span>🔒</span>
+                                            <span>Hadiah Terkunci: {{ $badge['reward_badge'] }}</span>
+                                        </div>
+                                        <p class="text-[10px] text-slate-500 leading-tight">
+                                            Kunjungi {{ $badge['target'] - $badge['current'] }} museum lagi untuk membuka kode diskon & hadiah fisik loket!
+                                        </p>
+                                    </div>
+                                @endif
 
                             </div>
                         @endforeach
@@ -621,6 +812,223 @@
                             </button>
                         </div>
                     </form>
+                </div>
+            </div>
+
+            {{-- ======================================================== --}}
+            {{-- MODAL DETAIL STEMPEL RESMI PASPOR DIGITAL                 --}}
+            {{-- ======================================================== --}}
+            <div x-show="stampModalOpen" x-cloak
+                 class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+                 @click.self="stampModalOpen = false">
+                <div class="bg-[#FFFDF9] rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl border-2 border-[#B88A44]/60 relative overflow-hidden"
+                     x-show="selectedStamp">
+                    
+                    {{-- ORNAMENTAL CORNERS --}}
+                    <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#B88A44] via-[#102A43] to-[#B88A44]"></div>
+
+                    <div class="flex items-center justify-between pb-3 border-b border-[#EADBC8]">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold uppercase tracking-widest text-[#B88A44]">Stempel Paspor Resmi</span>
+                            <span class="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-100 text-amber-900" x-text="selectedStamp?.stamp_code"></span>
+                        </div>
+                        <button type="button" @click="stampModalOpen = false" class="text-slate-400 hover:text-slate-700 text-lg font-bold">
+                            ✕
+                        </button>
+                    </div>
+
+                    {{-- LARGE ENLARGED AUTHENTIC POSTMARK --}}
+                    <div class="py-6 flex flex-col items-center justify-center text-center">
+                        <div class="w-40 h-40 rounded-full border-4 flex flex-col items-center justify-center text-center p-3 relative shadow-inner select-none transition-transform hover:scale-105 duration-300"
+                             :style="{ borderColor: selectedStamp?.color, color: selectedStamp?.color_text, backgroundColor: selectedStamp?.color_bg }">
+                            
+                            <div class="absolute inset-1.5 rounded-full border border-dashed" :style="{ borderColor: selectedStamp?.color }"></div>
+
+                            <span class="text-[8px] font-black uppercase tracking-widest block leading-tight">
+                                ★ ITIHASA RESMI ★
+                            </span>
+                            
+                            <span class="text-base font-black uppercase tracking-wider my-1 block font-mono"
+                                  :style="{ color: selectedStamp?.color }"
+                                  x-text="selectedStamp?.city">
+                            </span>
+
+                            <div class="px-2.5 py-0.5 my-1 border-y-2 border-current text-[9px] font-black font-mono tracking-tight bg-white/80"
+                                 x-text="selectedStamp?.date">
+                            </div>
+
+                            <span class="text-[8px] font-bold uppercase tracking-tight block"
+                                  x-text="'GATE VALIDATED • ' + (selectedStamp?.time || '') + ' WIB'">
+                            </span>
+                        </div>
+                    </div>
+
+                    {{-- METADATA INFO --}}
+                    <div class="bg-white rounded-2xl border border-[#EADBC8] p-4 space-y-2 text-xs">
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-500">Destinasi Museum:</span>
+                            <strong class="text-[#102A43] text-right truncate max-w-[200px]" x-text="selectedStamp?.museum_name"></strong>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-500">Kota Lokasi:</span>
+                            <span class="font-bold text-slate-700" x-text="selectedStamp?.city"></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-500">Jumlah Pengunjung:</span>
+                            <span class="font-bold text-slate-700" x-text="(selectedStamp?.pax || 1) + ' Orang (Pax)'"></span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-500">Status Validasi:</span>
+                            <span class="font-bold text-emerald-700 flex items-center gap-1">
+                                <span>✓</span> Sah & Terverifikasi Gate Loket
+                            </span>
+                        </div>
+                    </div>
+
+                    {{-- ACTIONS --}}
+                    <div class="mt-4 flex gap-2">
+                        <button type="button"
+                                @click="copyCode(selectedStamp?.stamp_code)"
+                                class="flex-1 py-2.5 rounded-xl border border-[#B88A44] text-[#B88A44] hover:bg-amber-50 text-xs font-bold transition">
+                            <span x-text="copiedPromo === selectedStamp?.stamp_code ? '✓ Tersalin!' : 'Salin Kode Stempel'"></span>
+                        </button>
+                        <button type="button" @click="stampModalOpen = false"
+                                class="flex-1 py-2.5 rounded-xl bg-[#102A43] hover:bg-[#0c2238] text-white text-xs font-bold transition shadow-sm">
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {{-- ======================================================== --}}
+            {{-- MODAL SERTIFIKAT DIGITAL PENJELAJAH BUDAYA (A4 PRINTABLE) --}}
+            {{-- ======================================================== --}}
+            <div x-show="certificateModalOpen" x-cloak
+                 class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm overflow-y-auto"
+                 @click.self="certificateModalOpen = false">
+                <div class="bg-[#FFFDF9] rounded-3xl p-6 sm:p-10 max-w-2xl w-full shadow-2xl border-4 border-[#B88A44] relative my-auto">
+                    
+                    {{-- ORNAMENTAL INNER FRAME --}}
+                    <div class="border-2 border-dashed border-[#B88A44]/60 p-6 sm:p-8 rounded-2xl relative text-center bg-white/60">
+                        
+                        {{-- WATERMARK CREST --}}
+                        <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-[#102A43] text-[#E8C581] flex items-center justify-center text-3xl font-serif font-black shadow-md border-2 border-[#B88A44]">
+                            🏛️
+                        </div>
+
+                        <span class="text-[10px] font-black uppercase tracking-[0.3em] text-[#B88A44] block">
+                            REPUBLIK INDONESIA • ITIHASA CULTURAL HERITAGE
+                        </span>
+
+                        <h2 class="font-serif text-xl sm:text-2xl font-black text-[#102A43] tracking-wider mt-1 uppercase">
+                            Sertifikat Apresiasi Penjelajah Budaya
+                        </h2>
+
+                        <p class="text-xs text-slate-500 font-serif italic mt-0.5">
+                            Official Digital Recognition of Indonesian Museum Exploration
+                        </p>
+
+                        <div class="my-6 py-2 border-y border-[#EADBC8]">
+                            <p class="text-xs text-slate-500 font-sans uppercase tracking-widest mb-1">Dianugerahkan Dengan Bangga Kepada:</p>
+                            <h3 class="font-serif text-2xl sm:text-3xl font-extrabold text-[#102A43] tracking-wide">
+                                {{ $user->name }}
+                            </h3>
+                            <p class="text-xs text-slate-600 mt-2 max-w-lg mx-auto font-sans leading-relaxed">
+                                Atas dedikasi, minat, dan kontribusi aktif dalam menjelajahi serta melestarikan 
+                                <strong>{{ $passportData['distinct_museums'] }} museum bersejarah</strong> di nusantara dengan meraih gelar kehormatan:
+                            </p>
+                            <div class="mt-2 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#102A43] text-[#E8C581] text-xs font-bold uppercase tracking-wider shadow-sm">
+                                <span>👑</span>
+                                <span>{{ $passportData['rank_name'] }} (Tingkat {{ $passportData['rank_level'] }}/4)</span>
+                            </div>
+                        </div>
+
+                        {{-- FOOTER CREDENTIALS & SEAL --}}
+                        <div class="grid grid-cols-2 gap-4 text-left pt-2 border-t border-[#EADBC8] text-xs">
+                            <div>
+                                <span class="text-[9px] uppercase font-bold text-slate-400 block font-mono">Nomor Registrasi Sertifikat:</span>
+                                <span class="font-mono font-bold text-[#102A43] text-[11px]">{{ $passportData['certificate_number'] }}</span>
+                                <span class="text-[9px] text-slate-400 block mt-0.5">Diterbitkan: {{ now()->translatedFormat('d F Y') }}</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[9px] uppercase font-bold text-slate-400 block font-mono">Otentikasi Paspor:</span>
+                                <span class="font-mono font-bold text-emerald-700 text-[11px]">TERVERIFIKASI SAH ✓</span>
+                                <span class="text-[9px] text-slate-400 block mt-0.5">Konsorsium Museum Indonesia</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    {{-- ACTIONS --}}
+                    <div class="mt-5 flex gap-3 print:hidden">
+                        <button type="button"
+                                @click="window.print()"
+                                class="flex-1 py-2.5 rounded-xl bg-[#B88A44] hover:bg-[#a67c3b] text-white text-xs font-bold transition shadow-md flex items-center justify-center gap-2">
+                            <span>🖨️</span>
+                            <span>Cetak / Simpan PDF</span>
+                        </button>
+                        <button type="button" @click="certificateModalOpen = false"
+                                class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-50 text-xs font-semibold transition">
+                            Tutup
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            {{-- ======================================================== --}}
+            {{-- MODAL KLAIM HADIAH FISIK DI LOKET MUSEUM                  --}}
+            {{-- ======================================================== --}}
+            <div x-show="perkModalOpen" x-cloak
+                 class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+                 @click.self="perkModalOpen = false">
+                <div class="bg-white rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl border border-[#EADBC8] relative"
+                     x-show="selectedBadge">
+                    
+                    <div class="flex items-center justify-between pb-3 border-b border-[#EADBC8]">
+                        <h3 class="font-bold text-base text-[#102A43] flex items-center gap-2">
+                            <span>🎁</span>
+                            <span>Klaim Cinderamata di Loket</span>
+                        </h3>
+                        <button type="button" @click="perkModalOpen = false" class="text-slate-400 hover:text-slate-700 text-lg font-bold">
+                            ✕
+                        </button>
+                    </div>
+
+                    <div class="py-4 text-center">
+                        <div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-[#102A43] text-white flex items-center justify-center text-3xl shadow-md border-2 border-[#B88A44]">
+                            <span x-text="selectedBadge?.icon"></span>
+                        </div>
+                        <h4 class="font-bold text-base text-[#102A43]" x-text="selectedBadge?.name"></h4>
+                        <div class="mt-2 p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-semibold text-center"
+                             x-text="selectedBadge?.physical_perk">
+                        </div>
+                    </div>
+
+                    {{-- VERIFICATION BARCODE TOKEN --}}
+                    <div class="bg-[#FAF7F2] rounded-2xl border border-[#EADBC8] p-4 text-center mb-4">
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 block mb-1">
+                            Kode Verifikasi Anggota
+                        </span>
+                        <span class="font-mono text-base font-black text-[#102A43] tracking-widest block py-1 bg-white rounded-lg border border-[#EADBC8]">
+                            {{ 'ITH-MEMBER-' . str_pad($user->id, 5, '0', STR_PAD_LEFT) }}
+                        </span>
+                        <p class="text-[10px] text-slate-500 mt-2 leading-relaxed">
+                            Tunjukkan layar ponsel ini kepada petugas loket atau meja informasi saat kamu berkunjung ke museum mitra Itihasa untuk mengambil cinderamata gratis!
+                        </p>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button type="button" @click="copyCode(selectedBadge?.promo_code)"
+                                class="flex-1 py-2.5 rounded-xl border border-[#B88A44] text-[#B88A44] hover:bg-amber-50 text-xs font-bold transition">
+                            <span x-text="copiedPromo === selectedBadge?.promo_code ? '✓ Kupon Tersalin!' : 'Salin Kupon: ' + (selectedBadge?.promo_code || '')"></span>
+                        </button>
+                        <button type="button" @click="perkModalOpen = false"
+                                class="flex-1 py-2.5 rounded-xl bg-[#102A43] hover:bg-[#0c2238] text-white text-xs font-bold transition shadow-sm">
+                            Tutup
+                        </button>
+                    </div>
+
                 </div>
             </div>
 
