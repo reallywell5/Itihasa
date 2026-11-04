@@ -14,7 +14,6 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class DashboardWebController extends Controller
 {
@@ -66,9 +65,9 @@ class DashboardWebController extends Controller
             $averageRating = Review::count() > 0 ? round((float) Review::avg('rating'), 1) : 0;
             $totalPayments = Payment::when($startDate && $endDate, fn ($q) => $q->whereBetween('created_at', [$startDate, $endDate]))->count();
 
-            $totalQrCodes = (int) Transaction::whereNotNull('used_at')
+            $totalQrCodes = Transaction::whereNotNull('used_at')
                 ->when($startDate && $endDate, fn ($q) => $q->whereBetween('updated_at', [$startDate, $endDate]))
-                ->sum(DB::raw('COALESCE(NULLIF(scanned_pax, 0), 1)'));
+                ->count();
 
             // Breakdown komprehensif performa dan penanggung jawab per museum sesuai rentang tanggal
             $museumPerformances = Museum::with([
@@ -86,10 +85,10 @@ class DashboardWebController extends Controller
                 $txCount = (clone $txQuery)->count();
                 $paidCount = (clone $txQuery)->where('payment_status', 'paid')->count();
 
-                $visitors = (int) Transaction::whereNotNull('used_at')
+                $visitors = Transaction::whereNotNull('used_at')
                     ->whereHas('booking', fn ($q) => $q->where('museum_id', $museum->id))
                     ->when($startDate && $endDate, fn ($q) => $q->whereBetween('updated_at', [$startDate, $endDate]))
-                    ->sum(DB::raw('COALESCE(NULLIF(scanned_pax, 0), 1)'));
+                    ->count();
 
                 $avgRating = $museum->reviews_count > 0 ? round((float) $museum->reviews()->avg('rating'), 1) : 0;
                 $totalQuota = (int) $museum->tickets()->sum('slot');
@@ -198,10 +197,10 @@ class DashboardWebController extends Controller
 
         // 6. Pendapatan & Pengunjung Check-in (Scan QR)
         $totalRevenue = (clone $baseAdminTxQuery)->where('payment_status', 'paid')->sum('total_amount');
-        $totalQrCodes = (int) Transaction::whereNotNull('used_at')
+        $totalQrCodes = Transaction::whereNotNull('used_at')
             ->whereHas('booking', fn ($q) => $q->where('museum_id', $museumId))
             ->when($startDate && $endDate, fn ($q) => $q->whereBetween('updated_at', [$startDate, $endDate]))
-            ->sum(DB::raw('COALESCE(NULLIF(scanned_pax, 0), 1)'));
+            ->count();
 
         $recentTransactions = Transaction::with(['booking.user', 'booking.museum'])
             ->whereHas('booking', fn ($q) => $q->where('museum_id', $museumId))

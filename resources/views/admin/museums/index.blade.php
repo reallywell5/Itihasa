@@ -71,7 +71,7 @@
         <form method="GET" action="{{ route('museums.index') }}" class="flex flex-col sm:flex-row gap-3">
             <div class="relative flex-1">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 pointer-events-none">
-                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    🔍
                 </span>
                 <input
                     type="text"
@@ -93,9 +93,9 @@
 
             <select name="status" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-purple-600">
                 <option value="">Semua Status</option>
-                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Aktif Buka</option>
-                <option value="renovation" {{ request('status') == 'renovation' ? 'selected' : '' }}>Renovasi / Tutup</option>
-                <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Nonaktif</option>
+                <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>● Aktif Buka</option>
+                <option value="renovation" {{ request('status') == 'renovation' ? 'selected' : '' }}>⚠️ Renovasi / Tutup</option>
+                <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>❌ Nonaktif</option>
             </select>
 
             <button type="submit"
@@ -146,9 +146,9 @@
                                 default => 'bg-emerald-100 text-emerald-800 border-emerald-200',
                             };
                             $statusText = match($mStatus) {
-                                'renovation' => 'Renovasi / Tutup',
-                                'inactive' => 'Nonaktif',
-                                default => 'Aktif Buka',
+                                'renovation' => '⚠️ Renovasi / Tutup',
+                                'inactive' => '❌ Nonaktif',
+                                default => '● Aktif Buka',
                             };
                         @endphp
                         <tr class="hover:bg-slate-50/70 transition">
@@ -173,7 +173,7 @@
                                             {{ $museum->name }}
                                         </h3>
                                         <p class="text-[11px] text-slate-400 truncate mt-0.5">
-                                            {{ $museum->address }}
+                                            📍 {{ $museum->address }}
                                         </p>
                                     </div>
                                 </div>
@@ -193,7 +193,7 @@
                                     </div>
                                 @else
                                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[10px] font-bold border border-amber-200">
-                                        Belum Ada Admin
+                                        ⚠️ Belum Ada Admin
                                     </span>
                                 @endif
                             </td>
@@ -208,10 +208,10 @@
                             <td class="px-4 py-3.5 text-center whitespace-nowrap">
                                 <div class="inline-flex items-center gap-2">
                                     <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold text-[10px]">
-                                        {{ $museum->tickets_count ?? 0 }} Varian
+                                        🎟️ {{ $museum->tickets_count ?? 0 }} Varian
                                     </span>
                                     <span class="px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 font-bold text-[10px] border border-amber-200">
-                                        {{ $museum->reviews_count ?? 0 }} Ulasan
+                                        ⭐ {{ $museum->reviews_count ?? 0 }}
                                     </span>
                                 </div>
                             </td>
@@ -223,9 +223,9 @@
                                         @csrf
                                         <select name="status" onchange="this.form.submit()"
                                                 class="text-[11px] font-bold rounded-lg px-2 py-1 border transition {{ $statusBadge }}">
-                                            <option value="active" {{ $mStatus === 'active' ? 'selected' : '' }}>Aktif Buka</option>
-                                            <option value="renovation" {{ $mStatus === 'renovation' ? 'selected' : '' }}>Renovasi / Tutup</option>
-                                            <option value="inactive" {{ $mStatus === 'inactive' ? 'selected' : '' }}>Nonaktif</option>
+                                            <option value="active" {{ $mStatus === 'active' ? 'selected' : '' }}>● Aktif Buka</option>
+                                            <option value="renovation" {{ $mStatus === 'renovation' ? 'selected' : '' }}>⚠️ Renovasi / Tutup</option>
+                                            <option value="inactive" {{ $mStatus === 'inactive' ? 'selected' : '' }}>❌ Nonaktif</option>
                                         </select>
                                     </form>
                                 @else
@@ -242,13 +242,13 @@
                                        target="_blank"
                                        title="Lihat Halaman Publik"
                                        class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition">
-                                        Publik
+                                        👁️ Publik
                                     </a>
 
                                     <a href="{{ route('museums.edit', $museum->id) }}"
                                        title="Edit Data Museum"
                                        class="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 text-[11px] font-bold transition">
-                                        Edit
+                                        ✏️ Edit
                                     </a>
 
                                     @if(auth()->user()->isSuperAdmin())
@@ -260,7 +260,7 @@
                                             <button type="submit"
                                                     title="Hapus Museum"
                                                     class="px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-[11px] font-bold transition">
-                                                Hapus
+                                                🗑️ Hapus
                                             </button>
                                         </form>
                                     @endif

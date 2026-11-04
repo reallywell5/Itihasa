@@ -73,7 +73,7 @@
         <nav class="flex-1 p-3 space-y-1 overflow-y-auto">
             @if(Auth::user()?->isSuperAdmin())
                 {{-- ======================================================= --}}
-                {{-- MENU EKSKLUSIF SUPER ADMIN (EKOSISTEM GLOBAL)             --}}
+                {{-- 👑 MENU EKSKLUSIF SUPER ADMIN (EKOSISTEM GLOBAL)         --}}
                 {{-- ======================================================= --}}
                 <p class="px-3 pt-2 pb-1 text-[9px] font-bold uppercase tracking-widest text-purple-600">
                     Pemantauan Ekosistem
@@ -103,7 +103,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-5-4M9 20H4v-2a4 4 0 015-4m4-4a4 4 0 11-8 0 4 4 0 018 0m6 0a4 4 0 11-8 0"/>
                     </svg>
-                    <span>Kelola Akun</span>
+                    <span>Kelola Admin Museum</span>
                 </a>
 
                 <a href="{{ route('admin.broadcasts.index') }}"
@@ -148,7 +148,7 @@
 
             @else
                 {{-- ======================================================= --}}
-                {{-- MENU EKSKLUSIF ADMIN MUSEUM (OPERASIONAL LOKAL)           --}}
+                {{-- 🏛 MENU EKSKLUSIF ADMIN MUSEUM (OPERASIONAL LOKAL)       --}}
                 {{-- ======================================================= --}}
                 <p class="px-3 pt-2 pb-1 text-[9px] font-bold uppercase tracking-widest text-slate-400">
                     Menu Utama
@@ -638,113 +638,22 @@
                 </div>
             </div>
 
-            {{-- HEADER ACTIONS (NOTIFICATIONS + PROFILE) --}}
-            <div class="flex items-center gap-2 sm:gap-3">
-                @include('components.notification-bell')
-
-                {{-- PROFILE DROPDOWN --}}
-                <div class="relative" x-data="{ profileMenuOpen: false }" @click.outside="profileMenuOpen = false">
-                <button type="button"
-                        @click="profileMenuOpen = !profileMenuOpen"
-                        class="flex items-center gap-2.5 px-3 py-1.5 rounded-2xl border border-slate-200/90 bg-white shadow-sm hover:bg-slate-50 transition focus:outline-none focus:ring-2 {{ Auth::user()?->isSuperAdmin() ? 'focus:ring-purple-500' : 'focus:ring-blue-500' }}"
-                        aria-expanded="profileMenuOpen"
-                        aria-haspopup="true">
-                    <div class="text-right hidden sm:block">
-                        <p class="text-xs font-bold text-slate-800 leading-none">
-                            {{ Auth::user()->name ?? 'Administrator' }}
-                        </p>
-                        <p class="text-[10px] text-slate-400 font-semibold mt-0.5">
-                            {{ Auth::user()?->isSuperAdmin() ? 'Super Admin' : (Auth::user()?->museum?->name ?? 'Admin Museum') }}
-                        </p>
-                    </div>
-
-                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full {{ Auth::user()?->isSuperAdmin() ? 'bg-purple-600' : 'bg-blue-600' }} text-white flex items-center justify-center font-bold text-xs shadow-sm ring-2 ring-white">
-                        {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
-                    </div>
-
-                    <svg class="w-3.5 h-3.5 text-slate-400 transition transform hidden sm:block" :class="profileMenuOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </button>
-
-                {{-- DROPDOWN MENU PANEL --}}
-                <div x-show="profileMenuOpen"
-                     x-cloak
-                     x-transition:enter="transition ease-out duration-100"
-                     x-transition:enter-start="transform opacity-0 scale-95"
-                     x-transition:enter-end="transform opacity-100 scale-100"
-                     x-transition:leave="transition ease-in duration-75"
-                     x-transition:leave-start="transform opacity-100 scale-100"
-                     x-transition:leave-end="transform opacity-0 scale-95"
-                     class="absolute right-0 mt-2 w-64 rounded-2xl bg-white shadow-xl border border-slate-100 py-2 z-50 divide-y divide-slate-100"
-                     style="display: none;">
-
-                    {{-- USER INFO HEADER --}}
-                    <div class="px-4 py-3">
-                        <p class="text-xs font-bold text-slate-800 truncate">
-                            {{ Auth::user()->name ?? 'Administrator' }}
-                        </p>
-                        <p class="text-[11px] text-slate-400 font-mono truncate mt-0.5">
-                            {{ Auth::user()->email ?? '-' }}
-                        </p>
-                        <div class="mt-2">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[9px] font-extrabold uppercase tracking-wider {{ Auth::user()?->isSuperAdmin() ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
-                                {{ Auth::user()?->isSuperAdmin() ? 'Super Admin' : 'Admin Museum' }}
-                            </span>
-                        </div>
-                    </div>
-
-                    {{-- MENU LINKS --}}
-                    <div class="py-1">
-                        <a href="{{ route('admin.profile.edit') }}"
-                           class="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">
-                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                            </svg>
-                            <span>Profil & Akun Saya</span>
-                        </a>
-
-                        @if(Auth::user()?->isSuperAdmin())
-                            <a href="{{ route('users.index') }}"
-                               class="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">
-                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                                </svg>
-                                <span>Manajemen Pengguna</span>
-                            </a>
-                        @else
-                            <a href="{{ route('admin.museum.profile.edit') }}"
-                               class="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition">
-                                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                </svg>
-                                <span>Profil Museum</span>
-                            </a>
-                        @endif
-                    </div>
-
-                    {{-- LOGOUT BUTTON --}}
-                    <div class="py-1">
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit"
-                                    class="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 transition text-left">
-                                <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                </svg>
-                                <span>Keluar (Logout)</span>
-                            </button>
-                        </form>
-                    </div>
+            <div class="flex items-center gap-3">
+                <div class="text-right hidden sm:block">
+                    <p class="text-xs font-bold text-slate-800 leading-none">
+                        {{ Auth::user()->name ?? 'Administrator' }}
+                    </p>
                 </div>
-            </div>
+
+                <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full {{ Auth::user()?->isSuperAdmin() ? 'bg-purple-600' : 'bg-blue-600' }} text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                    {{ strtoupper(substr(Auth::user()->name ?? 'A', 0, 1)) }}
+                </div>
             </div>
         </header>
 
         {{-- PAGE CONTENT CONTAINER --}}
         <main class="flex-1 p-3 sm:p-5 lg:p-6 overflow-y-auto">
             <div class="w-full max-w-7xl mx-auto">
-                @include('components.broadcast-alerts')
                 @yield('content')
             </div>
         </main>

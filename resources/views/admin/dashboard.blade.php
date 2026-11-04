@@ -16,16 +16,16 @@
                         'success' => 'bg-emerald-600 text-white border-emerald-700',
                         default => 'bg-blue-600 text-white border-blue-700',
                     };
-                    $badgeText = match($bc->urgency) {
-                        'danger' => 'KRITIS',
-                        'warning' => 'PERINGATAN',
-                        'success' => 'SUKSES',
-                        default => 'INFO',
+                    $icon = match($bc->urgency) {
+                        'danger' => '🚨',
+                        'warning' => '⚠️',
+                        'success' => '🎉',
+                        default => '📢',
                     };
                 @endphp
                 <div class="rounded-2xl p-4 sm:p-4.5 shadow-md flex items-start justify-between gap-3 border {{ $style }}" x-data="{ dismissed: false }" x-show="!dismissed">
                     <div class="flex items-start gap-3">
-                        <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase shrink-0 bg-black/20 tracking-wider mt-0.5">{{ $badgeText }}</span>
+                        <span class="text-xl shrink-0 mt-0.5">{{ $icon }}</span>
                         <div>
                             <div class="flex items-center gap-2">
                                 <h4 class="font-bold text-xs sm:text-sm uppercase tracking-wide">{{ $bc->title }}</h4>
@@ -40,7 +40,7 @@
                             </span>
                         </div>
                     </div>
-                    <button type="button" @click="dismissed = true" class="opacity-75 hover:opacity-100 p-1 text-xs font-bold shrink-0">Tutup</button>
+                    <button type="button" @click="dismissed = true" class="opacity-75 hover:opacity-100 p-1 text-sm font-bold shrink-0">✕</button>
                 </div>
             @endforeach
         </div>
@@ -51,7 +51,7 @@
          x-data="{ showCustom: '{{ $period }}' === 'custom' }">
         <div class="flex items-center gap-2 text-xs">
             <span class="font-bold text-slate-700 flex items-center gap-1.5 shrink-0">
-                <span>Rentang Waktu:</span>
+                <span>📅 Rentang Waktu:</span>
                 <span class="{{ $isSuperAdmin ? 'text-purple-700' : 'text-blue-700' }} font-extrabold">{{ $periodLabel }}</span>
             </span>
         </div>
@@ -79,7 +79,7 @@
             </a>
             <button type="button" @click="showCustom = !showCustom"
                     class="px-3 py-1.5 rounded-xl text-xs font-bold transition {{ $period === 'custom' ? ($isSuperAdmin ? 'bg-purple-900 text-white' : 'bg-blue-600 text-white') : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
-                Kustom
+                Kustom ⚙️
             </button>
         </div>
 
@@ -117,12 +117,12 @@
                 <div class="mt-5 flex flex-wrap items-center gap-2">
                     <a href="{{ route('users.index') }}"
                        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white text-purple-950 text-xs font-bold shadow hover:bg-purple-50 transition">
-                        <span>Kelola Admin & Petugas</span>
+                        <span>👥 Kelola Admin & Petugas</span>
                     </a>
 
                     <a href="{{ route('museums.index') }}"
                        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-800/80 hover:bg-purple-800 text-white text-xs font-bold transition border border-purple-700/50">
-                        <span>Direktori Museum</span>
+                        <span>🏛 Direktori Museum</span>
                     </a>
 
                     <button onclick="window.print()"
@@ -141,7 +141,7 @@
                 <div>
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Omzet Transaksi Global</span>
-                        <span class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xs font-bold">IDR</span>
+                        <span class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-sm">💰</span>
                     </div>
                     <h2 class="text-2xl font-extrabold text-slate-800 mt-3">
                         Rp {{ number_format($totalRevenue, 0, ',', '.') }}
@@ -157,97 +157,42 @@
             </div>
         </div>
 
-        {{-- METRIK RINGKASAN GLOBAL: ENTITAS TERPADU (1 TAMPILAN) + KUNJUNGAN & KEPUASAN --}}
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
-            {{-- 1 TAMPILAN TERPADU ENTITAS EKOSISTEM (MUSEUM, ADMIN, PETUGAS GATE, PENGUNJUNG) --}}
-            <div class="lg:col-span-8 bg-white rounded-2xl border border-slate-100 p-4 shadow-sm hover:border-purple-200 transition flex flex-col justify-between">
-                <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
-                    <div class="flex items-center gap-2.5">
-                        <span class="w-7 h-7 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center text-xs font-bold">
-                            🏛️
-                        </span>
-                        <div>
-                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800">
-                                Entitas & Aktor Ekosistem Terdaftar
-                            </h3>
-                            <p class="text-[10px] text-slate-400">
-                                Total mitra museum dan seluruh pengguna aktif terverifikasi di seluruh Indonesia
-                            </p>
-                        </div>
-                    </div>
-                    <span class="text-[11px] font-bold text-purple-700 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-100">
-                        {{ $totalMuseums + $totalAdmins + $totalStaff + $totalVisitors }} Total Terhubung
-                    </span>
-                </div>
-
-                <div class="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 pt-1">
-                    <div class="px-3 py-2 sm:py-0">
-                        <div class="flex items-center gap-1.5 text-slate-400 text-[11px] font-semibold uppercase">
-                            <span>🏛️</span>
-                            <span>Museum</span>
-                        </div>
-                        <p class="text-2xl font-black text-slate-800 mt-1">{{ $totalMuseums }}</p>
-                        <p class="text-[10px] text-purple-600 font-medium mt-0.5">Mitra Terdaftar</p>
-                    </div>
-
-                    <div class="px-3 py-2 sm:py-0">
-                        <div class="flex items-center gap-1.5 text-slate-400 text-[11px] font-semibold uppercase">
-                            <span>👥</span>
-                            <span>Admin</span>
-                        </div>
-                        <p class="text-2xl font-black text-slate-800 mt-1">{{ $totalAdmins }}</p>
-                        <p class="text-[10px] text-slate-500 font-medium mt-0.5">Pengelola Lokal</p>
-                    </div>
-
-                    <div class="px-3 py-2 sm:py-0">
-                        <div class="flex items-center gap-1.5 text-slate-400 text-[11px] font-semibold uppercase">
-                            <span>🛡️</span>
-                            <span>Petugas Gate</span>
-                        </div>
-                        <p class="text-2xl font-black text-slate-800 mt-1">{{ $totalStaff }}</p>
-                        <p class="text-[10px] text-slate-500 font-medium mt-0.5">Staf Scanner</p>
-                    </div>
-
-                    <div class="px-3 py-2 sm:py-0">
-                        <div class="flex items-center gap-1.5 text-slate-400 text-[11px] font-semibold uppercase">
-                            <span>🎟️</span>
-                            <span>Pengunjung</span>
-                        </div>
-                        <p class="text-2xl font-black text-slate-800 mt-1">{{ $totalVisitors }}</p>
-                        <p class="text-[10px] text-slate-500 font-medium mt-0.5">Akun Pengguna</p>
-                    </div>
-                </div>
+        {{-- METRIK RINGKASAN GLOBAL (6 CARDS) --}}
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+            <div class="bg-white rounded-xl border border-slate-100 p-4 shadow-sm hover:border-purple-200 transition">
+                <p class="text-[11px] font-semibold text-slate-400 uppercase">Museum</p>
+                <p class="text-xl font-bold text-slate-800 mt-1">{{ $totalMuseums }}</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">Mitra Terdaftar</p>
             </div>
 
-            {{-- KUNJUNGAN REAL --}}
-            <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-100 p-4 shadow-sm hover:border-purple-200 transition flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center justify-between">
-                        <p class="text-[11px] font-semibold text-slate-400 uppercase">Kunjungan Real</p>
-                        <span class="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-xs">✓</span>
-                    </div>
-                    <p class="text-2xl font-black text-emerald-600 mt-2">{{ $totalQrCodes }}</p>
-                </div>
-                <div class="pt-2 border-t border-slate-100 mt-2">
-                    <p class="text-[10px] text-slate-400">Tiket Validasi Gate</p>
-                </div>
+            <div class="bg-white rounded-xl border border-slate-100 p-4 shadow-sm hover:border-purple-200 transition">
+                <p class="text-[11px] font-semibold text-slate-400 uppercase">Admin</p>
+                <p class="text-xl font-bold text-slate-800 mt-1">{{ $totalAdmins }}</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">Pengelola Lokal</p>
             </div>
 
-            {{-- KEPUASAN PENGUNJUNG --}}
-            <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-100 p-4 shadow-sm hover:border-purple-200 transition flex flex-col justify-between">
-                <div>
-                    <div class="flex items-center justify-between">
-                        <p class="text-[11px] font-semibold text-slate-400 uppercase">Kepuasan</p>
-                        <span class="w-6 h-6 rounded-lg bg-amber-50 text-amber-500 flex items-center justify-center text-xs">★</span>
-                    </div>
-                    <div class="flex items-baseline gap-1 mt-2">
-                        <p class="text-2xl font-black text-amber-500">{{ $averageRating }}</p>
-                        <span class="text-xs font-semibold text-slate-400">/ 5.0</span>
-                    </div>
-                </div>
-                <div class="pt-2 border-t border-slate-100 mt-2">
-                    <p class="text-[10px] text-slate-400">{{ $totalReviews }} Ulasan Pengunjung</p>
-                </div>
+            <div class="bg-white rounded-xl border border-slate-100 p-4 shadow-sm hover:border-purple-200 transition">
+                <p class="text-[11px] font-semibold text-slate-400 uppercase">Petugas Gate</p>
+                <p class="text-xl font-bold text-slate-800 mt-1">{{ $totalStaff }}</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">Staf Scanner</p>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-100 p-4 shadow-sm hover:border-purple-200 transition">
+                <p class="text-[11px] font-semibold text-slate-400 uppercase">Pengunjung</p>
+                <p class="text-xl font-bold text-slate-800 mt-1">{{ $totalVisitors }}</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">Akun Pengguna</p>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-100 p-4 shadow-sm hover:border-purple-200 transition">
+                <p class="text-[11px] font-semibold text-slate-400 uppercase">Kunjungan Real</p>
+                <p class="text-xl font-bold text-emerald-600 mt-1">{{ $totalQrCodes }}</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">Tiket Validasi Gate</p>
+            </div>
+
+            <div class="bg-white rounded-xl border border-slate-100 p-4 shadow-sm hover:border-purple-200 transition">
+                <p class="text-[11px] font-semibold text-slate-400 uppercase">Kepuasan</p>
+                <p class="text-xl font-bold text-amber-500 mt-1">{{ $averageRating }} ★</p>
+                <p class="text-[10px] text-slate-400 mt-0.5">{{ $totalReviews }} Ulasan</p>
             </div>
         </div>
 
@@ -265,7 +210,7 @@
                         </p>
                     </div>
                     <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-purple-50 text-purple-700 text-[11px] font-bold">
-                        Periode 6 Bulan
+                        📈 Periode 6 Bulan
                     </span>
                 </div>
                 <div class="h-64">
@@ -327,8 +272,8 @@
                             <tr class="hover:bg-purple-50/30 transition align-middle">
                                 <td class="px-4 py-3.5 font-bold text-slate-800">
                                     <div class="flex items-center gap-2.5">
-                                        <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-[10px] shrink-0 tracking-wider">
-                                            MUS
+                                        <div class="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xs shrink-0">
+                                            🏛
                                         </div>
                                         <div>
                                             <p class="font-bold text-slate-800 line-clamp-1">{{ $mp['name'] }}</p>
@@ -363,8 +308,8 @@
                                 </td>
 
                                 <td class="px-3 py-3.5 text-center">
-                                    <span class="inline-flex items-center gap-0.5 text-amber-600 font-bold text-[11px]">
-                                        Skor {{ $mp['avg_rating'] }}
+                                    <span class="inline-flex items-center gap-0.5 text-amber-500 font-bold text-[11px]">
+                                        ★ {{ $mp['avg_rating'] }}
                                     </span>
                                     <span class="block text-[9px] text-slate-400">
                                         ({{ $mp['reviews_count'] }} ulasan)
@@ -438,7 +383,7 @@
                                 </td>
                                 <td class="px-4 py-3">
                                     <span class="px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 font-bold text-[10px]">
-                                        {{ $tx->booking?->museum?->name ?? 'Museum' }}
+                                        🏛 {{ $tx->booking?->museum?->name ?? 'Museum' }}
                                     </span>
                                 </td>
                                 <td class="px-4 py-3 font-bold text-slate-800">
@@ -447,15 +392,15 @@
                                 <td class="px-4 py-3 text-center">
                                     @if($tx->payment_status === 'paid')
                                         <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                                            Lunas
+                                            ✓ Lunas
                                         </span>
                                     @elseif($tx->payment_status === 'pending')
                                         <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold">
-                                            Menunggu
+                                            ⏳ Menunggu
                                         </span>
                                     @else
                                         <span class="px-2 py-0.5 rounded-full bg-red-100 text-red-800 text-[10px] font-bold">
-                                            Gagal
+                                            ✗ Gagal
                                         </span>
                                     @endif
                                 </td>
@@ -520,7 +465,7 @@
                 <div>
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Pendapatan Museum</span>
-                        <span class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xs font-bold">IDR</span>
+                        <span class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-sm">💰</span>
                     </div>
                     <h2 class="text-2xl font-extrabold text-slate-800 mt-3">
                         Rp {{ number_format($totalRevenue, 0, ',', '.') }}
@@ -549,7 +494,7 @@
                 <a href="{{ route('tickets.index') }}" class="group bg-white rounded-xl border border-slate-100 p-4 shadow-sm hover:border-blue-500 hover:shadow-md transition">
                     <div class="flex items-center justify-between">
                         <span class="text-[11px] font-semibold text-slate-500 uppercase">Tiket</span>
-                        <span class="text-xs font-bold text-blue-600 group-hover:scale-110 transition">TKT</span>
+                        <span class="text-sm group-hover:scale-110 transition">🎫</span>
                     </div>
                     <p class="text-xl font-bold text-slate-800 mt-2">{{ $totalTickets }}</p>
                     <p class="text-[10px] text-slate-400 mt-0.5">Kuota: {{ number_format($totalQuota) }}</p>
@@ -559,7 +504,7 @@
                 <a href="{{ route('galleries.index') }}" class="group bg-white rounded-xl border border-slate-100 p-4 shadow-sm hover:border-blue-500 hover:shadow-md transition">
                     <div class="flex items-center justify-between">
                         <span class="text-[11px] font-semibold text-slate-500 uppercase">Galeri</span>
-                        <span class="text-xs font-bold text-blue-600 group-hover:scale-110 transition">GLR</span>
+                        <span class="text-sm group-hover:scale-110 transition">🖼</span>
                     </div>
                     <p class="text-xl font-bold text-slate-800 mt-2">{{ $totalGalleries }}</p>
                     <p class="text-[10px] text-slate-400 mt-0.5">Foto Koleksi</p>
@@ -569,9 +514,9 @@
                 <a href="{{ route('admin.reviews.index') }}" class="group bg-white rounded-xl border border-slate-100 p-4 shadow-sm hover:border-blue-500 hover:shadow-md transition">
                     <div class="flex items-center justify-between">
                         <span class="text-[11px] font-semibold text-slate-500 uppercase">Ulasan</span>
-                        <span class="text-xs font-bold text-amber-600 group-hover:scale-110 transition">REV</span>
+                        <span class="text-sm group-hover:scale-110 transition">⭐</span>
                     </div>
-                    <p class="text-xl font-bold text-slate-800 mt-2">{{ $averageRating }} <span class="text-xs font-semibold text-slate-500">Skor</span></p>
+                    <p class="text-xl font-bold text-slate-800 mt-2">{{ $averageRating }} ★</p>
                     <p class="text-[10px] text-slate-400 mt-0.5">{{ $totalReviews }} Ulasan</p>
                 </a>
 
@@ -579,7 +524,7 @@
                 <a href="{{ route('payments.index') }}" class="group bg-white rounded-xl border border-slate-100 p-4 shadow-sm hover:border-blue-500 hover:shadow-md transition">
                     <div class="flex items-center justify-between">
                         <span class="text-[11px] font-semibold text-slate-500 uppercase">Pembayaran</span>
-                        <span class="text-xs font-bold text-blue-600 group-hover:scale-110 transition">PAY</span>
+                        <span class="text-sm group-hover:scale-110 transition">💳</span>
                     </div>
                     <p class="text-xl font-bold text-slate-800 mt-2">{{ $totalPayments }}</p>
                     <p class="text-[10px] text-emerald-600 mt-0.5">{{ $successPayments }} Berhasil</p>
@@ -589,7 +534,7 @@
                 <a href="{{ route('transactions.index') }}" class="group bg-white rounded-xl border border-slate-100 p-4 shadow-sm hover:border-blue-500 hover:shadow-md transition">
                     <div class="flex items-center justify-between">
                         <span class="text-[11px] font-semibold text-slate-500 uppercase">Transaksi</span>
-                        <span class="text-xs font-bold text-blue-600 group-hover:scale-110 transition">TRX</span>
+                        <span class="text-sm group-hover:scale-110 transition">📄</span>
                     </div>
                     <p class="text-xl font-bold text-slate-800 mt-2">{{ $totalTransactions }}</p>
                     <p class="text-[10px] text-slate-400 mt-0.5">{{ $paidTransactions }} Lunas</p>
@@ -599,7 +544,7 @@
                 <div class="bg-white rounded-xl border border-slate-100 p-4 shadow-sm">
                     <div class="flex items-center justify-between">
                         <span class="text-[11px] font-semibold text-slate-500 uppercase">Scan QR</span>
-                        <span class="text-xs font-bold text-emerald-600">SCAN</span>
+                        <span class="text-sm">🔍</span>
                     </div>
                     <p class="text-xl font-bold text-emerald-600 mt-2">{{ $totalQrCodes }}</p>
                     <p class="text-[10px] text-slate-400 mt-0.5">Tiket Divalidasi</p>

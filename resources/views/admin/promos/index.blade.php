@@ -59,7 +59,7 @@
                             Museum (Opsional: Kosongkan untuk Global)
                         </label>
                         <select name="museum_id" class="w-full rounded-xl border border-slate-200 p-2.5 text-xs text-slate-800 focus:ring-2 focus:ring-blue-500">
-                            <option value="">Kupon Berlaku untuk Semua Museum (Global)</option>
+                            <option value="">🌐 Kupon Berlaku untuk Semua Museum</option>
                             @foreach($museums as $m)
                                 <option value="{{ $m->id }}">{{ $m->name }}</option>
                             @endforeach
@@ -204,7 +204,7 @@
                                             </div>
                                             <p class="font-semibold text-slate-800 mt-1">{{ $promo->title }}</p>
                                             <span class="text-[10px] text-slate-400">
-                                                {{ $promo->museum->name ?? 'Semua Museum' }}
+                                                🏛 {{ $promo->museum->name ?? 'Semua Museum' }}
                                             </span>
                                         </td>
                                         <td class="px-4 py-3.5 whitespace-nowrap">

@@ -57,25 +57,12 @@
                                     {{ $review->user->name ?? 'Pengunjung' }}
                                 </td>
                                 <td class="px-4 py-3.5 text-slate-600 whitespace-nowrap">
-                                    {{ $review->museum->name ?? '-' }}
+                                    🏛 {{ $review->museum->name ?? '-' }}
                                 </td>
                                 <td class="px-4 py-3.5 text-center whitespace-nowrap">
-                                    <div class="inline-flex flex-col items-center gap-0.5">
-                                        <div class="flex items-center gap-0.5">
-                                            @for ($i = 1; $i <= 5; $i++)
-                                                @if ($i <= (int) $review->rating)
-                                                    <svg class="w-4 h-4 fill-amber-400 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                                    </svg>
-                                                @else
-                                                    <svg class="w-4 h-4 fill-slate-200 text-slate-200" viewBox="0 0 20 20" fill="currentColor">
-                                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                                    </svg>
-                                                @endif
-                                            @endfor
-                                        </div>
-                                        <span class="text-[10px] font-bold text-slate-500">{{ $review->rating }} dari 5</span>
-                                    </div>
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 text-[11px] font-bold">
+                                        {{ $review->rating }} ★
+                                    </span>
                                 </td>
                                 <td class="px-4 py-3.5 text-slate-600 max-w-md">
                                     <p class="leading-relaxed">
@@ -98,6 +85,7 @@
                                         <div class="mt-2.5 p-2.5 rounded-xl bg-blue-50/70 border border-blue-200 text-slate-700 text-[11px]">
                                             <div class="flex items-center justify-between gap-2 font-bold text-blue-900 mb-1">
                                                 <span class="flex items-center gap-1">
+                                                    <span>🏛️</span>
                                                     <span>Respon Resmi Pengelola:</span>
                                                 </span>
                                                 <span class="text-[9px] text-blue-600 font-normal">
@@ -114,7 +102,7 @@
                                 <td class="px-4 py-3.5 text-center whitespace-nowrap">
                                     @if ($review->reports_count > 0)
                                         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-50 text-red-600 text-[10px] font-bold">
-                                            Laporan: {{ $review->reports_count }}
+                                            🚩 {{ $review->reports_count }}
                                         </span>
                                     @else
                                         <span class="text-slate-300">-</span>
@@ -133,7 +121,7 @@
                                                         currentReply = '{{ addslashes($review->admin_reply ?? '') }}';
                                                     "
                                                     class="px-2.5 py-1 rounded-lg {{ $review->admin_reply ? 'bg-blue-50 hover:bg-blue-100 text-blue-700' : 'bg-amber-50 hover:bg-amber-100 text-amber-800' }} text-[11px] font-bold transition">
-                                                {{ $review->admin_reply ? 'Edit Tanggapan' : 'Balas' }}
+                                                {{ $review->admin_reply ? 'Edit Tanggapan' : '💬 Balas' }}
                                             </button>
 
                                             {{-- BUTTON HAPUS ULASAN OLEH ADMIN MUSEUM --}}
@@ -148,7 +136,7 @@
                                             </form>
                                         @else
                                             <span class="px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 text-[10px] font-bold border border-purple-100">
-                                                Mode Pantau
+                                                👁️ Mode Pantau
                                             </span>
                                         @endif
                                     </div>
@@ -176,7 +164,7 @@
                 <h3 class="text-base font-bold text-slate-800">
                     Tanggapan Resmi Pengelola Museum
                 </h3>
-                <button type="button" @click="replyModal = false" class="text-slate-400 hover:text-slate-600 text-xs font-bold">Tutup</button>
+                <button type="button" @click="replyModal = false" class="text-slate-400 hover:text-slate-600">✕</button>
             </div>
             <p class="text-xs text-slate-500 mb-4">
                 Menanggapi ulasan dari <strong class="text-slate-700" x-text="selectedReviewUser"></strong>. Tanggapan ini akan tampil di halaman publik museum.
@@ -202,7 +190,7 @@
                     </button>
                     <button type="submit"
                             class="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-sm">
-                        Publikasikan Respon
+                        Publikasikan Respon 🏛️
                     </button>
                 </div>
             </form>
