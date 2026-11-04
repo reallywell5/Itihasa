@@ -47,7 +47,7 @@
                                    value="{{ $session['close'] ?? '' }}"
                                    class="flex-1 rounded-lg border border-zinc-200 px-3 py-2 text-sm">
                             <button type="button" onclick="removeSessionRow(this)"
-                                    class="px-2 text-red-500 hover:text-red-700 text-sm">✕</button>
+                                    class="px-2 text-red-500 hover:text-red-700 text-xs font-semibold">Hapus</button>
                         </div>
                     @endforeach
                 </div>
@@ -102,7 +102,7 @@ function addSessionRow(button) {
         <input type="time" name="operational_hours[${dayKey}][sessions][${index}][close]"
                class="flex-1 rounded-lg border border-zinc-200 px-3 py-2 text-sm">
         <button type="button" onclick="removeSessionRow(this)"
-                class="px-2 text-red-500 hover:text-red-700 text-sm">✕</button>
+                class="px-2 text-red-500 hover:text-red-700 text-xs font-semibold">Hapus</button>
     `;
     container.appendChild(div);
 }

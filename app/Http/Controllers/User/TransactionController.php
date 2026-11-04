@@ -84,21 +84,26 @@ class TransactionController extends Controller
             'app/public/ticket-'.$transaction->id.'.png'
         );
 
-        $browsershot = Browsershot::html($html)
-            ->windowSize(900, 1400)
-            ->fullPage()
-            ->deviceScaleFactor(2)
-            ->showBackground()
-            ->margins(0, 0, 0, 0);
+        try {
+            $browsershot = Browsershot::html($html)
+                ->windowSize(900, 1400)
+                ->fullPage()
+                ->deviceScaleFactor(2)
+                ->showBackground()
+                ->margins(0, 0, 0, 0);
 
-        if (PHP_OS_FAMILY !== 'Windows' && file_exists('/usr/bin/chromium-browser')) {
-            $browsershot->setChromePath('/usr/bin/chromium-browser');
+            if (PHP_OS_FAMILY !== 'Windows' && file_exists('/usr/bin/chromium-browser')) {
+                $browsershot->setChromePath('/usr/bin/chromium-browser');
+            }
+
+            $browsershot->save($image);
+
+            return response()->download($image, 'Tiket-'.$transaction->invoice_code.'.png', [
+                'Content-Type' => 'image/png',
+            ]);
+        } catch (\Throwable $e) {
+            // Fallback: Jika runtime chromium tidak tersedia, tampilkan e-tiket HTML siap cetak tanpa melempar error 500
+            return response($html)->header('Content-Type', 'text/html');
         }
-
-        $browsershot->save($image);
-
-        return response()->download($image, 'Tiket-'.$transaction->invoice_code.'.png', [
-            'Content-Type' => 'image/png',
-        ]);
     }
 }

@@ -112,7 +112,7 @@
                             </td>
                             <td class="px-4 py-3">
                                 <span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                                    🛡 {{ $item->museum?->name ?? (Auth::user()?->museum?->name ?? 'Museum') }}
+                                    {{ $item->museum?->name ?? (Auth::user()?->museum?->name ?? 'Museum') }}
                                 </span>
                             </td>
                             <td class="px-4 py-3 text-slate-500">
