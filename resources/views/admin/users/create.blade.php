@@ -88,13 +88,13 @@
                     >
                         <option value="">-- Pilih Peran / Role Akun --</option>
                         <option value="admin" {{ old('role', 'admin') == 'admin' ? 'selected' : '' }}>
-                            🏛 Admin Museum (Pengelola Operasional Museum)
+                            Admin Museum (Pengelola Operasional Museum)
                         </option>
                         <option value="staff" {{ old('role') == 'staff' ? 'selected' : '' }}>
-                            🛡 Petugas Lapangan (Petugas Validasi / Scan QR Gate)
+                            Petugas Lapangan (Petugas Validasi / Scan QR Gate)
                         </option>
                         <option value="super_admin" {{ old('role') == 'super_admin' ? 'selected' : '' }}>
-                            👑 Super Admin (Pemantauan Global Semua Museum)
+                            Super Admin (Pemantauan Global Semua Museum)
                         </option>
                     </select>
                     <p class="text-[10px] text-slate-400 mt-1">Akun pengunjung mendaftar secara mandiri melalui form registrasi.</p>
@@ -113,7 +113,7 @@
                         <option value="">-- Pilih Salah Satu Museum --</option>
                         @foreach ($museums as $museum)
                             <option value="{{ $museum->id }}" {{ old('museum_id') == $museum->id ? 'selected' : '' }}>
-                                🏛 {{ $museum->name }} ({{ $museum->address ?? 'Indonesia' }})
+                                {{ $museum->name }} ({{ $museum->address ?? 'Indonesia' }})
                             </option>
                         @endforeach
                     </select>

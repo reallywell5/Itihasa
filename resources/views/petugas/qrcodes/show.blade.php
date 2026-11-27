@@ -24,7 +24,7 @@
 
         <div>
             <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold mb-2">
-                🛡 {{ $transaction->booking->museum->name ?? 'Museum' }}
+                {{ $transaction->booking->museum->name ?? 'Museum' }}
             </span>
             <h1 class="text-base sm:text-lg font-bold text-slate-800">
                 {{ $transaction->booking->user->name ?? 'Pengunjung' }}

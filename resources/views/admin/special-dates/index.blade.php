@@ -80,7 +80,7 @@
                         <input type="checkbox" name="is_closed" value="1" x-model="isClosed"
                                class="rounded border-slate-300 text-red-600 focus:ring-red-500">
                         <span class="text-xs font-bold text-slate-800">
-                            ⛔ Libur Khusus (Museum Tutup Total)
+                            Libur Khusus (Museum Tutup Total)
                         </span>
                     </label>
                     <p class="text-[11px] text-slate-500 leading-tight">
@@ -154,17 +154,17 @@
                                         </td>
                                         @if($isSuperAdmin)
                                             <td class="px-4 py-3.5 text-slate-600 whitespace-nowrap">
-                                                🏛 {{ $item->museum->name ?? '-' }}
+                                                {{ $item->museum->name ?? '-' }}
                                             </td>
                                         @endif
                                         <td class="px-4 py-3.5 whitespace-nowrap">
                                             @if($item->is_closed)
                                                 <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-50 text-red-700 text-[11px] font-bold">
-                                                    ⛔ Tutup / Libur Khusus
+                                                    Tutup / Libur Khusus
                                                 </span>
                                             @else
                                                 <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold">
-                                                    ⚡ Kuota: {{ $item->quota_override ?? 'Normal' }}
+                                                    Kuota: {{ $item->quota_override ?? 'Normal' }}
                                                 </span>
                                             @endif
                                         </td>

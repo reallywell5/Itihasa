@@ -170,9 +170,9 @@
             <div class="flex flex-wrap gap-2 pt-2">
                 <template x-for="(fac, index) in facilities" :key="index">
                     <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 text-xs font-semibold">
-                        <span x-text="'✨ ' + fac"></span>
+                        <span x-text="fac"></span>
                         <input type="hidden" name="facilities[]" :value="fac">
-                        <button type="button" @click="removeFacility(index)" class="text-blue-400 hover:text-red-500 font-bold ml-1">✕</button>
+                        <button type="button" @click="removeFacility(index)" class="text-blue-400 hover:text-red-500 font-bold ml-1 text-xs">Hapus</button>
                     </div>
                 </template>
             </div>
@@ -250,7 +250,6 @@
         <div class="pt-4 flex justify-end">
             <button type="submit"
                     class="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition shadow-sm flex items-center gap-2">
-                <span>💾</span>
                 <span>Simpan Perubahan Museum</span>
             </button>
         </div>

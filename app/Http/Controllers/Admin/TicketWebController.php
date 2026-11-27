@@ -41,6 +41,11 @@ class TicketWebController extends Controller
             abort(403, 'Super Admin hanya memiliki akses pemantauan data. Pengelolaan tiket dilakukan oleh Admin Museum.');
         }
 
+        if (! $user->museum_id || ! Museum::where('id', $user->museum_id)->exists()) {
+            return redirect()->route('tickets.index')
+                ->with('error', 'Akun Admin Anda belum terhubung dengan data museum. Silakan hubungi Super Admin.');
+        }
+
         $museums = Museum::where('id', $user->museum_id)->get();
 
         return view('admin.tickets.create', [
@@ -54,6 +59,11 @@ class TicketWebController extends Controller
 
         if ($user->isSuperAdmin()) {
             abort(403, 'Super Admin hanya memiliki akses pemantauan data. Pengelolaan tiket dilakukan oleh Admin Museum.');
+        }
+
+        if (! $user->museum_id || ! Museum::where('id', $user->museum_id)->exists()) {
+            return redirect()->route('tickets.index')
+                ->with('error', 'Akun Admin Anda belum terhubung dengan data museum. Silakan hubungi Super Admin.');
         }
 
         $validated = $request->validate([

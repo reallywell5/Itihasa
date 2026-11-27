@@ -5,7 +5,9 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Museum;
+use App\Models\Payment;
 use App\Models\Promo;
+use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -59,32 +61,10 @@ class BookingController extends Controller
                 ->with('swal_error', $statusText);
         }
 
-        // === VALIDASI MANIFES ROMBONGAN (>= 6 orang wajib isi nama anggota) ===
         $isRombongan = (int) $request->jumlah_anggota >= 6;
 
-        if ($isRombongan) {
-            $request->validate([
-                'manifest' => 'required|array|min:6',
-                'manifest.*' => 'required|string|max:255',
-            ], [
-                'manifest.required' => 'Booking untuk 6 orang atau lebih wajib mengisi manifes nama anggota.',
-                'manifest.min' => 'Jumlah nama di manifes minimal 6 orang.',
-                'manifest.*.required' => 'Semua nama anggota rombongan wajib diisi.',
-            ]);
-
-            if (count($request->manifest) !== (int) $request->jumlah_anggota) {
-                $manifestCount = is_array($request->manifest) ? count($request->manifest) : 0;
-                $msg = "Jumlah nama di manifes ({$manifestCount} nama) harus sama dengan jumlah anggota ({$request->jumlah_anggota} orang).";
-
-                return back()
-                    ->withInput()
-                    ->with('error', $msg)
-                    ->with('swal_error', $msg);
-            }
-        }
-
         if ($museum->isClosedOnDate($request->visit_date)) {
-            $msg = "Museum \"{$museum->name}\" tutup pada tanggal yang dipilih. Silakan pilih tanggal kunjungan lain.";
+            $msg = "Museum \"{$museum->name}\" tutup pada tanggal {$request->visit_date}. Silakan pilih tanggal kunjungan lain.";
 
             return back()
                 ->withInput()
@@ -95,8 +75,9 @@ class BookingController extends Controller
         if ($request->visit_date === now()->toDateString()) {
             $bounds = $museum->operatingBoundsForDate($request->visit_date);
 
-            if ($bounds && (now()->format('H:i') < $bounds['open'] || now()->format('H:i') > $bounds['close'])) {
-                $msg = "Museum \"{$museum->name}\" sudah tutup untuk hari ini (jam operasional "
+            // Blokir hanya jika waktu saat ini sudah melewati jam tutup operasional museum hari ini
+            if ($bounds && now()->format('H:i') > $bounds['close']) {
+                $msg = "Museum \"{$museum->name}\" sudah selesai beroperasi untuk hari ini (jam operasional "
                     .$bounds['open'].' - '.$bounds['close']
                     .'). Silakan pilih tanggal kunjungan lain.';
 
@@ -120,6 +101,8 @@ class BookingController extends Controller
                 ->lockForUpdate()
                 ->get();
 
+            $specialDate = $museum->specialDateFor($request->visit_date);
+
             foreach ($museum->tickets as $ticket) {
                 $qty = (int) $request->input('ticket_'.$ticket->id, 0);
 
@@ -127,10 +110,15 @@ class BookingController extends Controller
                     continue;
                 }
 
+                // Cek apakah Admin Museum menetapkan penambahan kuota harian khusus (Quota Override) pada tanggal ini
+                $slot = ($specialDate && $specialDate->quota_override !== null)
+                    ? (int) $specialDate->quota_override
+                    : (int) $ticket->slot;
+
                 // Hitung berapa banyak yang sudah terjual untuk kategori tiket ini,
                 // KHUSUS di tanggal kunjungan yang dipilih.
                 $sudahTerjual = $this->getSoldQty($ticket->id, $request->visit_date);
-                $sisaKuota = $ticket->slot - $sudahTerjual;
+                $sisaKuota = max(0, $slot - $sudahTerjual);
 
                 if ($qty > $sisaKuota) {
                     return back()
@@ -218,8 +206,14 @@ class BookingController extends Controller
                 'ticket_summary' => json_encode($ticketData),
                 'status' => 'pending',
                 'is_rombongan' => $isRombongan,
-                'manifest' => $isRombongan ? array_values($request->manifest) : null,
+                'manifest' => null,
             ]);
+
+            try {
+                app(NotificationService::class)->notifyBookingCreated($booking);
+            } catch (\Throwable $e) {
+                \Log::warning('Gagal kirim notifikasi booking created: '.$e->getMessage());
+            }
 
             return redirect()
                 ->route('user.payment', $booking->id)
@@ -382,9 +376,28 @@ class BookingController extends Controller
                 'cancelled_at' => now(),
             ]);
 
-            $booking->transactions()
+            // Sinkronkan status payment pada seluruh transaksi yang dibatalkan
+            $txIds = $booking->transactions()
                 ->whereIn('payment_status', ['pending', 'paid'])
+                ->pluck('id');
+
+            $booking->transactions()
+                ->whereIn('id', $txIds)
                 ->update(['payment_status' => 'cancelled']);
+
+            Payment::whereIn('transaction_id', $txIds)
+                ->update(['payment_status' => 'cancelled']);
+
+            // Kembalikan kuota kupon diskon promo yang sempat diklaim
+            if ($booking->promo_id && $booking->promo) {
+                $booking->promo->decrement('used_count');
+            }
+
+            try {
+                app(NotificationService::class)->notifyBookingCancelled($booking, $validated['cancellation_reason']);
+            } catch (\Throwable $e) {
+                \Log::warning('Gagal kirim notifikasi booking cancelled: '.$e->getMessage());
+            }
         });
 
         return redirect()

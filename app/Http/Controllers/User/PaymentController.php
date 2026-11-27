@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Payment;
 use App\Models\Transaction;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -84,6 +85,12 @@ class PaymentController extends Controller
 
             $this->syncPaymentStatus($transaction, 'failed');
 
+            try {
+                app(NotificationService::class)->notifyPaymentFailed($transaction, 'Waktu pembayaran telah habis (15 menit).');
+            } catch (\Throwable $e) {
+                \Log::warning('Gagal notifikasi payment failed: '.$e->getMessage());
+            }
+
             return redirect()
                 ->route('user.home')
                 ->with('error', 'Waktu pembayaran telah habis. Silakan lakukan pemesanan kembali.')
@@ -139,6 +146,12 @@ class PaymentController extends Controller
         }
 
         $this->syncPaymentStatus($transaction, 'paid', now());
+
+        try {
+            app(NotificationService::class)->notifyPaymentSuccess($transaction);
+        } catch (\Throwable $e) {
+            \Log::warning('Gagal notifikasi payment success: '.$e->getMessage());
+        }
 
         return redirect()
             ->route('user.transaction.show', $transaction->id)

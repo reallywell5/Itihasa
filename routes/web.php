@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\BroadcastController;
 use App\Http\Controllers\Admin\DashboardWebController;
 use App\Http\Controllers\Admin\GalleryWebController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\Admin\TicketWebController;
 use App\Http\Controllers\Admin\TransactionWebController;
 use App\Http\Controllers\Admin\UserWebController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Petugas\DashboardController;
 use App\Http\Controllers\Petugas\PengunjungController;
 use App\Http\Controllers\Petugas\ProfileController as PetugasProfileController;
@@ -112,6 +114,10 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     Route::get('/museum-profile', [MuseumProfileController::class, 'edit'])->name('admin.museum.profile.edit');
     Route::put('/museum-profile', [MuseumProfileController::class, 'update'])->name('admin.museum.profile.update');
 
+    // Pengaturan Akun Pribadi Super Admin & Admin Museum
+    Route::get('/profile', [AdminProfileController::class, 'edit'])->name('admin.profile.edit');
+    Route::put('/profile', [AdminProfileController::class, 'update'])->name('admin.profile.update');
+
     Route::resource('tickets', TicketWebController::class);
     Route::resource('users', UserWebController::class)->middleware('super_admin');
 
@@ -124,6 +130,7 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     // Fitur D Admin: Rekap Tutup Kas & Ekspor CSV
     Route::get('/transactions/rekap', [TransactionWebController::class, 'rekapKas'])->name('admin.transactions.rekap');
     Route::get('/transactions/export', [TransactionWebController::class, 'exportCsv'])->name('admin.transactions.export');
+    Route::post('/transactions/pos', [TransactionWebController::class, 'posStore'])->name('admin.transactions.pos');
     Route::resource('transactions', TransactionWebController::class)->only(['index', 'show']);
 
     Route::resource('galleries', GalleryWebController::class)
@@ -177,6 +184,14 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.process');
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.process');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Pusat Notifikasi Terpadu (Semua Role: Super Admin, Admin, Petugas, Pengunjung)
+Route::middleware('auth')->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{key}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+    Route::get('/api/notifications/recent', [NotificationController::class, 'getRecent'])->name('notifications.recent');
+});
 
 Route::view('/faq', 'user.faq')->name('faq');
 Route::view('/privacy-policy', 'user.privacy-policy')->name('privacy-policy');

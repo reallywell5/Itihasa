@@ -138,7 +138,7 @@
                         <div class="p-3.5 bg-blue-50/60 border border-blue-200 rounded-xl space-y-2.5">
                             <div class="flex items-center justify-between">
                                 <label class="text-xs font-bold text-blue-950 flex items-center gap-1.5">
-                                    <span>👥 Checklist Kehadiran Manifes Rombongan</span>
+                                    <span>Checklist Kehadiran Manifes Rombongan</span>
                                 </label>
                                 <label class="flex items-center gap-1.5 text-[11px] font-bold text-blue-800 cursor-pointer">
                                     <input type="checkbox" x-model="allChecked" @change="toggleAll()" checked class="rounded text-blue-600">
@@ -168,10 +168,10 @@
                     {{-- FITUR E: TAG INSIDEN & CATATAN GATE --}}
                     <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
                         <label class="block text-[11px] font-bold text-slate-700">
-                            📝 Catatan Gate & Tag Insiden (Opsional)
+                            Catatan Gate & Label Khusus (Opsional)
                         </label>
                         <div class="flex flex-wrap gap-1.5">
-                            @foreach(['⭐ VIP', '♿ Kursi Roda / Difabel', '🎒 Barang Tertinggal', '🔄 Kompensasi', '⚠️ Kendala Gate'] as $tag)
+                            @foreach(['VIP', 'Kursi Roda / Difabel', 'Barang Tertinggal', 'Kompensasi Tiket', 'Kendala Gate'] as $tag)
                                 <button type="button" @click="selectedTag = (selectedTag === '{{ $tag }}' ? '' : '{{ $tag }}')"
                                         :class="selectedTag === '{{ $tag }}' ? 'bg-blue-600 text-white font-bold' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'"
                                         class="px-2.5 py-1 rounded-lg text-[10px] font-semibold transition">

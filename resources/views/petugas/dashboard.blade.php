@@ -5,6 +5,40 @@
 @section('content')
 <div class="space-y-4 sm:space-y-5">
 
+    {{-- BROADCAST RESMI SUPER ADMIN --}}
+    @if(isset($activeBroadcasts) && $activeBroadcasts->isNotEmpty())
+        <div class="space-y-2.5">
+            @foreach($activeBroadcasts as $bc)
+                @php
+                    $style = match($bc->urgency) {
+                        'danger' => 'bg-red-50 border-red-200 text-red-900',
+                        'warning' => 'bg-amber-50 border-amber-200 text-amber-900',
+                        'success' => 'bg-emerald-50 border-emerald-200 text-emerald-900',
+                        default => 'bg-blue-50 border-blue-200 text-blue-900',
+                    };
+                    $badgeStyle = match($bc->urgency) {
+                        'danger' => 'bg-red-600 text-white',
+                        'warning' => 'bg-amber-600 text-white',
+                        'success' => 'bg-emerald-600 text-white',
+                        default => 'bg-blue-600 text-white',
+                    };
+                @endphp
+                <div class="rounded-2xl border p-4 shadow-sm flex items-start justify-between gap-3 {{ $style }}" x-data="{ dismissed: false }" x-show="!dismissed">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 rounded-md text-[9px] font-extrabold uppercase tracking-wider {{ $badgeStyle }}">
+                                Pengumuman Resmi
+                            </span>
+                            <h4 class="font-bold text-xs uppercase">{{ $bc->title }}</h4>
+                        </div>
+                        <p class="text-xs leading-relaxed">{{ $bc->message }}</p>
+                    </div>
+                    <button type="button" @click="dismissed = true" class="text-slate-400 hover:text-slate-600 text-xs font-bold p-1">✕</button>
+                </div>
+            @endforeach
+        </div>
+    @endif
+
     {{-- HEADER --}}
     <div class="bg-white rounded-2xl border border-slate-100 p-4 sm:p-5 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -49,14 +83,36 @@
             <p class="text-[10px] text-slate-400 mt-0.5">Menunggu pembayaran</p>
         </div>
 
-        <div class="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-xl p-4 text-white shadow-sm flex flex-col justify-between">
-            <p class="text-[11px] font-bold text-emerald-100 uppercase">Status Scanner</p>
-            <div>
-                <h2 class="text-xl font-extrabold flex items-center gap-1.5 mt-1">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-300 animate-pulse inline-block"></span>
-                    Online
+        <div x-data="{
+                time: '',
+                isOnline: navigator.onLine,
+                init() {
+                    this.tick();
+                    setInterval(() => this.tick(), 1000);
+                    window.addEventListener('online', () => this.isOnline = true);
+                    window.addEventListener('offline', () => this.isOnline = false);
+                },
+                tick() {
+                    const now = new Date();
+                    this.time = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB';
+                }
+             }"
+             class="bg-gradient-to-br from-emerald-600 to-teal-700 rounded-xl p-4 text-white shadow-sm flex flex-col justify-between">
+            <div class="flex items-center justify-between">
+                <p class="text-[11px] font-bold text-emerald-100 uppercase tracking-wider">Status Gate & Waktu</p>
+                <span class="text-[10px] font-mono font-bold bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-md" x-text="time"></span>
+            </div>
+            <div class="mt-2">
+                <h2 class="text-xl font-extrabold flex items-center gap-2">
+                    <span class="relative flex h-3 w-3">
+                        <span x-show="isOnline" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3" :class="isOnline ? 'bg-emerald-300' : 'bg-amber-400'"></span>
+                    </span>
+                    <span x-text="isOnline ? 'Gate Aktif (Online)' : 'Mode Offline Siap'"></span>
                 </h2>
-                <p class="text-[10px] text-emerald-100 mt-0.5">Sistem gate aktif</p>
+                <p class="text-[10px] text-emerald-100 mt-0.5 truncate">
+                    {{ Auth::user()?->museum?->name ?? 'Museum Mitra' }}
+                </p>
             </div>
         </div>
     </div>

@@ -86,17 +86,17 @@
                         class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-purple-600 font-medium"
                     >
                         <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>
-                            🏛 Admin Museum (Pengelola Operasional Museum)
+                            Admin Museum (Pengelola Operasional Museum)
                         </option>
                         <option value="staff" {{ old('role', $user->role) == 'staff' ? 'selected' : '' }}>
-                            🛡 Petugas Lapangan (Scan Tiket QR Gate)
+                            Petugas Lapangan (Scan Tiket QR Gate)
                         </option>
                         <option value="super_admin" {{ old('role', $user->role) == 'super_admin' ? 'selected' : '' }}>
-                            👑 Super Admin (Pemantauan Global Seluruh Museum)
+                            Super Admin (Pemantauan Global Seluruh Museum)
                         </option>
                         @if($user->role === 'visitor')
                             <option value="visitor" {{ old('role', $user->role) == 'visitor' ? 'selected' : '' }}>
-                                👤 Pengunjung (Visitor)
+                                Pengunjung (Visitor)
                             </option>
                         @endif
                     </select>
@@ -115,7 +115,7 @@
                         <option value="">-- Pilih Salah Satu Museum --</option>
                         @foreach ($museums as $museum)
                             <option value="{{ $museum->id }}" {{ old('museum_id', $user->museum_id) == $museum->id ? 'selected' : '' }}>
-                                🏛 {{ $museum->name }} ({{ $museum->address ?? 'Indonesia' }})
+                                {{ $museum->name }} ({{ $museum->address ?? 'Indonesia' }})
                             </option>
                         @endforeach
                     </select>
@@ -125,7 +125,7 @@
                 {{-- PASSWORD INFO --}}
                 <div class="p-3 bg-amber-50/50 border border-amber-100 rounded-xl">
                     <p class="text-[11px] text-amber-800">
-                        💡 <em>Kosongkan kolom kata sandi di bawah jika Anda tidak ingin mengubah kata sandi lama akun ini.</em>
+                        <em>Catatan: Kosongkan kolom kata sandi di bawah jika Anda tidak ingin mengubah kata sandi lama akun ini.</em>
                     </p>
                 </div>
 

@@ -39,18 +39,34 @@
                     </div>
                 @endif
 
-                {{-- INFORMASI PENUGASAN --}}
-                <div class="p-3.5 rounded-xl bg-blue-50/60 border border-blue-100 flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <span class="text-base">🏛</span>
-                        <span class="text-xs font-bold text-blue-900">
-                            Penugasan: {{ $petugas->museum?->name ?? (Auth::user()?->museum?->name ?? 'Museum Anda') }}
+                @if(!empty($isSuperAdmin))
+                    <div>
+                        <label for="museum_id" class="block text-xs font-bold text-slate-700 mb-1.5">
+                            Museum Penugasan <span class="text-red-500">*</span>
+                        </label>
+                        <select name="museum_id" id="museum_id" required
+                                class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-purple-600">
+                            @foreach($museums as $m)
+                                <option value="{{ $m->id }}" {{ old('museum_id', $petugas->museum_id) == $m->id ? 'selected' : '' }}>
+                                    {{ $m->name }} ({{ $m->address }})
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="text-[11px] text-slate-400 mt-1">Super Admin dapat memindahkan penugasan petugas ini ke museum lain jika diperlukan.</p>
+                    </div>
+                @else
+                    {{-- INFORMASI PENUGASAN --}}
+                    <div class="p-3.5 rounded-xl bg-blue-50/60 border border-blue-100 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-blue-900">
+                                Penugasan: {{ $petugas->museum?->name ?? (Auth::user()?->museum?->name ?? 'Museum Anda') }}
+                            </span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                            Staff ID: STF-{{ str_pad($petugas->id, 4, '0', STR_PAD_LEFT) }}
                         </span>
                     </div>
-                    <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                        Staff ID: STF-{{ str_pad($petugas->id, 4, '0', STR_PAD_LEFT) }}
-                    </span>
-                </div>
+                @endif
 
                 {{-- NAME --}}
                 <div>
@@ -85,7 +101,7 @@
                 {{-- PASSWORD INFO --}}
                 <div class="p-3 bg-amber-50/60 border border-amber-200 rounded-xl">
                     <p class="text-[11px] text-amber-900">
-                        💡 <em>Kosongkan kolom kata sandi di bawah jika Anda tidak ingin mengubah kata sandi lama akun petugas ini.</em>
+                        <em>Catatan: Kosongkan kolom kata sandi di bawah jika Anda tidak ingin mengubah kata sandi lama akun petugas ini.</em>
                     </p>
                 </div>
 

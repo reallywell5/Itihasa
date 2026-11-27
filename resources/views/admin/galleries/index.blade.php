@@ -12,22 +12,47 @@
                 Galeri & Foto Koleksi
             </h1>
             <p class="text-xs text-slate-400 mt-0.5 max-w-xl">
-                {{ auth()->user()->isSuperAdmin() ? 'Memantau seluruh dokumentasi artefak, suasana, dan fasilitas museum di sistem Itihasa.' : 'Kelola foto-foto koleksi, fasilitas, dan suasana untuk museum Anda.' }}
+                {{ auth()->user()->isSuperAdmin() ? 'Memantau dan mengelola seluruh dokumentasi artefak, suasana, dan fasilitas museum di sistem Itihasa.' : 'Kelola foto-foto koleksi, fasilitas, dan suasana untuk museum Anda.' }}
             </p>
         </div>
 
-        @if(! auth()->user()->isSuperAdmin())
+        <div class="flex items-center gap-2 flex-wrap">
+            @if(auth()->user()->isSuperAdmin() && $museums->isNotEmpty())
+                <form method="GET" action="{{ route('galleries.index') }}" class="flex items-center gap-1.5">
+                    <select name="museum_id" onchange="this.form.submit()"
+                            class="rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-700 font-semibold focus:ring-2 focus:ring-purple-500">
+                        <option value="">Semua Museum</option>
+                        @foreach($museums as $m)
+                            <option value="{{ $m->id }}" {{ request('museum_id') == $m->id ? 'selected' : '' }}>
+                                {{ $m->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @if(request('museum_id'))
+                        <a href="{{ route('galleries.index') }}" class="px-2.5 py-2 rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 text-xs font-semibold">
+                            Reset
+                        </a>
+                    @endif
+                </form>
+            @endif
+
             <a href="{{ route('galleries.create') }}"
-               class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-blue-600 text-white text-xs font-bold shadow hover:bg-blue-700 transition shrink-0">
+               class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl {{ auth()->user()->isSuperAdmin() ? 'bg-purple-600 hover:bg-purple-700' : 'bg-blue-600 hover:bg-blue-700' }} text-white text-xs font-bold shadow transition shrink-0">
                 <span>+ Upload Foto Baru</span>
             </a>
-        @endif
+        </div>
     </div>
 
-    {{-- ALERT --}}
+    {{-- ALERTS --}}
     @if (session('success'))
         <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-xl px-4 py-3">
             {{ session('success') }}
+        </div>
+    @endif
+
+    @if (session('error'))
+        <div class="bg-red-50 border border-red-200 text-red-700 text-xs font-semibold rounded-xl px-4 py-3">
+            {{ session('error') }}
         </div>
     @endif
 
@@ -35,7 +60,7 @@
     <div class="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400">
-                Koleksi Foto Terunggah ({{ $galleries->count() }})
+                Koleksi Foto Terunggah ({{ method_exists($galleries, 'total') ? $galleries->total() : $galleries->count() }})
             </h2>
         </div>
 
@@ -49,8 +74,9 @@
                     <div class="group border border-slate-100 rounded-xl overflow-hidden hover:shadow-md hover:border-slate-200 transition flex flex-col justify-between bg-slate-50/50">
 
                         <div class="relative overflow-hidden aspect-[4/3] bg-slate-100">
-                            <img src="{{ asset('storage/' . $gallery->image_path) }}"
+                            <img src="{{ $gallery->image_url }}"
                                  alt="{{ $gallery->caption ?? $gallery->museum->name }}"
+                                 onerror="this.src='{{ asset('images/default-museum.jpg') }}'"
                                  class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
                             <div class="absolute top-2 left-2">
                                 <span class="px-2 py-0.5 rounded-md bg-slate-900/80 text-white text-[10px] font-bold backdrop-blur-sm">
@@ -64,23 +90,27 @@
                                 {{ $gallery->caption ?: 'Tanpa keterangan foto' }}
                             </p>
 
-                            @if(! auth()->user()->isSuperAdmin())
-                                <form action="{{ route('galleries.destroy', $gallery->id) }}" method="POST"
-                                      onsubmit="return confirm('Yakin ingin menghapus foto ini?')"
-                                      class="mt-3">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit"
-                                            class="w-full py-1.5 rounded-lg border border-red-200 text-red-600 text-[11px] font-bold hover:bg-red-50 transition">
-                                        Hapus Foto
-                                    </button>
-                                </form>
-                            @endif
+                            <form action="{{ route('galleries.destroy', $gallery->id) }}" method="POST"
+                                  onsubmit="return confirm('Yakin ingin menghapus foto ini?')"
+                                  class="mt-3">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                        class="w-full py-1.5 rounded-lg border border-red-200 text-red-600 text-[11px] font-bold hover:bg-red-50 transition">
+                                    Hapus Foto
+                                </button>
+                            </form>
                         </div>
 
                     </div>
                 @endforeach
             </div>
+
+            @if(method_exists($galleries, 'hasPages') && $galleries->hasPages())
+                <div class="mt-5 pt-4 border-t border-slate-100">
+                    {{ $galleries->links() }}
+                </div>
+            @endif
         @endif
     </div>
 

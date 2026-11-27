@@ -117,6 +117,7 @@
                     </label>
                     <input type="text"
                            name="nama_penanggung_jawab"
+                           id="nama_penanggung_jawab"
                            value="{{ old('nama_penanggung_jawab', auth()->user()->name) }}"
                            required
                            placeholder="Contoh: Budi Santoso"
@@ -405,7 +406,6 @@ function updateTotal() {
 
     if (totalQty > 0) {
         document.getElementById('jumlah_anggota').value = totalQty;
-        renderManifestInputs(totalQty);
     }
 
     document.getElementById('ticket-summary').innerHTML =

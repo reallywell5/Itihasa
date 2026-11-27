@@ -124,25 +124,25 @@
                             <td class="px-4 py-3">
                                 @if($user->role === 'super_admin')
                                     <span class="px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 text-[10px] font-bold">
-                                        👑 Super Admin
+                                        Super Admin
                                     </span>
                                 @elseif($user->role === 'admin')
                                     <span class="px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 text-[10px] font-bold">
-                                        🏛 Admin Museum
+                                        Admin Museum
                                     </span>
                                     <span class="block text-[10px] text-slate-500 mt-0.5">
                                         {{ $user->museum?->name ?? 'Belum terikat museum' }}
                                     </span>
                                 @elseif($user->role === 'staff')
                                     <span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-                                        🛡 Petugas Loket/Scan
+                                        Petugas Loket/Scan
                                     </span>
                                     <span class="block text-[10px] text-slate-500 mt-0.5">
                                         {{ $user->museum?->name ?? 'Belum terikat museum' }}
                                     </span>
                                 @else
                                     <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 text-[10px] font-bold">
-                                        👤 Pengunjung
+                                        Pengunjung
                                     </span>
                                 @endif
                             </td>
@@ -151,6 +151,10 @@
                             </td>
                             <td class="px-4 py-3 text-right whitespace-nowrap">
                                 <div class="flex items-center justify-end gap-1.5">
+                                    <a href="{{ route('users.show', $user->id) }}"
+                                       class="px-2.5 py-1 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold text-[11px] transition">
+                                        Detail
+                                    </a>
                                     <a href="{{ route('users.edit', $user->id) }}"
                                        class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-[11px] transition">
                                         Edit

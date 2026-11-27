@@ -123,7 +123,7 @@
                     <div class="mt-2 text-center">
                         @if($transaction->used_at)
                             <span class="inline-block px-2.5 py-0.5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-bold">
-                                ✓ Sudah discan pada {{ $transaction->used_at->translatedFormat('d M Y, H:i') }}
+                                Sudah discan pada {{ $transaction->used_at->translatedFormat('d M Y, H:i') }}
                             </span>
                         @else
                             <span class="inline-block px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[10px] font-bold">
@@ -134,7 +134,7 @@
                 </div>
             @else
                 <div class="flex flex-col items-center justify-center text-center p-8 bg-amber-50/50 rounded-xl border border-amber-100 my-auto">
-                    <span class="text-3xl mb-2">⏳</span>
+                    <span class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-800 text-xs font-bold mb-2">MENUNGGU</span>
                     <p class="text-xs font-bold text-slate-700">QR Code Belum Aktif</p>
                     <p class="text-[10px] text-slate-400 mt-1 max-w-xs">
                         QR Code scan tiket akan otomatis aktif setelah pembayaran berstatus paid.

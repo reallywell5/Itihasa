@@ -70,7 +70,7 @@
                                     {{ $payment->transaction?->booking?->user?->name ?? 'Tamu' }}
                                 </p>
                                 <p class="text-[10px] text-slate-400">
-                                    🏛 {{ $payment->transaction?->booking?->museum?->name ?? '-' }}
+                                    {{ $payment->transaction?->booking?->museum?->name ?? '-' }}
                                 </p>
                             </td>
                             <td class="px-4 py-3 text-right font-extrabold text-slate-800 whitespace-nowrap">

@@ -45,14 +45,14 @@
             <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
                 <span class="text-[10px] uppercase font-bold text-slate-400">Museum Terkait</span>
                 <p class="mt-1 text-xs font-bold text-slate-800">
-                    🏛 {{ $payment->transaction?->booking?->museum?->name ?? '-' }}
+                    {{ $payment->transaction?->booking?->museum?->name ?? '-' }}
                 </p>
             </div>
 
             <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">
                 <span class="text-[10px] uppercase font-bold text-slate-400">Nama Pengunjung</span>
                 <p class="mt-1 text-xs font-bold text-slate-800">
-                    👤 {{ $payment->transaction?->booking?->user?->name ?? 'Tamu' }}
+                    {{ $payment->transaction?->booking?->user?->name ?? 'Tamu' }}
                 </p>
             </div>
 

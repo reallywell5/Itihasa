@@ -89,7 +89,6 @@
         <div class="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
             <div class="px-4 py-3 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                    <span class="text-sm">🏛</span>
                     <h3 class="text-xs font-bold text-slate-800">
                         {{ $museumName }}
                     </h3>

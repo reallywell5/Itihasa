@@ -91,6 +91,11 @@ class MuseumWebController extends Controller
             ->with('success', 'Museum berhasil ditambahkan');
     }
 
+    public function show(Museum $museum)
+    {
+        return redirect()->route('museum.detail', $museum->id);
+    }
+
     public function edit(Museum $museum)
     {
         $user = auth()->user();
