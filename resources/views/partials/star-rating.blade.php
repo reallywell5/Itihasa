@@ -8,13 +8,13 @@
         <svg class="w-4 h-4" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
             <defs>
                 <linearGradient id="star-fill-{{ $i }}-{{ $loop->parent->index ?? 0 }}">
-                    <stop offset="{{ $fill * 100 }}%" stop-color="#B88A44" />
-                    <stop offset="{{ $fill * 100 }}%" stop-color="#E5E7EB" />
+                    <stop offset="{{ $fill * 100 }}%" stop-color="#B8860B" />
+                    <stop offset="{{ $fill * 100 }}%" stop-color="#E5E5E5" />
                 </linearGradient>
             </defs>
             <path fill="url(#star-fill-{{ $i }}-{{ $loop->parent->index ?? 0 }})"
                   d="M10 1.5l2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6L1.3 7.8l6.1-.7z" />
         </svg>
     @endfor
-    <span class="text-sm text-slate-500 ml-1">({{ $rating }})</span>
+    <span class="text-xs font-medium text-[#5A5A5A] ml-1.5">({{ $rating }})</span>
 </div>

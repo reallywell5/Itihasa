@@ -4,89 +4,98 @@
 
 @section('content')
 
-<section class="max-w-7xl mx-auto py-6 sm:py-10">
+<section class="py-4 sm:py-8">
 
     {{-- HEADER --}}
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-6 mb-8 border-b border-neutral-200">
         <div>
-            <h1 class="text-xl sm:text-2xl font-bold text-[#102A43]">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#B8860B] mb-2">
+                Kurasi Pribadi
+            </p>
+            <h1 class="font-serif text-3xl sm:text-4xl font-semibold text-[#1A1A1A] tracking-tight">
                 Wishlist Museum Saya
             </h1>
-            <p class="text-xs text-slate-500 mt-0.5">
-                Daftar museum favorit yang kamu simpan untuk dikunjungi nanti.
+            <p class="text-xs sm:text-sm text-[#5A5A5A] mt-1.5">
+                Daftar museum pilihan yang Anda simpan untuk agenda kunjungan mendatang.
             </p>
         </div>
 
-        <div class="px-3.5 py-1.5 rounded-xl bg-white border border-[#EADBC8] text-[#102A43] text-xs font-bold self-start sm:self-auto shadow-sm">
+        <div class="px-4 py-2 rounded-sm bg-[#F8F7F4] border border-neutral-200 text-[#1A1A1A] text-xs font-semibold self-start sm:self-auto">
             {{ $wishlists->count() }} Museum Tersimpan
         </div>
     </div>
 
     {{-- LIST GRID --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
         @forelse($wishlists as $wishlist)
-            <div class="bg-white rounded-2xl overflow-hidden border border-[#EADBC8] shadow-sm hover:shadow-md transition flex flex-col justify-between">
+            <article class="group bg-white rounded-sm overflow-hidden border border-neutral-200 hover:border-[#B8860B] transition duration-300 flex flex-col justify-between">
                 {{-- IMAGE --}}
-                <div class="relative h-44 sm:h-48 overflow-hidden bg-slate-100">
-                    <img src="{{ $wishlist->museum->image
-                        ? (Str::startsWith($wishlist->museum->image, 'storage/')
-                            ? asset($wishlist->museum->image)
-                            : asset('storage/' . $wishlist->museum->image))
-                        : asset('images/default-museum.jpg') }}"
-                        alt="{{ $wishlist->museum->name }}"
-                        class="h-full w-full object-cover hover:scale-105 transition duration-300">
+                <div>
+                    <div class="relative aspect-[4/3] overflow-hidden bg-neutral-100">
+                        <a href="{{ route('museum.detail', $wishlist->museum->id) }}" class="block w-full h-full">
+                            <img src="{{ $wishlist->museum->image
+                                ? (Str::startsWith($wishlist->museum->image, 'storage/')
+                                    ? asset($wishlist->museum->image)
+                                    : asset('storage/' . $wishlist->museum->image))
+                                : asset('images/institutional/hero-museum.jpg') }}"
+                                alt="{{ $wishlist->museum->name }}"
+                                class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out">
+                        </a>
 
-                    <span class="absolute top-3 left-3 px-2.5 py-0.5 rounded-full bg-white/90 backdrop-blur-sm text-[#B88A44] text-[10px] font-bold shadow-sm">
-                        ♥ Favorit
-                    </span>
-                </div>
+                        <span class="absolute top-3.5 left-3.5 px-2.5 py-1 rounded-sm bg-[#121212]/90 text-[#C59B27] text-[10px] font-semibold uppercase tracking-wider">
+                            ♥ Tersimpan
+                        </span>
+                    </div>
 
-                {{-- CONTENT --}}
-                <div class="p-4 sm:p-5 flex flex-col flex-1 justify-between">
-                    <div>
-                        <h3 class="text-base font-bold text-[#102A43] line-clamp-1">
-                            {{ $wishlist->museum->name }}
+                    {{-- CONTENT --}}
+                    <div class="p-6">
+                        <p class="text-[11px] uppercase tracking-[0.15em] text-[#8C3B2B] font-semibold mb-1.5">
+                            {{ ucfirst($wishlist->museum->category ?? 'Museum Sejarah') }}
+                        </p>
+                        <h3 class="font-serif text-xl font-semibold text-[#1A1A1A] line-clamp-1 group-hover:text-[#8C3B2B] transition-colors duration-300">
+                            <a href="{{ route('museum.detail', $wishlist->museum->id) }}">
+                                {{ $wishlist->museum->name }}
+                            </a>
                         </h3>
-
-                        <p class="text-slate-500 text-xs mt-1 line-clamp-2">
+                        <p class="text-[#5A5A5A] text-xs sm:text-sm mt-2 line-clamp-2 leading-relaxed">
                             {{ $wishlist->museum->address }}
                         </p>
                     </div>
-
-                    <div class="flex items-center gap-2 mt-4 pt-3 border-t border-[#EADBC8]/60">
-                        <a href="{{ route('museum.detail', $wishlist->museum->id) }}"
-                           class="flex-1 py-2 rounded-xl bg-[#102A43] text-white text-center text-xs font-bold hover:bg-[#0c2238] transition shadow">
-                            Lihat Detail
-                        </a>
-
-                        <form action="{{ route('user.wishlist.destroy', $wishlist->id) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit"
-                                    class="px-3 py-2 rounded-xl bg-red-50 text-red-600 text-xs font-bold hover:bg-red-100 transition border border-red-100">
-                                Hapus
-                            </button>
-                        </form>
-                    </div>
                 </div>
-            </div>
+
+                <div class="px-6 pb-6 pt-4 border-t border-neutral-200 flex items-center gap-2.5">
+                    <a href="{{ route('museum.detail', $wishlist->museum->id) }}"
+                       class="flex-1 py-2.5 rounded-sm bg-[#1A1A1A] hover:bg-[#B8860B] text-white text-center text-xs font-semibold uppercase tracking-wider transition duration-300">
+                        Lihat Detail
+                    </a>
+
+                    <form action="{{ route('user.wishlist.destroy', $wishlist->id) }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit"
+                                class="px-4 py-2.5 rounded-sm border border-neutral-300 text-[#8C3B2B] text-xs font-semibold hover:bg-[#F8F7F4] hover:border-[#8C3B2B] transition duration-300">
+                            Hapus
+                        </button>
+                    </form>
+                </div>
+            </article>
         @empty
             <div class="col-span-full">
-                <div class="bg-white rounded-2xl border border-[#EADBC8] p-8 sm:p-12 text-center shadow-sm max-w-lg mx-auto">
-                    <div class="text-4xl mb-3 text-[#B88A44]">
+                <div class="bg-[#F8F7F4] rounded-sm border border-neutral-200 p-10 sm:p-14 text-center max-w-lg mx-auto">
+                    <div class="text-3xl mb-3 text-[#B8860B]">
                         ♡
                     </div>
 
-                    <h2 class="text-lg font-bold text-[#102A43] mb-1">
+                    <h2 class="font-serif text-2xl font-semibold text-[#1A1A1A] mb-2">
                         Wishlist Masih Kosong
                     </h2>
 
-                    <p class="text-xs text-slate-500 mb-5">
-                        Yuk mulai simpan museum favoritmu untuk rencana kunjungan berikutnya.
+                    <p class="text-xs sm:text-sm text-[#5A5A5A] mb-6 leading-relaxed">
+                        Mulai jelajahi katalog museum kami dan simpan destinasi favorit Anda untuk rencana kunjungan berikutnya.
                     </p>
 
-                    <a href="{{ route('user.home') }}"
-                       class="inline-flex px-5 py-2.5 rounded-xl bg-[#102A43] text-white text-xs font-bold hover:bg-[#0c2238] transition shadow">
+                    <a href="{{ route('user.home') }}#pameran"
+                       class="inline-flex px-6 py-3 rounded-sm bg-[#1A1A1A] hover:bg-[#B8860B] text-white text-xs font-semibold uppercase tracking-wider transition duration-300">
                         Jelajahi Museum
                     </a>
                 </div>
