@@ -1,4 +1,5 @@
 @auth
+@if(file_exists(app_path('Services/NotificationService.php')) && Route::has('notifications.index'))
 @php
     $unreadCount = app(\App\Services\NotificationService::class)->getUnreadCount(Auth::user());
     $recentItems = app(\App\Services\NotificationService::class)->getRecentNotifications(Auth::user(), 6);
@@ -153,5 +154,6 @@
         </div>
     </div>
 </div>
+@endif
 @endauth
 

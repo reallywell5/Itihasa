@@ -1,4 +1,5 @@
 @auth
+@if(file_exists(app_path('Services/NotificationService.php')) && Route::has('notifications.read'))
 @php
     $banners = app(\App\Services\NotificationService::class)->getActiveBanners(Auth::user());
     $popups = app(\App\Services\NotificationService::class)->getActivePopups(Auth::user());
@@ -95,6 +96,7 @@
             </div>
         </div>
     @endforeach
+@endif
 @endif
 @endauth
 

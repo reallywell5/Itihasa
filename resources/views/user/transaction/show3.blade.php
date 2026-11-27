@@ -4,47 +4,37 @@
 
 @section('content')
 
-<section class="max-w-4xl mx-auto px-6 lg:px-8 py-14">
+<section class="max-w-3xl mx-auto py-4 sm:py-8">
 
-    <div class="bg-white rounded-[32px] border border-[#EADBC8] shadow-sm p-8">
+    <div class="bg-white rounded-sm border border-neutral-200 p-6 sm:p-10">
 
-        <div class="text-center mb-6">
-
-            <h1 class="text-4xl font-bold text-[#102A43] mb-4">
+        <div class="text-center pb-6 mb-6 border-b border-neutral-200">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#B8860B] mb-2">
+                Proses Pembayaran Midtrans
+            </p>
+            <h1 class="font-serif text-3xl sm:text-4xl font-semibold text-[#1A1A1A] tracking-tight mb-2">
                 Selesaikan Pembayaran
             </h1>
-
-            <p class="text-slate-500">
-                Pilih dan selesaikan pembayaran sesuai metode yang dipilih.
+            <p class="text-xs sm:text-sm text-[#5A5A5A]">
+                Pilih dan selesaikan pembayaran sesuai metode yang telah Anda tentukan.
             </p>
 
-        </div>
-
-        {{-- MIDTRANS BADGE --}}
-        <div class="flex justify-center mb-6">
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#F9F7F2] border border-[#EADBC8]">
-                <span class="text-xs text-slate-400">Transaksi diproses melalui</span>
-                <span class="text-sm font-bold text-[#102A43]">Midtrans</span>
+            {{-- STATUS --}}
+            <div class="mt-5">
+                @if($transaction->payment_status == 'pending')
+                    <span class="inline-block px-3.5 py-1 rounded-sm bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold uppercase tracking-wider">
+                        Menunggu Pembayaran
+                    </span>
+                @elseif($transaction->payment_status == 'paid')
+                    <span class="inline-block px-3.5 py-1 rounded-sm bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold uppercase tracking-wider">
+                        Pembayaran Berhasil
+                    </span>
+                @else
+                    <span class="inline-block px-3.5 py-1 rounded-sm bg-rose-50 border border-rose-200 text-[#8C3B2B] text-xs font-semibold uppercase tracking-wider">
+                        {{ ucfirst($transaction->payment_status) }}
+                    </span>
+                @endif
             </div>
-        </div>
-
-        {{-- STATUS --}}
-        <div class="mb-6 text-center">
-
-            @if($transaction->payment_status == 'pending')
-                <span class="px-4 py-2 rounded-xl bg-yellow-100 text-yellow-700 text-sm font-semibold">
-                    Menunggu Pembayaran
-                </span>
-            @elseif($transaction->payment_status == 'paid')
-                <span class="px-4 py-2 rounded-xl bg-green-100 text-green-700 text-sm font-semibold">
-                    Pembayaran Berhasil
-                </span>
-            @else
-                <span class="px-4 py-2 rounded-xl bg-red-100 text-red-700 text-sm font-semibold">
-                    {{ ucfirst($transaction->payment_status) }}
-                </span>
-            @endif
-
         </div>
 
         {{-- COUNTDOWN TIMER --}}
@@ -53,44 +43,42 @@
                 $expiresAt = $transaction->expired_at ? $transaction->expired_at->timestamp : $transaction->created_at->addMinutes(15)->timestamp;
             @endphp
 
-            <div class="mb-8 p-5 rounded-2xl bg-amber-50 border border-amber-200 text-center max-w-md mx-auto shadow-sm">
-                <p class="text-xs uppercase font-bold tracking-wider text-amber-700 mb-1">
-                    ⏱️ Batas Waktu Pembayaran
+            <div class="mb-8 p-5 rounded-sm bg-[#F8F7F4] border border-neutral-200 text-center max-w-md mx-auto">
+                <p class="text-[10px] uppercase font-semibold tracking-[0.2em] text-[#8C3B2B] mb-1">
+                    Batas Waktu Pembayaran
                 </p>
-                <div id="countdown-timer" class="text-4xl font-extrabold font-mono text-[#102A43] my-1">
+                <div id="countdown-timer" class="font-serif text-4xl font-semibold text-[#1A1A1A] my-1">
                     15:00
                 </div>
-                <p class="text-xs text-slate-500">
+                <p class="text-xs text-[#5A5A5A]">
                     Harap selesaikan pembayaran sebelum waktu berakhir.
                 </p>
             </div>
         @endif
 
-        {{-- METODE PEMBAYARAN DETAIL --}}
+        {{-- METODE PEMBAYARAN: QRIS --}}
         @if($transaction->payment_method == 'qris')
-            <div class="text-center bg-[#F9F7F2] p-8 rounded-3xl border border-[#EADBC8] max-w-xl mx-auto mb-8">
-
+            <div class="text-center bg-[#F8F7F4] p-6 sm:p-8 rounded-sm border border-neutral-200 max-w-xl mx-auto mb-8">
                 <div class="flex items-center justify-center gap-2 mb-4">
-                    <h2 class="text-2xl font-bold text-[#102A43]">
+                    <h2 class="font-serif text-xl font-semibold text-[#1A1A1A]">
                         Scan QRIS
                     </h2>
-                    <span class="text-[10px] uppercase font-bold tracking-wider text-white bg-[#102A43] px-2 py-1 rounded-full">
+                    <span class="text-[10px] uppercase font-semibold tracking-wider text-white bg-[#1A1A1A] px-2 py-0.5 rounded-sm">
                         Midtrans
                     </span>
                 </div>
 
                 <img src="{{ asset('images/qris-pembayaran.jpeg') }}"
                      alt="QRIS Pembayaran"
-                     class="w-64 mx-auto mb-6 rounded-2xl shadow-md border border-white">
+                     class="w-60 mx-auto mb-6 rounded-sm border border-neutral-200 bg-white p-2">
 
-                <div class="text-left bg-white p-5 rounded-2xl border border-[#EADBC8] text-sm space-y-2">
-                    <p class="font-bold text-[#102A43] mb-2">📋 Instruksi Pembayaran QRIS:</p>
-                    <p class="text-slate-600">1. Buka aplikasi Mobile Banking (BCA, Mandiri, BRI, dll) atau E-Wallet (DANA, GoPay, OVO, ShopeePay).</p>
-                    <p class="text-slate-600">2. Pilih fitur <strong>Scan QRIS</strong>.</p>
-                    <p class="text-slate-600">3. Arahkan kamera ke kode QRIS di atas.</p>
-                    <p class="text-slate-600">4. Periksa nominal pembayaran tepat <strong>Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}</strong> dan tekan bayar.</p>
+                <div class="text-left bg-white p-5 rounded-sm border border-neutral-200 text-xs sm:text-sm space-y-1.5 text-[#5A5A5A]">
+                    <p class="font-semibold text-[#1A1A1A] mb-2">Instruksi Pembayaran QRIS:</p>
+                    <p>1. Buka aplikasi Mobile Banking atau E-Wallet (GoPay, OVO, DANA, ShopeePay).</p>
+                    <p>2. Pilih fitur <strong class="text-[#1A1A1A]">Scan QRIS</strong>.</p>
+                    <p>3. Arahkan kamera ke kode QRIS di atas.</p>
+                    <p>4. Periksa nominal <strong class="text-[#1A1A1A]">Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}</strong> dan konfirmasi bayar.</p>
                 </div>
-
             </div>
         @endif
 
@@ -99,49 +87,41 @@
             @php
                 $vaNumber = '8808' . str_pad($transaction->id, 8, '0', STR_PAD_LEFT);
             @endphp
-            <div class="text-center bg-[#F9F7F2] p-8 rounded-3xl border border-[#EADBC8] max-w-xl mx-auto mb-8">
-
+            <div class="text-center bg-[#F8F7F4] p-6 sm:p-8 rounded-sm border border-neutral-200 max-w-xl mx-auto mb-8">
                 <div class="flex items-center justify-center gap-2 mb-4">
-                    <h2 class="text-2xl font-bold text-[#102A43]">
+                    <h2 class="font-serif text-xl font-semibold text-[#1A1A1A]">
                         Transfer Virtual Account
                     </h2>
-                    <span class="text-[10px] uppercase font-bold tracking-wider text-white bg-[#102A43] px-2 py-1 rounded-full">
+                    <span class="text-[10px] uppercase font-semibold tracking-wider text-white bg-[#1A1A1A] px-2 py-0.5 rounded-sm">
                         Midtrans
                     </span>
                 </div>
 
-                <div class="bg-white rounded-2xl p-6 border border-[#EADBC8] shadow-sm mb-6 inline-block w-full">
-                    <p class="text-slate-400 text-sm mb-2">
-                        Midtrans Virtual Account
-                    </p>
-
-                    <div class="flex items-center justify-center gap-3">
-                        <h3 id="va-text" class="text-3xl font-mono font-bold text-[#102A43] tracking-wider">
+                <div class="bg-white rounded-sm p-5 border border-neutral-200 mb-6">
+                    <p class="text-xs text-[#5A5A5A] mb-2">Nomor Virtual Account</p>
+                    <div class="flex items-center justify-center gap-3 flex-wrap">
+                        <h3 id="va-text" class="font-serif text-2xl sm:text-3xl font-semibold text-[#1A1A1A] tracking-wider">
                             {{ $vaNumber }}
                         </h3>
-
                         <button type="button"
                                 onclick="copyText('{{ $vaNumber }}', 'btn-copy-va')"
                                 id="btn-copy-va"
-                                class="px-3 py-1.5 rounded-lg bg-[#102A43] text-white text-xs font-semibold hover:bg-[#0c2238] transition flex items-center gap-1">
-                            📋 Salin
+                                class="px-3 py-1.5 rounded-sm bg-[#1A1A1A] text-white text-xs font-semibold hover:bg-[#B8860B] transition duration-200">
+                            Salin
                         </button>
                     </div>
-
-                    <p class="text-xs text-slate-400 mt-3">
+                    <p class="text-[11px] uppercase tracking-wider text-[#5A5A5A] mt-3">
                         A/N ITIHASA HERITAGE MUSEUM
                     </p>
                 </div>
 
-                <div class="text-left bg-white p-5 rounded-2xl border border-[#EADBC8] text-sm space-y-2">
-                    <p class="font-bold text-[#102A43] mb-2">📋 Instruksi Transfer Virtual Account:</p>
-                    <p class="text-slate-600">1. Buka aplikasi Mobile Banking / Internet Banking Anda.</p>
-                    <p class="text-slate-600">2. Pilih menu <strong>Transfer > Virtual Account</strong>.</p>
-                    <p class="text-slate-600">3. Masukkan nomor VA: <strong class="font-mono text-[#102A43]">{{ $vaNumber }}</strong>.</p>
-                    <p class="text-slate-600">4. Pastikan nama penerima <strong>ITIHASA</strong> dan jumlah total pembayaran sudah sesuai.</p>
-                    <p class="text-slate-600">5. Konfirmasi pembayaran dan masukkan PIN transaksi Anda.</p>
+                <div class="text-left bg-white p-5 rounded-sm border border-neutral-200 text-xs sm:text-sm space-y-1.5 text-[#5A5A5A]">
+                    <p class="font-semibold text-[#1A1A1A] mb-2">Instruksi Transfer Virtual Account:</p>
+                    <p>1. Buka aplikasi Mobile Banking atau Internet Banking Anda.</p>
+                    <p>2. Pilih menu <strong class="text-[#1A1A1A]">Transfer &gt; Virtual Account</strong>.</p>
+                    <p>3. Masukkan nomor VA: <strong class="text-[#1A1A1A]">{{ $vaNumber }}</strong>.</p>
+                    <p>4. Pastikan nominal &amp; penerima <strong class="text-[#1A1A1A]">ITIHASA</strong> telah sesuai, lalu konfirmasi.</p>
                 </div>
-
             </div>
         @endif
 
@@ -150,69 +130,58 @@
             @php
                 $ewalletNum = '085142258437';
             @endphp
-            <div class="text-center bg-[#F9F7F2] p-8 rounded-3xl border border-[#EADBC8] max-w-xl mx-auto mb-8">
-
+            <div class="text-center bg-[#F8F7F4] p-6 sm:p-8 rounded-sm border border-neutral-200 max-w-xl mx-auto mb-8">
                 <div class="flex items-center justify-center gap-2 mb-4">
-                    <h2 class="text-2xl font-bold text-[#102A43]">
+                    <h2 class="font-serif text-xl font-semibold text-[#1A1A1A]">
                         Transfer E-Wallet
                     </h2>
-                    <span class="text-[10px] uppercase font-bold tracking-wider text-white bg-[#102A43] px-2 py-1 rounded-full">
+                    <span class="text-[10px] uppercase font-semibold tracking-wider text-white bg-[#1A1A1A] px-2 py-0.5 rounded-sm">
                         Midtrans
                     </span>
                 </div>
 
-                <div class="bg-white rounded-2xl p-6 border border-[#EADBC8] shadow-sm mb-6 inline-block w-full">
-
-                    <p class="text-slate-400 text-sm mb-2">
-                        DANA / GoPay
-                    </p>
-
-                    <div class="flex items-center justify-center gap-3">
-                        <h3 class="text-3xl font-mono font-bold text-[#102A43] tracking-wider">
+                <div class="bg-white rounded-sm p-5 border border-neutral-200 mb-6">
+                    <p class="text-xs text-[#5A5A5A] mb-2">DANA / GoPay</p>
+                    <div class="flex items-center justify-center gap-3 flex-wrap">
+                        <h3 class="font-serif text-2xl sm:text-3xl font-semibold text-[#1A1A1A] tracking-wider">
                             {{ $ewalletNum }}
                         </h3>
-
                         <button type="button"
                                 onclick="copyText('{{ $ewalletNum }}', 'btn-copy-ewallet')"
                                 id="btn-copy-ewallet"
-                                class="px-3 py-1.5 rounded-lg bg-[#102A43] text-white text-xs font-semibold hover:bg-[#0c2238] transition flex items-center gap-1">
-                            📋 Salin
+                                class="px-3 py-1.5 rounded-sm bg-[#1A1A1A] text-white text-xs font-semibold hover:bg-[#B8860B] transition duration-200">
+                            Salin
                         </button>
                     </div>
-
-                    <p class="text-xs text-slate-400 mt-3">
+                    <p class="text-[11px] uppercase tracking-wider text-[#5A5A5A] mt-3">
                         A/N ITIHASA HERITAGE MUSEUM
                     </p>
-
                 </div>
 
-                <div class="text-left bg-white p-5 rounded-2xl border border-[#EADBC8] text-sm space-y-2">
-                    <p class="font-bold text-[#102A43] mb-2">📋 Instruksi Pembayaran E-Wallet:</p>
-                    <p class="text-slate-600">1. Buka aplikasi DANA atau GoPay di smartphone Anda.</p>
-                    <p class="text-slate-600">2. Pilih menu <strong>Kirim / Transfer</strong> ke Nomor Telepon.</p>
-                    <p class="text-slate-600">3. Masukkan nomor: <strong class="font-mono text-[#102A43]">{{ $ewalletNum }}</strong>.</p>
-                    <p class="text-slate-600">4. Masukkan jumlah persis <strong>Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}</strong>.</p>
-                    <p class="text-slate-600">5. Konfirmasi pembayaran lalu masukkan PIN E-Wallet Anda.</p>
+                <div class="text-left bg-white p-5 rounded-sm border border-neutral-200 text-xs sm:text-sm space-y-1.5 text-[#5A5A5A]">
+                    <p class="font-semibold text-[#1A1A1A] mb-2">Instruksi Pembayaran E-Wallet:</p>
+                    <p>1. Buka aplikasi DANA atau GoPay pada perangkat Anda.</p>
+                    <p>2. Pilih menu <strong class="text-[#1A1A1A]">Kirim / Transfer</strong> ke Nomor Telepon.</p>
+                    <p>3. Masukkan nomor tujuan <strong class="text-[#1A1A1A]">{{ $ewalletNum }}</strong>.</p>
+                    <p>4. Masukkan nominal tepat <strong class="text-[#1A1A1A]">Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}</strong> dan selesaikan transaksi.</p>
                 </div>
-
             </div>
         @endif
 
-        {{-- RINCIAN TIKET & INVOICE --}}
-        <div class="bg-white rounded-2xl p-6 border border-[#EADBC8] max-w-xl mx-auto mb-8 space-y-4 shadow-sm">
-
-            <div class="flex justify-between items-center border-b pb-3">
-                <span class="text-slate-500 text-sm">Kode Invoice</span>
-                <span class="font-mono font-bold text-[#102A43] text-base">{{ $transaction->invoice_code }}</span>
+        {{-- RINCIAN INVOICE --}}
+        <div class="bg-[#F8F7F4] rounded-sm p-6 border border-neutral-200 max-w-xl mx-auto mb-8 space-y-4">
+            <div class="flex justify-between items-center border-b border-neutral-200 pb-3 text-xs sm:text-sm">
+                <span class="text-[#5A5A5A]">Kode Invoice</span>
+                <span class="font-mono font-semibold text-[#1A1A1A]">{{ $transaction->invoice_code }}</span>
             </div>
 
             <div>
-                <p class="text-xs uppercase font-bold text-slate-400 mb-2">Rincian Tiket</p>
-                <div class="space-y-2">
+                <p class="text-[10px] uppercase tracking-wider font-semibold text-[#B8860B] mb-2">Rincian Tiket</p>
+                <div class="space-y-1.5 text-xs sm:text-sm">
                     @foreach($transaction->booking->ticket_items as $item)
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="text-[#102A43] font-medium">{{ $item['ticket_name'] }} x {{ $item['qty'] }}</span>
-                            <span class="font-semibold text-[#102A43]">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[#1A1A1A]">{{ $item['ticket_name'] }} x {{ $item['qty'] }}</span>
+                            <span class="font-semibold text-[#1A1A1A]">
                                 @if($item['subtotal'] > 0)
                                     Rp {{ number_format($item['subtotal'], 0, ',', '.') }}
                                 @else
@@ -224,16 +193,15 @@
                 </div>
             </div>
 
-            <div class="flex justify-between items-center border-t pt-4">
-                <span class="font-bold text-slate-700 text-lg">Total Pembayaran</span>
-                <span class="text-3xl font-bold text-[#B88A44]">
+            <div class="flex justify-between items-baseline border-t border-neutral-200 pt-4">
+                <span class="font-semibold text-sm text-[#1A1A1A]">Total Pembayaran</span>
+                <span class="font-serif text-2xl font-semibold text-[#B8860B]">
                     Rp {{ number_format($transaction->total_amount, 0, ',', '.') }}
                 </span>
             </div>
-
         </div>
 
-        {{-- BUTTON --}}
+        {{-- ACTION BUTTON --}}
         @if($transaction->payment_status == 'pending')
             <form action="{{ route('user.payment.confirm', $transaction->id) }}"
                   method="POST"
@@ -241,39 +209,35 @@
                   onsubmit="document.getElementById('btn-confirm-payment').disabled = true; document.getElementById('btn-confirm-payment').innerText = 'Memproses...';">
                 @csrf
 
-                <button
-                    id="btn-confirm-payment"
-                    class="w-full py-4 rounded-2xl bg-[#102A43] text-white font-bold text-lg hover:bg-[#0c2238] transition shadow-lg disabled:opacity-60 disabled:cursor-not-allowed">
-
+                <button id="btn-confirm-payment"
+                        class="w-full py-3.5 rounded-sm bg-[#1A1A1A] hover:bg-[#B8860B] text-white font-semibold text-xs uppercase tracking-wider transition duration-300 disabled:opacity-60 disabled:cursor-not-allowed">
                     Saya Sudah Bayar
-
                 </button>
             </form>
 
-            <p class="text-center text-[11px] text-slate-400 mt-4">
-                🔒 Transaksi diamankan oleh Midtrans Payment Gateway
+            <p class="text-center text-[11px] text-[#5A5A5A] mt-4">
+                Transaksi diamankan oleh Midtrans Payment Gateway
             </p>
         @elseif($transaction->payment_status == 'paid')
             <div class="max-w-xl mx-auto">
                 <a href="{{ route('user.ticket', $transaction->id) }}"
-                   class="w-full flex justify-center py-4 rounded-2xl bg-[#102A43] text-white font-bold text-lg hover:bg-[#0c2238] transition shadow-lg">
+                   class="w-full flex justify-center py-3.5 rounded-sm bg-[#1A1A1A] hover:bg-[#B8860B] text-white font-semibold text-xs uppercase tracking-wider transition duration-300">
                     Lihat Tiket QR
                 </a>
             </div>
         @else
-            {{-- payment_status == 'failed' (kadaluwarsa/gagal) --}}
-            <div class="max-w-xl mx-auto text-center space-y-4">
-                <div class="p-4 rounded-2xl bg-red-50 border border-red-100 text-red-600 text-sm font-semibold">
+            <div class="max-w-xl mx-auto text-center space-y-3">
+                <div class="p-4 rounded-sm bg-rose-50 border border-rose-200 text-[#8C3B2B] text-xs font-medium">
                     Pembayaran gagal atau sudah kedaluwarsa. Tiket tidak dapat digunakan.
                 </div>
 
                 <a href="{{ route('user.booking', $transaction->booking->museum->id) }}"
-                   class="w-full flex justify-center py-4 rounded-2xl bg-[#102A43] text-white font-bold text-lg hover:bg-[#0c2238] transition shadow-lg">
+                   class="w-full flex justify-center py-3.5 rounded-sm bg-[#1A1A1A] hover:bg-[#B8860B] text-white font-semibold text-xs uppercase tracking-wider transition duration-300">
                     Pesan Ulang Tiket
                 </a>
 
                 <a href="{{ route('user.home') }}"
-                   class="w-full flex justify-center py-3 rounded-2xl border border-[#EADBC8] text-[#102A43] font-semibold hover:bg-[#F6F1E8] transition">
+                   class="w-full flex justify-center py-3 rounded-sm border border-neutral-300 text-[#1A1A1A] text-xs font-semibold uppercase tracking-wider hover:bg-[#F8F7F4] transition duration-300">
                     Kembali ke Beranda
                 </a>
             </div>
@@ -285,7 +249,6 @@
 
 @if($transaction->payment_status == 'pending')
 <script>
-    // COUNTDOWN TIMER
     let expireTimestamp = {{ $expiresAt ?? time() + 900 }};
 
     function updateTimer() {
@@ -296,7 +259,7 @@
         if (!timerEl) return;
 
         if (remaining <= 0) {
-            timerEl.innerHTML = '<span class="text-red-500">00:00 (Kedaluwarsa)</span>';
+            timerEl.innerHTML = '<span class="text-[#8C3B2B]">00:00 (Kedaluwarsa)</span>';
             return;
         }
 
@@ -319,14 +282,14 @@
         navigator.clipboard.writeText(text).then(function() {
             let btn = document.getElementById(btnId);
             let original = btn.innerHTML;
-            btn.innerHTML = '✓ Tersalin!';
-            btn.classList.remove('bg-[#102A43]');
-            btn.classList.add('bg-green-600');
+            btn.innerHTML = '✓ Tersalin';
+            btn.classList.remove('bg-[#1A1A1A]');
+            btn.classList.add('bg-emerald-700');
 
             setTimeout(function() {
                 btn.innerHTML = original;
-                btn.classList.remove('bg-green-600');
-                btn.classList.add('bg-[#102A43]');
+                btn.classList.remove('bg-emerald-700');
+                btn.classList.add('bg-[#1A1A1A]');
             }, 2000);
         });
     }

@@ -7,15 +7,15 @@
 <section class="max-w-3xl mx-auto py-6 sm:py-10">
 
     {{-- HEADER --}}
-    <div class="text-center mb-6 sm:mb-8">
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#B88A44]/15 text-[#B88A44] text-xs font-bold uppercase tracking-wider mb-2">
-            Pusat Bantuan
+    <div class="text-center mb-10 pb-6 border-b border-neutral-200">
+        <span class="inline-block text-[11px] font-semibold uppercase tracking-[0.22em] text-[#B8860B] mb-2">
+            Pusat Bantuan Pengunjung
         </span>
-        <h1 class="text-xl sm:text-2xl font-bold text-[#102A43]">
+        <h1 class="font-serif text-3xl sm:text-4xl font-semibold text-[#1A1A1A] tracking-tight">
             Pertanyaan yang Sering Diajukan
         </h1>
-        <p class="text-xs text-slate-500 mt-1">
-            Temukan panduan lengkap seputar reservasi tiket, pembayaran, dan kunjungan museum kamu.
+        <p class="text-xs sm:text-sm text-[#5A5A5A] mt-2 max-w-lg mx-auto leading-relaxed">
+            Panduan lengkap seputar reservasi tiket, pembayaran terintegrasi, ketentuan pembatalan, dan tata cara kunjungan museum.
         </p>
     </div>
 
@@ -28,7 +28,7 @@
                 ],
                 [
                     'q' => 'Apa itu booking rombongan dan bagaimana cara mengisinya?',
-                    'a' => 'Booking untuk 10 orang atau lebih otomatis dianggap sebagai rombongan. Kamu akan diminta mengisi manifes berupa nama seluruh anggota, yang nantinya digunakan petugas untuk verifikasi saat kunjungan.',
+                    'a' => 'Booking untuk 6 orang atau lebih otomatis dianggap sebagai rombongan. Kamu akan diminta mengisi manifes berupa nama seluruh anggota, yang nantinya digunakan petugas untuk verifikasi saat kunjungan.',
                 ],
                 [
                     'q' => 'Berapa lama batas waktu pembayaran?',
@@ -38,7 +38,7 @@
             'Pembatalan & Perubahan' => [
                 [
                     'q' => 'Bisakah saya membatalkan booking yang belum dibayar?',
-                    'a' => 'Bisa, kapan saja sebelum batas waktu pembayaran habis. Buka halaman Profil, temukan booking terkait di bagian "Menunggu Pembayaran", lalu klik "Batalkan" dan isi alasan pembatalan.',
+                    'a' => 'Bisa, kapan saja sebelum batas waktu pembayaran habis. Buka halaman Profil, temukan booking terkait di bagian "Menunggu Pembayaran", lalu klik "Batal" dan isi alasan pembatalan.',
                 ],
                 [
                     'q' => 'Bisakah saya membatalkan booking yang sudah dibayar?',
@@ -52,7 +52,7 @@
             'Tiket & Kunjungan' => [
                 [
                     'q' => 'Bagaimana cara menggunakan tiket saat berkunjung?',
-                    'a' => 'Buka halaman "Lihat Tiket QR" pada booking kamu, lalu tunjukkan QR Code tersebut kepada petugas di lokasi museum untuk divalidasi. Kamu juga bisa mengunduh tiket dalam bentuk gambar jika ingin menyimpannya offline.',
+                    'a' => 'Buka halaman "Buka E-Tiket QR" pada booking kamu, lalu tunjukkan QR Code tersebut kepada petugas di lokasi museum untuk divalidasi. Kamu juga bisa mengunduh tiket dalam bentuk gambar jika ingin menyimpannya offline.',
                 ],
                 [
                     'q' => 'Tiket saya kedaluwarsa, apa yang terjadi?',
@@ -81,31 +81,28 @@
     @endphp
 
     {{-- FAQ GROUPS --}}
-    <div class="space-y-6" x-data="{ openId: null }">
+    <div class="space-y-8" x-data="{ openId: null }">
         @foreach ($faqGroups as $groupName => $items)
             <div>
-                <h2 class="text-sm font-bold text-[#102A43] mb-2 px-1">
+                <h2 class="font-serif text-lg font-semibold text-[#1A1A1A] mb-3">
                     {{ $groupName }}
                 </h2>
 
-                <div class="bg-white rounded-2xl border border-[#EADBC8] divide-y divide-[#EADBC8]/60 overflow-hidden shadow-sm">
+                <div class="bg-white rounded-sm border border-neutral-200 divide-y divide-neutral-200 overflow-hidden">
                     @foreach ($items as $item)
                         @php $itemId = Str::slug($groupName . '-' . $item['q']); @endphp
 
                         <div>
                             <button type="button"
                                     @click="openId = openId === '{{ $itemId }}' ? null : '{{ $itemId }}'"
-                                    class="w-full flex items-center justify-between gap-3 text-left p-3.5 sm:p-4 hover:bg-[#F9F7F2] transition">
-                                <span class="font-bold text-xs text-[#102A43]">{{ $item['q'] }}</span>
-                                <svg class="w-4 h-4 shrink-0 text-[#B88A44] transition-transform"
-                                     :class="openId === '{{ $itemId }}' ? 'rotate-180' : ''"
-                                     fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-                                </svg>
+                                    class="w-full flex items-center justify-between gap-4 text-left px-5 py-4 hover:bg-[#F8F7F4] transition duration-200">
+                                <span class="font-medium text-sm text-[#1A1A1A]">{{ $item['q'] }}</span>
+                                <span class="text-xs font-semibold text-[#B8860B] shrink-0"
+                                      x-text="openId === '{{ $itemId }}' ? '−' : '+'"></span>
                             </button>
 
                             <div x-show="openId === '{{ $itemId }}'" x-cloak x-collapse>
-                                <p class="px-3.5 sm:px-4 pb-3.5 text-xs text-slate-600 leading-relaxed border-t border-[#EADBC8]/30 pt-2 bg-[#F9F7F2]/40">
+                                <p class="px-5 pb-4 text-xs sm:text-sm text-[#5A5A5A] leading-relaxed border-t border-neutral-100 pt-3 bg-[#F8F7F4]/60">
                                     {{ $item['a'] }}
                                 </p>
                             </div>
@@ -117,17 +114,20 @@
     </div>
 
     {{-- CONTACT CTA --}}
-    <div class="mt-8 bg-[#102A43] rounded-2xl p-5 sm:p-6 text-center text-white shadow">
-        <h3 class="text-sm sm:text-base font-bold mb-1">
-            Masih ada pertanyaan lain?
-        </h3>
-        <p class="text-white/70 text-xs mb-3">
-            Tim layanan dukungan Itihasa siap membantu kendala kamu.
+    <div class="mt-12 bg-[#121212] rounded-sm p-8 text-center text-white border border-neutral-800">
+        <p class="text-[10px] uppercase tracking-[0.22em] text-[#C59B27] font-semibold mb-1.5">
+            Layanan Pengunjung
         </p>
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-white/90 text-xs">
-            <span>📧 support@itihasa.com</span>
-            <span class="hidden sm:inline">•</span>
-            <span>📞 +62 812-3456-7890</span>
+        <h3 class="font-serif text-xl sm:text-2xl font-medium mb-2">
+            Masih Ada Pertanyaan Lain?
+        </h3>
+        <p class="text-neutral-400 text-xs sm:text-sm mb-5 max-w-md mx-auto">
+            Tim layanan dukungan Itihasa siap membantu kendala reservasi dan kunjungan Anda.
+        </p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 text-neutral-200 text-xs font-medium">
+            <span>support@itihasa.com</span>
+            <span class="hidden sm:inline text-neutral-600">•</span>
+            <span>+62 812-3456-7890</span>
         </div>
     </div>
 
